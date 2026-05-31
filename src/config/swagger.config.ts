@@ -1,7 +1,17 @@
 import { INestApplication } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
-export function setupSwagger(app: INestApplication): void {
+export function setupSwagger(
+  app: INestApplication,
+  configService: ConfigService,
+): void {
+  const enabled = configService.get<boolean>('SWAGGER_ENABLED', true);
+
+  if (!enabled) {
+    return;
+  }
+
   const config = new DocumentBuilder()
     .setTitle('Factosys Store API')
     .setDescription(
