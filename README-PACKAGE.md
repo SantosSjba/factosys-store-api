@@ -301,6 +301,26 @@ pnpm install @automapper/nestjs
 
 ---
 
+# Otros Paquetes
+```bash
+pnpm install joi
+
+pnpm install @nestjs/cqrs
+
+pnpm install argon2
+
+pnpm install nanoid
+
+pnpm install @faker-js/faker
+
+pnpm tsx
+
+pnpm install zod
+
+pnpm install pino pino-pretty
+```
+
+
 # Dependencias Base Recomendadas
 
 ```bash
