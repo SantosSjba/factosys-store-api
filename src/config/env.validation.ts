@@ -1,0 +1,28 @@
+import * as Joi from 'joi';
+
+export const envValidationSchema = Joi.object({
+  NODE_ENV: Joi.string().valid('development', 'production').required(),
+  APP_NAME: Joi.string().required(),
+  APP_PORT: Joi.number().default(3000),
+  APP_URL: Joi.string().required(),
+  DATABASE_URL: Joi.string().required(),
+  JWT_SECRET: Joi.string().required(),
+  JWT_REFRESH_SECRET: Joi.string().required(),
+  JWT_EXPIRES_IN: Joi.string().required(),
+  JWT_REFRESH_EXPIRES_IN: Joi.string().required(),
+  REDIS_HOST: Joi.string().required(),
+  REDIS_PORT: Joi.number().required(),
+  ELASTICSEARCH_NODE: Joi.string().required(),
+  AWS_ACCESS_KEY_ID: Joi.string().required(),
+  AWS_SECRET_ACCESS_KEY: Joi.string().required(),
+  AWS_REGION: Joi.string().required(),
+  AWS_S3_BUCKET_NAME: Joi.string().required(),
+  MAIL_HOST: Joi.string().required(),
+  MAIL_PORT: Joi.number().required(),
+  MAIL_USER: Joi.string().required(),
+  MAIL_PASSWORD: Joi.string().required(),
+  MAIL_FROM: Joi.string().required(),
+  FRONTEND_URL: Joi.string().required(),
+  LOG_LEVEL: Joi.string().required(),
+  SWAGGER_ENABLED: Joi.boolean().required(),
+});
