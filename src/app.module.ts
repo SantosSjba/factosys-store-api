@@ -10,7 +10,7 @@ import { envValidationSchema } from './config/env.validation';
       isGlobal: true,
       cache: true,
       envFilePath: [
-        `.env.${process.env.NODE_ENV}`,
+        `.env.${process.env.NODE_ENV ?? 'development'}`,
         '.env',
       ],
       validationSchema: envValidationSchema,
