@@ -15,7 +15,8 @@ export function setupSwagger(
   const config = new DocumentBuilder()
     .setTitle('Factosys Store API')
     .setDescription(
-      'API oficial de Factosys Store para administración y e-comerce',
+      'API oficial de Factosys Store para administración y e-commerce. ' +
+        'Consulta GET /health para verificar el estado de la API y sus servicios.',
     )
     .setVersion('1.0.0')
     .addBearerAuth({
