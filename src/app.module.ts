@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
 import { ConfigModule } from '@nestjs/config';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { ScheduleModule } from '@nestjs/schedule';
@@ -8,11 +9,14 @@ import {
   appConfig,
   databaseConfig,
   elasticsearchConfig,
+  loggerConfig,
   mailConfig,
   queueConfig,
   redisConfig,
   storageConfig,
 } from './config';
+import { HttpLoggingInterceptor } from './shared/interceptors/http-logging.interceptor';
+import { GlobalExceptionFilter } from './shared/filters/global-exception.filter';
 import { envValidationSchema } from './config/env.validation';
 import { InfrastructureModule } from './infrastructure/infrastructure.module';
 import { AuthModule } from './modules/auth/auth.module';
@@ -34,6 +38,7 @@ import { UsersModule } from './modules/users/users.module';
       load: [
         appConfig,
         databaseConfig,
+        loggerConfig,
         redisConfig,
         elasticsearchConfig,
         storageConfig,
@@ -61,6 +66,16 @@ import { UsersModule } from './modules/users/users.module';
     SettingsModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    {
+      provide: APP_FILTER,
+      useClass: GlobalExceptionFilter,
+    },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: HttpLoggingInterceptor,
+    },
+  ],
 })
 export class AppModule {}
