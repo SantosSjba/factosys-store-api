@@ -6,8 +6,11 @@ import { setupSwagger } from './config/swagger.config';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  const configService = app.get(ConfigService, { strict: false });
+  const apiPrefix = configService.get<string>('app.apiPrefix', 'api');
+  const appPort = configService.get<number>('app.port', 3000);
 
-  app.setGlobalPrefix('api');
+  app.setGlobalPrefix(apiPrefix);
 
   app.useGlobalPipes(
     new ValidationPipe({
@@ -17,8 +20,8 @@ async function bootstrap() {
     })
   )
 
-  setupSwagger(app, app.get(ConfigService, { strict: false }));
+  setupSwagger(app, configService);
 
-  await app.listen(process.env.PORT ?? 3000);
+  await app.listen(appPort);
 }
 bootstrap();
