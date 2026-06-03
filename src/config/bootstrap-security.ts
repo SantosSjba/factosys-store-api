@@ -8,7 +8,14 @@ export function applySecurityMiddleware(
   app: INestApplication,
   configService: ConfigService,
 ): void {
-  app.use(helmet());
+  const isProduction =
+    configService.get<string>('app.env', 'development') === 'production';
+
+  if (isProduction) {
+    app.use(helmet());
+  }
+
+  // Desarrollo: sin Helmet (evita HSTS en localhost y CSP que rompe Swagger en Safari).
   app.use(compression());
   app.use(cookieParser());
 

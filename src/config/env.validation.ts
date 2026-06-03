@@ -26,6 +26,7 @@ export const envValidationSchema = Joi.object({
   ADMIN_FRONTEND_URL: Joi.string().uri().optional().allow(''),
   LOG_LEVEL: Joi.string().required(),
   SWAGGER_ENABLED: Joi.boolean().required(),
+  DEV_HTTPS: Joi.boolean().optional().default(false),
   GOOGLE_CLIENT_ID: Joi.string().optional().allow(''),
   GOOGLE_CLIENT_SECRET: Joi.string().optional().allow(''),
   GOOGLE_CALLBACK_URL: Joi.string().uri().optional().allow(''),

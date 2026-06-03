@@ -2,14 +2,19 @@ import { INestApplication } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
+// Misma resolución que @nestjs/swagger: assets locales, sin CDN.
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const swaggerUiDistPath: string =
+  require('swagger-ui-dist/absolute-path.js')();
+
 export function setupSwagger(
   app: INestApplication,
   configService: ConfigService,
-): void {
+): string | undefined {
   const enabled = configService.get<boolean>('SWAGGER_ENABLED', true);
 
   if (!enabled) {
-    return;
+    return undefined;
   }
 
   const config = new DocumentBuilder()
@@ -27,9 +32,15 @@ export function setupSwagger(
     .build();
   const document = SwaggerModule.createDocument(app, config);
 
-  SwaggerModule.setup('docs', app, document, {
+  const swaggerPath = 'docs';
+
+  SwaggerModule.setup(swaggerPath, app, document, {
+    customSwaggerUiPath: swaggerUiDistPath,
     swaggerOptions: {
       persistAuthorization: true,
     },
+    customSiteTitle: 'Factosys Store API',
   });
+
+  return swaggerPath;
 }
