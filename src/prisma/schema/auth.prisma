@@ -1,61 +1,24 @@
-generator client {
-  provider     = "prisma-client"
-  output       = "../generated/prisma"
-  moduleFormat = "cjs"
-}
-
-datasource db {
-  provider = "postgresql"
-}
-
-enum UserType {
-  CUSTOMER
-  STAFF
-}
-
-enum AuthProvider {
-  LOCAL
-  GOOGLE
-}
-
-enum UserStatus {
-  PENDING_VERIFICATION
-  ACTIVE
-  SUSPENDED
-}
-
-enum LoginAuthMethod {
-  LOCAL
-  GOOGLE
-  REFRESH
-}
-
-enum LoginResult {
-  SUCCESS
-  FAILED
-}
-
 model User {
-  id              String       @id @default(uuid())
-  email           String       @unique
-  userType        UserType
-  authProvider    AuthProvider @default(LOCAL)
-  status          UserStatus   @default(PENDING_VERIFICATION)
-  passwordHash    String?
-  googleId        String?      @unique
-  emailVerifiedAt DateTime?
-  firstName       String?
-  lastName        String?
-  phone           String?
-  createdById     String?
-  createdBy       User?        @relation("UserCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
-  createdUsers    User[]       @relation("UserCreatedBy")
-  createdAt       DateTime     @default(now())
-  updatedAt       DateTime     @updatedAt
-  roles           UserRole[]
-  refreshTokens   RefreshToken[]
+  id                 String                   @id @default(uuid())
+  email              String                   @unique
+  userType           UserType
+  authProvider       AuthProvider             @default(LOCAL)
+  status             UserStatus               @default(PENDING_VERIFICATION)
+  passwordHash       String?
+  googleId           String?                  @unique
+  emailVerifiedAt    DateTime?
+  firstName          String?
+  lastName           String?
+  phone              String?
+  createdById        String?
+  createdBy          User?                    @relation("UserCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  createdUsers       User[]                   @relation("UserCreatedBy")
+  createdAt          DateTime                 @default(now())
+  updatedAt          DateTime                 @updatedAt
+  roles              UserRole[]
+  refreshTokens      RefreshToken[]
   verificationTokens EmailVerificationToken[]
-  loginAudits     LoginAudit[]
+  loginAudits        LoginAudit[]
 
   @@index([userType, status])
   @@index([email])
@@ -84,11 +47,11 @@ model Permission {
 }
 
 model UserRole {
-  userId    String
-  roleId    String
+  userId     String
+  roleId     String
   assignedAt DateTime @default(now())
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  role      Role     @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role       Role     @relation(fields: [roleId], references: [id], onDelete: Cascade)
 
   @@id([userId, roleId])
 }
@@ -116,13 +79,13 @@ model RefreshToken {
 }
 
 model EmailVerificationToken {
-  id        String   @id @default(uuid())
+  id        String    @id @default(uuid())
   userId    String
-  tokenHash String   @unique
+  tokenHash String    @unique
   expiresAt DateTime
   usedAt    DateTime?
-  createdAt DateTime @default(now())
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime  @default(now())
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
 }

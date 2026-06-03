@@ -12,6 +12,15 @@ pnpm db:migrate
 pnpm db:seed
 ```
 
+**Usuarios seed (modular en `src/prisma/seed/`):**
+
+| Usuario | Email por defecto | Roles |
+|---------|-------------------|--------|
+| Super (dev/QA) | `super@factosys.store` / `Super123!` | **Todos** (`customer`, `admin`, `manager`, `support`, `warehouse`) |
+| Admin (panel) | `admin@factosys.store` / `Admin123!` | Solo `admin` (todos los permisos vía rol) |
+
+Variables: `SEED_SUPER_EMAIL`, `SEED_SUPER_PASSWORD`, `SEED_ADMIN_EMAIL`, `SEED_ADMIN_PASSWORD`.
+
 ---
 
 ## Fase 2 — JWT, guards y decoradores ✅

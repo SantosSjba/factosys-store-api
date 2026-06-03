@@ -1,0 +1,26 @@
+enum UserType {
+  CUSTOMER
+  STAFF
+}
+
+enum AuthProvider {
+  LOCAL
+  GOOGLE
+}
+
+enum UserStatus {
+  PENDING_VERIFICATION
+  ACTIVE
+  SUSPENDED
+}
+
+enum LoginAuthMethod {
+  LOCAL
+  GOOGLE
+  REFRESH
+}
+
+enum LoginResult {
+  SUCCESS
+  FAILED
+}

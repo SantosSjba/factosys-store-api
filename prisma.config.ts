@@ -6,10 +6,10 @@ config({ path: resolve(process.cwd(), `.env.${process.env.NODE_ENV ?? 'developme
 config({ path: resolve(process.cwd(), '.env') });
 
 export default defineConfig({
-  schema: 'src/prisma/schema.prisma',
+  schema: 'src/prisma/schema',
   migrations: {
     path: 'src/prisma/migrations',
-    seed: 'ts-node -r tsconfig-paths/register src/prisma/seed.ts',
+    seed: 'tsx src/prisma/seed/index.ts',
   },
   datasource: {
     url: env('DATABASE_URL'),
