@@ -87,10 +87,12 @@ Callback del frontend: `{FRONTEND_URL}/auth/google/callback?accessToken=...&refr
 ### Variables nuevas
 
 ```env
-GOOGLE_CLIENT_ID=
-GOOGLE_CLIENT_SECRET=
-GOOGLE_CALLBACK_URL=http://localhost:3000/api/store/auth/google/callback
-ADMIN_FRONTEND_URL=http://localhost:3001
+GOOGLE_CLIENT_ID=tu-id.apps.googleusercontent.com
+GOOGLE_CLIENT_SECRET=tu-secret
+# Mismo valor en Google Console → URI de redirección autorizada
+GOOGLE_CALLBACK_URL=https://127.0.0.1:3000/api/store/auth/google/callback
+FRONTEND_URL=http://localhost:3001
+ADMIN_FRONTEND_URL=http://localhost:3002
 MAIL_SECURE=false
 ```
 
