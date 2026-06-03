@@ -1,8 +1,8 @@
-import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import { AppModule } from './app.module';
+import { applySecurityMiddleware } from './config/bootstrap-security';
 import { setupSwagger } from './config/swagger.config';
 import {
   logBootstrapFailure,
@@ -23,6 +23,8 @@ async function bootstrap() {
   const apiPrefix = configService.get<string>('app.apiPrefix', 'api');
   const appPort = configService.get<number>('app.port', 3000);
 
+  applySecurityMiddleware(app, configService);
+
   app.setGlobalPrefix(apiPrefix);
   app.useGlobalPipes(createValidationPipe());
 
@@ -31,6 +33,10 @@ async function bootstrap() {
   await app.listen(appPort);
 
   logger.log(`Servidor listo en http://localhost:${appPort}/${apiPrefix}`);
+
+  if (configService.get<boolean>('google.enabled', false)) {
+    logger.log('Google OAuth habilitado en /api/store/auth/google');
+  }
 }
 
 bootstrap().catch((error: unknown) => {

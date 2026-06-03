@@ -1,4 +1,5 @@
 import { Controller, Get, HttpStatus, Res } from '@nestjs/common';
+import { Public } from '../../shared/decorators/public.decorator';
 import {
   ApiOkResponse,
   ApiOperation,
@@ -14,6 +15,7 @@ import { HealthService } from './health.service';
 export class HealthController {
   constructor(private readonly healthService: HealthService) {}
 
+  @Public()
   @Get()
   @ApiOperation({
     summary: 'Estado de salud de la API',

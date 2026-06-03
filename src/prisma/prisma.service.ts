@@ -5,57 +5,52 @@ import {
   OnModuleInit,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { PrismaPg } from '@prisma/adapter-pg';
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
-import { Pool } from 'pg';
 import { Logger } from 'winston';
+import { PrismaClient } from '../generated/prisma/client';
 import {
   getDatabaseConnectionMessage,
   getDatabaseHostLabel,
 } from '../shared/helpers/database-connection.helper';
 
 @Injectable()
-export class PrismaService implements OnModuleInit, OnModuleDestroy {
-  private pool: Pool | null = null;
-
+export class PrismaService
+  extends PrismaClient
+  implements OnModuleInit, OnModuleDestroy
+{
   constructor(
     private readonly configService: ConfigService,
     @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: Logger,
-  ) {}
+  ) {
+    const connectionString = configService.get<string>('database.url', '');
+    const adapter = new PrismaPg({ connectionString });
+    super({ adapter });
+  }
 
   async onModuleInit(): Promise<void> {
     const connectionString = this.configService.get<string>('database.url');
 
     if (!connectionString) {
       this.logConnectionFailure(
-        'No se pudo conectar a la base de datos: falta la variable DATABASE_URL en el archivo .env.',
+        'No se pudo conectar a la base de datos: falta DATABASE_URL en el archivo .env.',
       );
       return;
     }
 
     const hostLabel = getDatabaseHostLabel(connectionString);
-    this.pool = new Pool({ connectionString });
 
     try {
-      const client = await this.pool.connect();
-      await client.query('SELECT 1');
-      client.release();
+      await this.$connect();
       this.logger.info(`Base de datos conectada correctamente (${hostLabel})`);
     } catch (error) {
       const message = getDatabaseConnectionMessage(error);
-      this.logConnectionFailure(
-        `${message} Destino: ${hostLabel}.`,
-        error,
-      );
+      this.logConnectionFailure(`${message} Destino: ${hostLabel}.`, error);
     }
   }
 
   async onModuleDestroy(): Promise<void> {
-    if (!this.pool) {
-      return;
-    }
-
-    await this.pool.end();
-    this.pool = null;
+    await this.$disconnect();
     this.logger.info('Conexión a la base de datos cerrada');
   }
 
@@ -70,8 +65,6 @@ export class PrismaService implements OnModuleInit, OnModuleDestroy {
       'Sugerencia: inicia PostgreSQL con `docker compose up -d postgres` y verifica DATABASE_URL en tu .env',
     );
 
-    void this.pool?.end().finally(() => {
-      process.exit(1);
-    });
+    process.exit(1);
   }
 }

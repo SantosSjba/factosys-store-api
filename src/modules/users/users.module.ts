@@ -1,4 +1,15 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
+import { AuthModule } from '../auth/auth.module';
+import { RolesService } from './application/services/roles.service';
+import { UsersService } from './application/services/users.service';
+import { PrismaUserRepository } from './infrastructure/repositories/prisma-user.repository';
+import { AdminRolesController } from './presentation/controllers/admin-roles.controller';
+import { AdminUsersController } from './presentation/controllers/admin-users.controller';
 
-@Module({})
+@Module({
+  imports: [forwardRef(() => AuthModule)],
+  controllers: [AdminUsersController, AdminRolesController],
+  providers: [PrismaUserRepository, UsersService, RolesService],
+  exports: [PrismaUserRepository, UsersService, RolesService],
+})
 export class UsersModule {}

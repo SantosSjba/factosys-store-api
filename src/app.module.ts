@@ -1,22 +1,21 @@
 import { Module } from '@nestjs/common';
-import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
+import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { ConfigModule } from '@nestjs/config';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { ScheduleModule } from '@nestjs/schedule';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import {
   appConfig,
+  corsConfig,
   databaseConfig,
   elasticsearchConfig,
+  googleConfig,
+  jwtConfig,
   loggerConfig,
   mailConfig,
   queueConfig,
   redisConfig,
   storageConfig,
 } from './config';
-import { HttpLoggingInterceptor } from './shared/interceptors/http-logging.interceptor';
-import { GlobalExceptionFilter } from './shared/filters/global-exception.filter';
 import { envValidationSchema } from './config/env.validation';
 import { InfrastructureModule } from './infrastructure/infrastructure.module';
 import { AuthModule } from './modules/auth/auth.module';
@@ -29,6 +28,12 @@ import { ReportsModule } from './modules/reports/reports.module';
 import { SalesModule } from './modules/sales/sales.module';
 import { SettingsModule } from './modules/settings/settings.module';
 import { UsersModule } from './modules/users/users.module';
+import { GlobalExceptionFilter } from './shared/filters/global-exception.filter';
+import { JwtAuthGuard } from './shared/guards/jwt-auth.guard';
+import { PermissionsGuard } from './shared/guards/permissions.guard';
+import { RolesGuard } from './shared/guards/roles.guard';
+import { UserTypeGuard } from './shared/guards/user-type.guard';
+import { HttpLoggingInterceptor } from './shared/interceptors/http-logging.interceptor';
 
 @Module({
   imports: [
@@ -37,7 +42,10 @@ import { UsersModule } from './modules/users/users.module';
       cache: true,
       load: [
         appConfig,
+        corsConfig,
         databaseConfig,
+        googleConfig,
+        jwtConfig,
         loggerConfig,
         redisConfig,
         elasticsearchConfig,
@@ -65,12 +73,26 @@ import { UsersModule } from './modules/users/users.module';
     ReportsModule,
     SettingsModule,
   ],
-  controllers: [AppController],
   providers: [
-    AppService,
     {
       provide: APP_FILTER,
       useClass: GlobalExceptionFilter,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: JwtAuthGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: UserTypeGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: RolesGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: PermissionsGuard,
     },
     {
       provide: APP_INTERCEPTOR,
