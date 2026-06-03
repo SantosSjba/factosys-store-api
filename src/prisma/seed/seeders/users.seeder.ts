@@ -4,7 +4,8 @@ import { ROLE_SLUGS } from '../../../shared/constants/roles.constants';
 import { seedPrisma } from '../client';
 import {
   resolveSeedCredential,
-  SEED_USER_DEFINITIONS,
+  SEED_STAFF_USER_DEFINITIONS,
+  SEED_STORE_CUSTOMER_DEFINITION,
 } from '../data/users.data';
 
 async function assignRolesToUser(
@@ -38,7 +39,7 @@ export async function seedUsers(): Promise<string[]> {
   const allRoleSlugs = allRoles.map((role) => role.slug);
   const seededEmails: string[] = [];
 
-  for (const userDef of SEED_USER_DEFINITIONS) {
+  for (const userDef of SEED_STAFF_USER_DEFINITIONS) {
     const email = resolveSeedCredential(
       userDef.emailEnv,
       userDef.defaultEmail,
@@ -77,10 +78,56 @@ export async function seedUsers(): Promise<string[]> {
         : [];
 
     await assignRolesToUser(user.id, roleSlugs);
-    seededEmails.push(`${userDef.key}: ${email}`);
+    seededEmails.push(`staff/${userDef.key}: ${email}`);
   }
 
+  const storeCustomer = await seedStoreCustomer();
+  seededEmails.push(`store/${storeCustomer.key}: ${storeCustomer.email}`);
+
   return seededEmails;
+}
+
+async function seedStoreCustomer(): Promise<{
+  key: string;
+  email: string;
+}> {
+  const def = SEED_STORE_CUSTOMER_DEFINITION;
+  const email = resolveSeedCredential(def.emailEnv, def.defaultEmail);
+  const password = resolveSeedCredential(def.passwordEnv, def.defaultPassword);
+  const passwordHash = await bcrypt.hash(password, 12);
+
+  const customerRole = await seedPrisma.role.findUnique({
+    where: { slug: ROLE_SLUGS.CUSTOMER },
+  });
+
+  if (!customerRole) {
+    throw new Error('Rol customer no encontrado tras el seed de roles');
+  }
+
+  const user = await seedPrisma.user.upsert({
+    where: { email },
+    update: {
+      passwordHash,
+      status: UserStatus.ACTIVE,
+      emailVerifiedAt: new Date(),
+      userType: UserType.CUSTOMER,
+      firstName: def.firstName,
+      lastName: def.lastName,
+    },
+    create: {
+      email,
+      userType: UserType.CUSTOMER,
+      status: UserStatus.ACTIVE,
+      emailVerifiedAt: new Date(),
+      passwordHash,
+      firstName: def.firstName,
+      lastName: def.lastName,
+    },
+  });
+
+  await assignRolesToUser(user.id, [ROLE_SLUGS.CUSTOMER]);
+
+  return { key: def.key, email };
 }
 
 /** Garantiza que el rol admin conserve todos los permisos del catálogo. */

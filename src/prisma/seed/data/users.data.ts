@@ -1,6 +1,6 @@
 import { ROLE_SLUGS } from '../../../shared/constants/roles.constants';
 
-export interface SeedUserDefinition {
+export interface SeedStaffUserDefinition {
   key: 'super' | 'admin';
   emailEnv: string;
   passwordEnv: string;
@@ -12,7 +12,17 @@ export interface SeedUserDefinition {
   roleSlug?: string;
 }
 
-export const SEED_USER_DEFINITIONS: SeedUserDefinition[] = [
+export interface SeedStoreCustomerDefinition {
+  key: 'customer';
+  emailEnv: string;
+  passwordEnv: string;
+  defaultEmail: string;
+  defaultPassword: string;
+  firstName: string;
+  lastName: string;
+}
+
+export const SEED_STAFF_USER_DEFINITIONS: SeedStaffUserDefinition[] = [
   {
     key: 'super',
     emailEnv: 'SEED_SUPER_EMAIL',
@@ -35,6 +45,17 @@ export const SEED_USER_DEFINITIONS: SeedUserDefinition[] = [
     roleSlug: ROLE_SLUGS.ADMIN,
   },
 ];
+
+/** Cliente de tienda para probar POST /api/store/auth/login */
+export const SEED_STORE_CUSTOMER_DEFINITION: SeedStoreCustomerDefinition = {
+  key: 'customer',
+  emailEnv: 'SEED_CUSTOMER_EMAIL',
+  passwordEnv: 'SEED_CUSTOMER_PASSWORD',
+  defaultEmail: 'cliente@factosys.store',
+  defaultPassword: 'Cliente123!',
+  firstName: 'Cliente',
+  lastName: 'Demo',
+};
 
 export function resolveSeedCredential(
   envKey: string,

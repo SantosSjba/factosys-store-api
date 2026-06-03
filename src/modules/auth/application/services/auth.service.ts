@@ -293,9 +293,12 @@ export class AuthService {
       }
 
       if (user.userType !== expectedUserType) {
+        const isStoreLogin = expectedUserType === UserType.CUSTOMER;
         throw new UnauthorizedException({
-          code: 'INVALID_CREDENTIALS',
-          message: 'Correo o contraseña incorrectos.',
+          code: 'AUTH_CONTEXT_MISMATCH',
+          message: isStoreLogin
+            ? 'Esta cuenta es del panel administrativo. Inicia sesión en el admin o usa una cuenta de cliente de la tienda.'
+            : 'Esta cuenta es de cliente de la tienda. Usa el inicio de sesión de la tienda (no el panel admin).',
         });
       }
 

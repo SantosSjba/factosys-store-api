@@ -1,9 +1,10 @@
+# Paquetes que necesitan ejecutar scripts de instalación (pnpm 10+)
 allowBuilds:
   '@nestjs/core': true
-  '@prisma/engines': set this to true or false
-  '@scarf/scarf': set this to true or false
-  bcrypt: set this to true or false
-  esbuild: set this to true or false
-  msgpackr-extract: set this to true or false
-  prisma: set this to true or false
+  '@prisma/engines': true
+  '@scarf/scarf': true
+  bcrypt: true
+  esbuild: true
+  msgpackr-extract: true
+  prisma: true
   unrs-resolver: true
