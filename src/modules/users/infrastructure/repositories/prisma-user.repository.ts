@@ -178,14 +178,161 @@ export class PrismaUserRepository {
     return this.mapUser(user);
   }
 
-  async listStaffUsers(): Promise<UserWithAccess[]> {
-    const users = await this.prisma.user.findMany({
-      where: { userType: UserType.STAFF },
+  async findStaffUserById(id: string): Promise<UserWithAccess | null> {
+    const user = await this.prisma.user.findFirst({
+      where: { id, userType: UserType.STAFF },
       include: userWithAccessInclude,
-      orderBy: { createdAt: 'desc' },
     });
 
-    return users.map((user) => this.mapUser(user));
+    return user ? this.mapUser(user) : null;
+  }
+
+  async updateStaffUser(
+    id: string,
+    data: {
+      firstName?: string | null;
+      lastName?: string | null;
+      phone?: string | null;
+      status?: UserStatus;
+      passwordHash?: string;
+      roleSlugs?: string[];
+    },
+  ): Promise<UserWithAccess | null> {
+    const existing = await this.prisma.user.findFirst({
+      where: { id, userType: UserType.STAFF },
+    });
+
+    if (!existing) {
+      return null;
+    }
+
+    const userData: Prisma.UserUpdateInput = {};
+
+    if (data.firstName !== undefined) userData.firstName = data.firstName;
+    if (data.lastName !== undefined) userData.lastName = data.lastName;
+    if (data.phone !== undefined) userData.phone = data.phone;
+    if (data.status !== undefined) userData.status = data.status;
+    if (data.passwordHash !== undefined) userData.passwordHash = data.passwordHash;
+
+    if (data.roleSlugs) {
+      const roleIds = await this.resolveRoleIds(data.roleSlugs, UserType.STAFF);
+      userData.roles = {
+        deleteMany: {},
+        create: roleIds.map((roleId) => ({ roleId })),
+      };
+    }
+
+    const user = await this.prisma.user.update({
+      where: { id },
+      data: userData,
+      include: userWithAccessInclude,
+    });
+
+    return this.mapUser(user);
+  }
+
+  async suspendStaffUser(id: string): Promise<UserWithAccess | null> {
+    const existing = await this.prisma.user.findFirst({
+      where: { id, userType: UserType.STAFF },
+    });
+
+    if (!existing) {
+      return null;
+    }
+
+    await this.prisma.$transaction([
+      this.prisma.user.update({
+        where: { id },
+        data: { status: UserStatus.SUSPENDED },
+      }),
+      this.prisma.refreshToken.updateMany({
+        where: { userId: id, revokedAt: null },
+        data: { revokedAt: new Date() },
+      }),
+    ]);
+
+    const user = await this.prisma.user.findFirst({
+      where: { id },
+      include: userWithAccessInclude,
+    });
+
+    return user ? this.mapUser(user) : null;
+  }
+
+  async listAllPermissions() {
+    return this.prisma.permission.findMany({
+      orderBy: [{ module: 'asc' }, { name: 'asc' }],
+    });
+  }
+
+  async findStaffRoleBySlug(slug: string) {
+    return this.prisma.role.findFirst({
+      where: { slug, userType: UserType.STAFF },
+      include: {
+        permissions: { include: { permission: true } },
+      },
+    });
+  }
+
+  async updateRolePermissions(roleId: string, permissionIds: string[]) {
+    await this.prisma.$transaction([
+      this.prisma.rolePermission.deleteMany({ where: { roleId } }),
+      this.prisma.rolePermission.createMany({
+        data: permissionIds.map((permissionId) => ({ roleId, permissionId })),
+      }),
+    ]);
+
+    const role = await this.prisma.role.findUnique({
+      where: { id: roleId },
+      include: {
+        permissions: { include: { permission: true } },
+      },
+    });
+
+    return role;
+  }
+
+  async resolvePermissionIds(slugs: string[]): Promise<string[]> {
+    const permissions = await this.prisma.permission.findMany({
+      where: { slug: { in: slugs } },
+    });
+
+    return permissions.map((permission) => permission.id);
+  }
+
+  async listStaffUsersPaginated(options: {
+    page: number;
+    limit: number;
+    search?: string;
+  }): Promise<{ items: UserWithAccess[]; total: number }> {
+    const where: Prisma.UserWhereInput = { userType: UserType.STAFF };
+
+    const search = options.search?.trim();
+    if (search) {
+      where.OR = [
+        { email: { contains: search, mode: 'insensitive' } },
+        { firstName: { contains: search, mode: 'insensitive' } },
+        { lastName: { contains: search, mode: 'insensitive' } },
+      ];
+    }
+
+    const skip = (options.page - 1) * options.limit;
+
+    const [users, total] = await Promise.all([
+      this.prisma.user.findMany({
+        where,
+        include: userWithAccessInclude,
+        orderBy: { createdAt: 'desc' },
+        skip,
+        take: options.limit,
+      }),
+      this.prisma.user.count({ where }),
+    ]);
+
+    return {
+      items: users.map((user) => this.mapUser(user)),
+      total,
+    };
   }
 
   async saveRefreshToken(data: {
