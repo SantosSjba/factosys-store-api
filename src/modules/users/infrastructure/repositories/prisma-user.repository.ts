@@ -369,6 +369,7 @@ export class PrismaUserRepository {
       phone?: string | null;
       status?: UserStatus;
       passwordHash?: string;
+      clearEmailVerification?: boolean;
     },
   ): Promise<UserWithAccess | null> {
     const existing = await this.prisma.user.findFirst({
@@ -387,12 +388,23 @@ export class PrismaUserRepository {
     if (data.status !== undefined) userData.status = data.status;
     if (data.passwordHash !== undefined) userData.passwordHash = data.passwordHash;
 
+    const shouldClearVerification = data.clearEmailVerification === true;
+
+    if (shouldClearVerification) {
+      userData.emailVerifiedAt = null;
+    }
+
     const shouldRevokeSessions =
-      data.status === UserStatus.SUSPENDED &&
-      existing.status !== UserStatus.SUSPENDED;
+      (data.status === UserStatus.SUSPENDED &&
+        existing.status !== UserStatus.SUSPENDED) ||
+      shouldClearVerification;
 
     if (shouldRevokeSessions) {
-      await this.prisma.$transaction([
+      const operations: [
+        ReturnType<typeof this.prisma.user.update>,
+        ReturnType<typeof this.prisma.refreshToken.updateMany>,
+        ...ReturnType<typeof this.prisma.emailVerificationToken.updateMany>[],
+      ] = [
         this.prisma.user.update({
           where: { id },
           data: userData,
@@ -401,7 +413,18 @@ export class PrismaUserRepository {
           where: { userId: id, revokedAt: null },
           data: { revokedAt: new Date() },
         }),
-      ]);
+      ];
+
+      if (shouldClearVerification) {
+        operations.push(
+          this.prisma.emailVerificationToken.updateMany({
+            where: { userId: id, usedAt: null },
+            data: { usedAt: new Date() },
+          }),
+        );
+      }
+
+      await this.prisma.$transaction(operations);
     } else {
       await this.prisma.user.update({
         where: { id },

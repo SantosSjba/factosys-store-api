@@ -276,17 +276,34 @@ export class UsersService {
       });
     }
 
+    if (dto.clearEmailVerification && !existing.emailVerifiedAt) {
+      throw new BadRequestException({
+        code: 'EMAIL_NOT_VERIFIED',
+        message: 'El correo del cliente ya no está verificado.',
+      });
+    }
+
     let passwordHash: string | undefined;
     if (dto.password) {
       passwordHash = await this.passwordService.hash(dto.password);
+    }
+
+    let status = dto.status;
+    if (
+      dto.clearEmailVerification &&
+      existing.status === UserStatus.ACTIVE &&
+      status !== UserStatus.SUSPENDED
+    ) {
+      status = UserStatus.PENDING_VERIFICATION;
     }
 
     const updated = await this.userRepository.updateCustomerUser(userId, {
       firstName: dto.firstName,
       lastName: dto.lastName,
       phone: dto.phone,
-      status: dto.status,
+      status,
       passwordHash,
+      clearEmailVerification: dto.clearEmailVerification,
     });
 
     if (!updated) {

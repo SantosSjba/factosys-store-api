@@ -1,5 +1,11 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { IsEnum, IsOptional, IsString, MinLength } from 'class-validator';
+import {
+  IsBoolean,
+  IsEnum,
+  IsOptional,
+  IsString,
+  MinLength,
+} from 'class-validator';
 import { UserStatus } from '../../../../generated/prisma/client';
 
 export class UpdateCustomerDto {
@@ -34,4 +40,12 @@ export class UpdateCustomerDto {
   @IsString()
   @MinLength(8)
   password?: string;
+
+  @ApiPropertyOptional({
+    description:
+      'Si es true, revoca la verificación del correo y deja la cuenta pendiente de verificación.',
+  })
+  @IsOptional()
+  @IsBoolean()
+  clearEmailVerification?: boolean;
 }
