@@ -4,13 +4,18 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { UserStatus, UserType } from '../../../../generated/prisma/client';
+import {
+  AuthProvider,
+  UserStatus,
+  UserType,
+} from '../../../../generated/prisma/client';
 import { ROLE_SLUGS } from '../../../../shared/constants/roles.constants';
 import { buildPaginationMeta } from '../../../../shared/helpers/pagination.helper';
 import { AuthenticatedUser } from '../../../../shared/interfaces/jwt-payload.interface';
 import { PasswordService } from '../../../auth/application/services/password.service';
 import { PaginationQueryDto } from '../../../../shared/dto/pagination-query.dto';
 import { CreateCustomerDto } from '../dto/create-customer.dto';
+import { UpdateCustomerDto } from '../dto/update-customer.dto';
 import { ListStaffUsersQueryDto } from '../dto/list-staff-users-query.dto';
 import { UpdateStaffUserDto } from '../dto/update-staff-user.dto';
 import { PrismaUserRepository } from '../../infrastructure/repositories/prisma-user.repository';
@@ -251,6 +256,47 @@ export class UsersService {
     }
 
     return this.mapCustomerResponse(user);
+  }
+
+  async updateCustomerUser(userId: string, dto: UpdateCustomerDto) {
+    const existing = await this.userRepository.findCustomerUserById(userId);
+
+    if (!existing) {
+      throw new NotFoundException({
+        code: 'CUSTOMER_NOT_FOUND',
+        message: 'Cliente no encontrado.',
+      });
+    }
+
+    if (dto.password && existing.authProvider === AuthProvider.GOOGLE) {
+      throw new BadRequestException({
+        code: 'GOOGLE_ACCOUNT_PASSWORD',
+        message:
+          'No se puede establecer contraseña local en una cuenta vinculada con Google.',
+      });
+    }
+
+    let passwordHash: string | undefined;
+    if (dto.password) {
+      passwordHash = await this.passwordService.hash(dto.password);
+    }
+
+    const updated = await this.userRepository.updateCustomerUser(userId, {
+      firstName: dto.firstName,
+      lastName: dto.lastName,
+      phone: dto.phone,
+      status: dto.status,
+      passwordHash,
+    });
+
+    if (!updated) {
+      throw new NotFoundException({
+        code: 'CUSTOMER_NOT_FOUND',
+        message: 'Cliente no encontrado.',
+      });
+    }
+
+    return this.mapCustomerResponse(updated);
   }
 
   async softDeleteCustomerUser(userId: string) {

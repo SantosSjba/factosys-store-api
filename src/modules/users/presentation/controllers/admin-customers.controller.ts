@@ -1,10 +1,20 @@
-import { Body, Controller, Delete, Get, Param, Post, Query } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Query,
+} from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { RequirePermissions } from '../../../../shared/decorators/permissions.decorator';
 import { UserTypes } from '../../../../shared/decorators/user-types.decorator';
 import { PERMISSIONS } from '../../../../shared/constants/permissions.constants';
 import { PaginationQueryDto } from '../../../../shared/dto/pagination-query.dto';
 import { CreateCustomerDto } from '../../application/dto/create-customer.dto';
+import { UpdateCustomerDto } from '../../application/dto/update-customer.dto';
 import { UsersService } from '../../application/services/users.service';
 
 @ApiTags('Admin Customers')
@@ -33,6 +43,13 @@ export class AdminCustomersController {
   @ApiOperation({ summary: 'Obtener cliente por ID' })
   getCustomer(@Param('id') id: string) {
     return this.usersService.getCustomerUser(id);
+  }
+
+  @Patch(':id')
+  @RequirePermissions(PERMISSIONS.USERS_UPDATE)
+  @ApiOperation({ summary: 'Actualizar cliente de la tienda' })
+  updateCustomer(@Param('id') id: string, @Body() dto: UpdateCustomerDto) {
+    return this.usersService.updateCustomerUser(id, dto);
   }
 
   @Delete(':id')

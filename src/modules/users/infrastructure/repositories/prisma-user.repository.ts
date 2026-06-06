@@ -361,6 +361,62 @@ export class PrismaUserRepository {
     return user ? this.mapUser(user) : null;
   }
 
+  async updateCustomerUser(
+    id: string,
+    data: {
+      firstName?: string | null;
+      lastName?: string | null;
+      phone?: string | null;
+      status?: UserStatus;
+      passwordHash?: string;
+    },
+  ): Promise<UserWithAccess | null> {
+    const existing = await this.prisma.user.findFirst({
+      where: { id, userType: UserType.CUSTOMER },
+    });
+
+    if (!existing) {
+      return null;
+    }
+
+    const userData: Prisma.UserUpdateInput = {};
+
+    if (data.firstName !== undefined) userData.firstName = data.firstName;
+    if (data.lastName !== undefined) userData.lastName = data.lastName;
+    if (data.phone !== undefined) userData.phone = data.phone;
+    if (data.status !== undefined) userData.status = data.status;
+    if (data.passwordHash !== undefined) userData.passwordHash = data.passwordHash;
+
+    const shouldRevokeSessions =
+      data.status === UserStatus.SUSPENDED &&
+      existing.status !== UserStatus.SUSPENDED;
+
+    if (shouldRevokeSessions) {
+      await this.prisma.$transaction([
+        this.prisma.user.update({
+          where: { id },
+          data: userData,
+        }),
+        this.prisma.refreshToken.updateMany({
+          where: { userId: id, revokedAt: null },
+          data: { revokedAt: new Date() },
+        }),
+      ]);
+    } else {
+      await this.prisma.user.update({
+        where: { id },
+        data: userData,
+      });
+    }
+
+    const user = await this.prisma.user.findFirst({
+      where: { id },
+      include: userWithAccessInclude,
+    });
+
+    return user ? this.mapUser(user) : null;
+  }
+
   async suspendCustomerUser(id: string): Promise<UserWithAccess | null> {
     const existing = await this.prisma.user.findFirst({
       where: { id, userType: UserType.CUSTOMER },
