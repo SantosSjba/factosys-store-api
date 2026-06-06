@@ -1,4 +1,5 @@
 import { disconnectSeedClient } from './client';
+import { seedCatalog } from './seeders/catalog.seeder';
 import { seedPermissions } from './seeders/permissions.seeder';
 import { seedRoles } from './seeders/roles.seeder';
 import { seedUsers, syncAdminRolePermissions } from './seeders/users.seeder';
@@ -14,8 +15,14 @@ async function main(): Promise<void> {
   console.log('→ Sembrando usuarios...');
   const users = await seedUsers();
 
+  console.log('→ Sembrando catálogo...');
+  const catalogLines = await seedCatalog();
+
   console.log('Seed completado.');
   for (const line of users) {
+    console.log(`  • ${line}`);
+  }
+  for (const line of catalogLines) {
     console.log(`  • ${line}`);
   }
   console.log(

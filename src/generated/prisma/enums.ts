@@ -9,6 +9,42 @@
 * 🟢 You can import this file directly.
 */
 
+export const ProductStatus = {
+  DRAFT: 'DRAFT',
+  ACTIVE: 'ACTIVE',
+  ARCHIVED: 'ARCHIVED'
+} as const
+
+export type ProductStatus = (typeof ProductStatus)[keyof typeof ProductStatus]
+
+
+export const ProductType = {
+  SIMPLE: 'SIMPLE',
+  VARIABLE: 'VARIABLE'
+} as const
+
+export type ProductType = (typeof ProductType)[keyof typeof ProductType]
+
+
+export const AttributeDataType = {
+  TEXT: 'TEXT',
+  NUMBER: 'NUMBER',
+  BOOLEAN: 'BOOLEAN',
+  SELECT: 'SELECT',
+  MULTI_SELECT: 'MULTI_SELECT'
+} as const
+
+export type AttributeDataType = (typeof AttributeDataType)[keyof typeof AttributeDataType]
+
+
+export const AttributeScope = {
+  PRODUCT: 'PRODUCT',
+  VARIANT: 'VARIANT'
+} as const
+
+export type AttributeScope = (typeof AttributeScope)[keyof typeof AttributeScope]
+
+
 export const UserType = {
   CUSTOMER: 'CUSTOMER',
   STAFF: 'STAFF'

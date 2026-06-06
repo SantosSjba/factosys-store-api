@@ -1,4 +1,9 @@
-import { Module } from '@nestjs/common';
+import { Global, Module } from '@nestjs/common';
+import { StorageService } from './storage.service';
 
-@Module({})
+@Global()
+@Module({
+  providers: [StorageService],
+  exports: [StorageService],
+})
 export class StorageInfrastructureModule {}
