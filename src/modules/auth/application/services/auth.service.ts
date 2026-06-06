@@ -5,7 +5,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { randomBytes } from 'crypto';
+import { randomInt } from 'crypto';
 import {
   AuthProvider,
   LoginAuthMethod,
@@ -38,6 +38,10 @@ export interface AuthTokensResponse {
     roles: string[];
   };
 }
+
+export type GoogleAuthResult =
+  | { status: 'authenticated'; tokens: AuthTokensResponse }
+  | { status: 'pending_verification'; email: string; message: string };
 
 @Injectable()
 export class AuthService {
@@ -84,7 +88,7 @@ export class AuthService {
     firstName?: string;
     lastName?: string;
     phone?: string;
-  }): Promise<{ message: string; verificationToken?: string }> {
+  }): Promise<{ message: string; email: string; verificationCode?: string }> {
     const existing = await this.userRepository.findByEmail(data.email);
 
     if (existing) {
@@ -104,42 +108,48 @@ export class AuthService {
       status: UserStatus.PENDING_VERIFICATION,
     });
 
-    const verificationToken = randomBytes(32).toString('hex');
-    await this.userRepository.createEmailVerificationToken({
-      userId: user.id,
-      tokenHash: this.tokenService.hashToken(verificationToken),
-      expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
-    });
-
-    const emailSent = await this.mailService.sendVerificationEmail(
-      user.email,
-      verificationToken,
-      user.firstName,
-    );
+    const { emailSent, verificationCode } =
+      await this.issueCustomerVerificationCode(user);
 
     const isDevelopment =
       this.configService.get<string>('app.env', 'development') ===
       'development';
 
     return {
+      email: user.email,
       message: emailSent
-        ? 'Cuenta creada. Revisa tu correo para activar tu cuenta.'
+        ? 'Cuenta creada. Revisa tu correo e ingresa el código de verificación.'
         : 'Cuenta creada. No se pudo enviar el correo de verificación; contacta a soporte.',
-      ...(isDevelopment && !emailSent ? { verificationToken } : {}),
+      ...(isDevelopment && !emailSent ? { verificationCode } : {}),
     };
   }
 
   async verifyStoreEmail(
-    token: string,
+    data: { token?: string; email?: string; code?: string },
     context: LoginContext = {},
   ): Promise<AuthTokensResponse> {
-    const tokenHash = this.tokenService.hashToken(token);
-    const result = await this.userRepository.consumeEmailVerificationToken(tokenHash);
+    let result: { userId: string } | null = null;
+
+    if (data.token) {
+      const tokenHash = this.tokenService.hashToken(data.token);
+      result = await this.userRepository.consumeEmailVerificationToken(tokenHash);
+    } else if (data.email && data.code) {
+      const codeHash = this.tokenService.hashToken(data.code);
+      result = await this.userRepository.consumeEmailVerificationCode(
+        data.email,
+        codeHash,
+      );
+    } else {
+      throw new BadRequestException({
+        code: 'INVALID_VERIFICATION_PAYLOAD',
+        message: 'Debes enviar el código con tu correo o un token de verificación válido.',
+      });
+    }
 
     if (!result) {
       throw new BadRequestException({
-        code: 'INVALID_VERIFICATION_TOKEN',
-        message: 'El token de verificación no es válido o ha expirado.',
+        code: 'INVALID_VERIFICATION_CODE',
+        message: 'El código de verificación no es válido o ha expirado.',
       });
     }
 
@@ -155,10 +165,42 @@ export class AuthService {
     return this.issueTokens(user, AUTH_AUDIENCE.STORE, context, LoginAuthMethod.LOCAL);
   }
 
+  async resendStoreVerificationEmail(email: string): Promise<{ message: string; verificationCode?: string }> {
+    const user = await this.userRepository.findByEmail(email);
+
+    if (!user || user.userType !== UserType.CUSTOMER) {
+      return {
+        message:
+          'Si el correo está registrado y pendiente de verificación, recibirás un nuevo código.',
+      };
+    }
+
+    if (user.status !== UserStatus.PENDING_VERIFICATION) {
+      return {
+        message:
+          'Si el correo está registrado y pendiente de verificación, recibirás un nuevo código.',
+      };
+    }
+
+    const { emailSent, verificationCode } =
+      await this.issueCustomerVerificationCode(user);
+
+    const isDevelopment =
+      this.configService.get<string>('app.env', 'development') ===
+      'development';
+
+    return {
+      message: emailSent
+        ? 'Te enviamos un nuevo código de verificación.'
+        : 'No se pudo enviar el correo. Intenta más tarde o contacta a soporte.',
+      ...(isDevelopment && !emailSent ? { verificationCode } : {}),
+    };
+  }
+
   async handleGoogleLogin(
     profile: GoogleProfilePayload,
     context: LoginContext = {},
-  ): Promise<AuthTokensResponse> {
+  ): Promise<GoogleAuthResult> {
     let user = await this.userRepository.findByGoogleId(profile.googleId);
 
     if (!user) {
@@ -198,9 +240,29 @@ export class AuthService {
       }
     }
 
+    if (user.status === UserStatus.PENDING_VERIFICATION) {
+      const { emailSent } = await this.issueCustomerVerificationCode(user);
+
+      return {
+        status: 'pending_verification',
+        email: user.email,
+        message: emailSent
+          ? 'Revisa tu correo e ingresa el código de verificación para activar tu cuenta.'
+          : 'No se pudo enviar el correo de verificación. Solicita un nuevo código.',
+      };
+    }
+
     this.assertUserCanAuthenticate(user, AUTH_AUDIENCE.STORE);
 
-    return this.issueTokens(user, AUTH_AUDIENCE.STORE, context, LoginAuthMethod.GOOGLE);
+    return {
+      status: 'authenticated',
+      tokens: await this.issueTokens(
+        user,
+        AUTH_AUDIENCE.STORE,
+        context,
+        LoginAuthMethod.GOOGLE,
+      ),
+    };
   }
 
   getGoogleAuthRedirectUrl(): string {
@@ -418,6 +480,31 @@ export class AuthService {
         roles: roleSlugs,
       },
     };
+  }
+
+  private generateVerificationCode(): string {
+    return randomInt(100000, 1000000).toString();
+  }
+
+  private async issueCustomerVerificationCode(user: UserWithAccess): Promise<{
+    emailSent: boolean;
+    verificationCode: string;
+  }> {
+    const verificationCode = this.generateVerificationCode();
+
+    await this.userRepository.replaceEmailVerificationToken({
+      userId: user.id,
+      tokenHash: this.tokenService.hashToken(verificationCode),
+      expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
+    });
+
+    const emailSent = await this.mailService.sendVerificationCodeEmail(
+      user.email,
+      verificationCode,
+      user.firstName,
+    );
+
+    return { emailSent, verificationCode };
   }
 
   private async recordLoginFailure(data: {

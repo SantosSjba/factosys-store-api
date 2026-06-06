@@ -141,8 +141,7 @@ export class PrismaUserRepository {
         email: data.email.toLowerCase(),
         userType: UserType.CUSTOMER,
         authProvider: AuthProvider.GOOGLE,
-        status: UserStatus.ACTIVE,
-        emailVerifiedAt: new Date(),
+        status: UserStatus.PENDING_VERIFICATION,
         googleId: data.googleId,
         firstName: data.firstName,
         lastName: data.lastName,
@@ -162,13 +161,28 @@ export class PrismaUserRepository {
     firstName?: string;
     lastName?: string;
   }): Promise<UserWithAccess> {
+    const existing = await this.prisma.user.findUnique({
+      where: { id: data.userId },
+    });
+
+    if (!existing) {
+      throw new Error('User not found');
+    }
+
+    const isAlreadyVerified =
+      existing.status === UserStatus.ACTIVE && existing.emailVerifiedAt !== null;
+
     const user = await this.prisma.user.update({
       where: { id: data.userId },
       data: {
         googleId: data.googleId,
         authProvider: AuthProvider.GOOGLE,
-        status: UserStatus.ACTIVE,
-        emailVerifiedAt: new Date(),
+        ...(isAlreadyVerified
+          ? {
+              status: UserStatus.ACTIVE,
+              emailVerifiedAt: existing.emailVerifiedAt ?? new Date(),
+            }
+          : {}),
         firstName: data.firstName,
         lastName: data.lastName,
       },
@@ -300,6 +314,79 @@ export class PrismaUserRepository {
     return permissions.map((permission) => permission.id);
   }
 
+  async listCustomerUsersPaginated(options: {
+    page: number;
+    limit: number;
+    search?: string;
+  }): Promise<{ items: UserWithAccess[]; total: number }> {
+    const where: Prisma.UserWhereInput = { userType: UserType.CUSTOMER };
+
+    const search = options.search?.trim();
+    if (search) {
+      where.OR = [
+        { email: { contains: search, mode: 'insensitive' } },
+        { firstName: { contains: search, mode: 'insensitive' } },
+        { lastName: { contains: search, mode: 'insensitive' } },
+        { phone: { contains: search, mode: 'insensitive' } },
+      ];
+    }
+
+    const skip = (options.page - 1) * options.limit;
+
+    const [users, total] = await Promise.all([
+      this.prisma.user.findMany({
+        where,
+        include: userWithAccessInclude,
+        orderBy: { createdAt: 'desc' },
+        skip,
+        take: options.limit,
+      }),
+      this.prisma.user.count({ where }),
+    ]);
+
+    return {
+      items: users.map((user) => this.mapUser(user)),
+      total,
+    };
+  }
+
+  async findCustomerUserById(id: string): Promise<UserWithAccess | null> {
+    const user = await this.prisma.user.findFirst({
+      where: { id, userType: UserType.CUSTOMER },
+      include: userWithAccessInclude,
+    });
+
+    return user ? this.mapUser(user) : null;
+  }
+
+  async suspendCustomerUser(id: string): Promise<UserWithAccess | null> {
+    const existing = await this.prisma.user.findFirst({
+      where: { id, userType: UserType.CUSTOMER },
+    });
+
+    if (!existing) {
+      return null;
+    }
+
+    await this.prisma.$transaction([
+      this.prisma.user.update({
+        where: { id },
+        data: { status: UserStatus.SUSPENDED },
+      }),
+      this.prisma.refreshToken.updateMany({
+        where: { userId: id, revokedAt: null },
+        data: { revokedAt: new Date() },
+      }),
+    ]);
+
+    const user = await this.prisma.user.findFirst({
+      where: { id },
+      include: userWithAccessInclude,
+    });
+
+    return user ? this.mapUser(user) : null;
+  }
+
   async listStaffUsersPaginated(options: {
     page: number;
     limit: number;
@@ -375,6 +462,68 @@ export class PrismaUserRepository {
     expiresAt: Date;
   }): Promise<void> {
     await this.prisma.emailVerificationToken.create({ data });
+  }
+
+  async replaceEmailVerificationToken(data: {
+    userId: string;
+    tokenHash: string;
+    expiresAt: Date;
+  }): Promise<void> {
+    await this.prisma.$transaction([
+      this.prisma.emailVerificationToken.updateMany({
+        where: { userId: data.userId, usedAt: null },
+        data: { usedAt: new Date() },
+      }),
+      this.prisma.emailVerificationToken.create({
+        data: {
+          userId: data.userId,
+          tokenHash: data.tokenHash,
+          expiresAt: data.expiresAt,
+        },
+      }),
+    ]);
+  }
+
+  async consumeEmailVerificationCode(
+    email: string,
+    codeHash: string,
+  ): Promise<{ userId: string } | null> {
+    const user = await this.prisma.user.findUnique({
+      where: { email: email.toLowerCase() },
+    });
+
+    if (!user) {
+      return null;
+    }
+
+    const token = await this.prisma.emailVerificationToken.findFirst({
+      where: {
+        userId: user.id,
+        tokenHash: codeHash,
+        usedAt: null,
+        expiresAt: { gt: new Date() },
+      },
+    });
+
+    if (!token) {
+      return null;
+    }
+
+    await this.prisma.$transaction([
+      this.prisma.emailVerificationToken.update({
+        where: { id: token.id },
+        data: { usedAt: new Date() },
+      }),
+      this.prisma.user.update({
+        where: { id: user.id },
+        data: {
+          status: UserStatus.ACTIVE,
+          emailVerifiedAt: new Date(),
+        },
+      }),
+    ]);
+
+    return { userId: user.id };
   }
 
   async consumeEmailVerificationToken(

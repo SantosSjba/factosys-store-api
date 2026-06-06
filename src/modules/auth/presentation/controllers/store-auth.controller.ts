@@ -8,6 +8,7 @@ import { AuthTokensResponseDto } from '../../application/dto/auth-tokens-respons
 import { LoginDto } from '../../application/dto/login.dto';
 import { RefreshTokenDto } from '../../application/dto/refresh-token.dto';
 import { StoreRegisterDto } from '../../application/dto/store-register.dto';
+import { ResendVerificationDto } from '../../application/dto/resend-verification.dto';
 import { VerifyEmailDto } from '../../application/dto/verify-email.dto';
 import { AuthService } from '../../application/services/auth.service';
 
@@ -28,10 +29,14 @@ export class StoreAuthController {
   @ApiOperation({ summary: 'Verificar correo y activar cuenta de cliente' })
   @ApiOkResponse({ type: AuthTokensResponseDto })
   verifyEmail(@Body() dto: VerifyEmailDto, @Req() request: Request) {
-    return this.authService.verifyStoreEmail(
-      dto.token,
-      getRequestContext(request),
-    );
+    return this.authService.verifyStoreEmail(dto, getRequestContext(request));
+  }
+
+  @Public()
+  @Post('resend-verification')
+  @ApiOperation({ summary: 'Reenviar código de verificación de correo' })
+  resendVerification(@Body() dto: ResendVerificationDto) {
+    return this.authService.resendStoreVerificationEmail(dto.email);
   }
 
   @Public()

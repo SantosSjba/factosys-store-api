@@ -9,6 +9,7 @@ import { ROLE_SLUGS } from '../../../../shared/constants/roles.constants';
 import { buildPaginationMeta } from '../../../../shared/helpers/pagination.helper';
 import { AuthenticatedUser } from '../../../../shared/interfaces/jwt-payload.interface';
 import { PasswordService } from '../../../auth/application/services/password.service';
+import { PaginationQueryDto } from '../../../../shared/dto/pagination-query.dto';
 import { ListStaffUsersQueryDto } from '../dto/list-staff-users-query.dto';
 import { UpdateStaffUserDto } from '../dto/update-staff-user.dto';
 import { PrismaUserRepository } from '../../infrastructure/repositories/prisma-user.repository';
@@ -189,6 +190,62 @@ export class UsersService {
     return this.mapUserResponse(updated);
   }
 
+  async listCustomerUsers(query: PaginationQueryDto) {
+    const page = query.page ?? 1;
+    const limit = query.limit ?? 10;
+
+    const { items, total } = await this.userRepository.listCustomerUsersPaginated({
+      page,
+      limit,
+      search: query.search,
+    });
+
+    return buildPaginationMeta(
+      { page, limit },
+      items.map((user) => this.mapCustomerResponse(user)),
+      total,
+    );
+  }
+
+  async getCustomerUser(userId: string) {
+    const user = await this.userRepository.findCustomerUserById(userId);
+
+    if (!user) {
+      throw new NotFoundException({
+        code: 'CUSTOMER_NOT_FOUND',
+        message: 'Cliente no encontrado.',
+      });
+    }
+
+    return this.mapCustomerResponse(user);
+  }
+
+  async softDeleteCustomerUser(userId: string) {
+    const existing = await this.userRepository.findCustomerUserById(userId);
+
+    if (!existing) {
+      throw new NotFoundException({
+        code: 'CUSTOMER_NOT_FOUND',
+        message: 'Cliente no encontrado.',
+      });
+    }
+
+    if (existing.status === UserStatus.SUSPENDED) {
+      return this.mapCustomerResponse(existing);
+    }
+
+    const updated = await this.userRepository.suspendCustomerUser(userId);
+
+    if (!updated) {
+      throw new NotFoundException({
+        code: 'CUSTOMER_NOT_FOUND',
+        message: 'Cliente no encontrado.',
+      });
+    }
+
+    return this.mapCustomerResponse(updated);
+  }
+
   private assertValidStaffRoles(roleSlugs: string[]) {
     const invalidRoles = roleSlugs.filter((slug) => slug === ROLE_SLUGS.CUSTOMER);
 
@@ -198,6 +255,32 @@ export class UsersService {
         message: 'No se puede asignar el rol de cliente a un usuario del panel.',
       });
     }
+  }
+
+  private mapCustomerResponse(user: {
+    id: string;
+    email: string;
+    userType: string;
+    authProvider: string;
+    status: string;
+    firstName: string | null;
+    lastName: string | null;
+    phone: string | null;
+    emailVerifiedAt: Date | null;
+    createdAt: Date;
+  }) {
+    return {
+      id: user.id,
+      email: user.email,
+      userType: user.userType,
+      authProvider: user.authProvider,
+      status: user.status,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      phone: user.phone,
+      emailVerifiedAt: user.emailVerifiedAt,
+      createdAt: user.createdAt,
+    };
   }
 
   private mapUserResponse(user: {

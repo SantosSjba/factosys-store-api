@@ -22,9 +22,9 @@ export class MailService {
     });
   }
 
-  async sendVerificationEmail(
+  async sendVerificationCodeEmail(
     email: string,
-    token: string,
+    code: string,
     firstName?: string | null,
   ): Promise<boolean> {
     const frontendStoreUrl = this.configService.get<string>(
@@ -32,23 +32,28 @@ export class MailService {
       'http://localhost:3000',
     );
 
-    const verificationUrl = `${frontendStoreUrl}/verify-email?token=${token}`;
+    const verificationUrl = new URL(`${frontendStoreUrl}/verify-email`);
+    verificationUrl.searchParams.set('email', email);
+    verificationUrl.searchParams.set('code', code);
+
     const greeting = firstName ? `Hola ${firstName}` : 'Hola';
 
     try {
       await this.transporter.sendMail({
         from: this.configService.get<string>('mail.from'),
         to: email,
-        subject: 'Verifica tu cuenta en Factosys Store',
+        subject: 'Confirma tu correo en Factosys Store',
         html: `
           <p>${greeting},</p>
           <p>Gracias por registrarte en Factosys Store.</p>
-          <p>Haz clic en el siguiente enlace para activar tu cuenta:</p>
-          <p><a href="${verificationUrl}">${verificationUrl}</a></p>
-          <p>Este enlace expira en 24 horas.</p>
+          <p>Tu código de verificación es:</p>
+          <p style="font-size: 28px; font-weight: bold; letter-spacing: 4px; margin: 16px 0;">${code}</p>
+          <p>También puedes confirmar tu cuenta desde este enlace:</p>
+          <p><a href="${verificationUrl.toString()}">${verificationUrl.toString()}</a></p>
+          <p>El código expira en 24 horas.</p>
           <p>Si no creaste esta cuenta, ignora este mensaje.</p>
         `,
-        text: `${greeting},\n\nVerifica tu cuenta: ${verificationUrl}\n\nEste enlace expira en 24 horas.`,
+        text: `${greeting},\n\nTu código de verificación es: ${code}\n\nConfirma tu cuenta: ${verificationUrl.toString()}\n\nEl código expira en 24 horas.`,
       });
 
       this.logger.log(`Correo de verificación enviado a ${email}`);

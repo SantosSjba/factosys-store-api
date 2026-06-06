@@ -36,7 +36,7 @@ export class StoreGoogleAuthController {
     @Req() request: Request & { user: GoogleProfilePayload },
     @Res() response: Response,
   ): Promise<void> {
-    const tokens = await this.authService.handleGoogleLogin(
+    const result = await this.authService.handleGoogleLogin(
       request.user,
       getRequestContext(request),
     );
@@ -46,9 +46,17 @@ export class StoreGoogleAuthController {
       'http://localhost:3000',
     );
 
+    if (result.status === 'pending_verification') {
+      const redirectUrl = new URL(`${frontendUrl}/verify-email`);
+      redirectUrl.searchParams.set('email', result.email);
+      redirectUrl.searchParams.set('source', 'google');
+      response.redirect(redirectUrl.toString());
+      return;
+    }
+
     const redirectUrl = new URL(`${frontendUrl}/auth/google/callback`);
-    redirectUrl.searchParams.set('accessToken', tokens.accessToken);
-    redirectUrl.searchParams.set('refreshToken', tokens.refreshToken);
+    redirectUrl.searchParams.set('accessToken', result.tokens.accessToken);
+    redirectUrl.searchParams.set('refreshToken', result.tokens.refreshToken);
 
     response.redirect(redirectUrl.toString());
   }
