@@ -2,6 +2,7 @@ import { Module, forwardRef } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
+import { isGoogleAuthEnabled } from '../../config/preload-env';
 import { parseJwtDurationToSeconds } from '../../shared/helpers/jwt-duration.helper';
 import { UsersModule } from '../users/users.module';
 import { AuthService } from './application/services/auth.service';
@@ -16,9 +17,7 @@ import { StoreAuthController } from './presentation/controllers/store-auth.contr
 import { StoreGoogleAuthController } from './presentation/controllers/store-google-auth.controller';
 import { StoreProfileController } from './presentation/controllers/store-profile.controller';
 
-const googleEnabled =
-  Boolean(process.env.GOOGLE_CLIENT_ID) &&
-  Boolean(process.env.GOOGLE_CLIENT_SECRET);
+const googleEnabled = isGoogleAuthEnabled();
 
 const googleControllers = googleEnabled ? [StoreGoogleAuthController] : [];
 const googleProviders = googleEnabled

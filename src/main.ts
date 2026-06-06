@@ -1,10 +1,7 @@
-import { config as loadEnv } from 'dotenv';
+import './config/preload-env';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
-
-loadEnv({ path: `.env.${process.env.NODE_ENV ?? 'development'}` });
-loadEnv({ path: '.env' });
 import { AppModule } from './app.module';
 import { applySecurityMiddleware } from './config/bootstrap-security';
 import {
