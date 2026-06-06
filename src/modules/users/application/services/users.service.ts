@@ -4,12 +4,13 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { UserStatus } from '../../../../generated/prisma/client';
+import { UserStatus, UserType } from '../../../../generated/prisma/client';
 import { ROLE_SLUGS } from '../../../../shared/constants/roles.constants';
 import { buildPaginationMeta } from '../../../../shared/helpers/pagination.helper';
 import { AuthenticatedUser } from '../../../../shared/interfaces/jwt-payload.interface';
 import { PasswordService } from '../../../auth/application/services/password.service';
 import { PaginationQueryDto } from '../../../../shared/dto/pagination-query.dto';
+import { CreateCustomerDto } from '../dto/create-customer.dto';
 import { ListStaffUsersQueryDto } from '../dto/list-staff-users-query.dto';
 import { UpdateStaffUserDto } from '../dto/update-staff-user.dto';
 import { PrismaUserRepository } from '../../infrastructure/repositories/prisma-user.repository';
@@ -63,6 +64,38 @@ export class UsersService {
     });
 
     return this.mapUserResponse(user);
+  }
+
+  async createCustomerUser(dto: CreateCustomerDto) {
+    const existing = await this.userRepository.findByEmail(dto.email);
+
+    if (existing) {
+      if (existing.userType === UserType.STAFF) {
+        throw new ConflictException({
+          code: 'EMAIL_BELONGS_TO_STAFF',
+          message: 'Este correo pertenece a un usuario del panel administrativo.',
+        });
+      }
+
+      throw new ConflictException({
+        code: 'EMAIL_ALREADY_EXISTS',
+        message: 'Ya existe un usuario con este correo electrónico.',
+      });
+    }
+
+    const passwordHash = await this.passwordService.hash(dto.password);
+
+    const user = await this.userRepository.createCustomerUser({
+      email: dto.email,
+      passwordHash,
+      firstName: dto.firstName,
+      lastName: dto.lastName,
+      phone: dto.phone,
+      status: UserStatus.ACTIVE,
+      emailVerifiedAt: new Date(),
+    });
+
+    return this.mapCustomerResponse(user);
   }
 
   async listStaffUsers(query: ListStaffUsersQueryDto) {

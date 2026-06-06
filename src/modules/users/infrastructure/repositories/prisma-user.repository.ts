@@ -94,6 +94,7 @@ export class PrismaUserRepository {
     lastName?: string;
     phone?: string;
     status?: UserStatus;
+    emailVerifiedAt?: Date | null;
   }): Promise<UserWithAccess> {
     const customerRole = await this.prisma.role.findUnique({
       where: { slug: 'customer' },
@@ -108,6 +109,7 @@ export class PrismaUserRepository {
         email: data.email.toLowerCase(),
         userType: UserType.CUSTOMER,
         status: data.status ?? UserStatus.PENDING_VERIFICATION,
+        emailVerifiedAt: data.emailVerifiedAt,
         passwordHash: data.passwordHash,
         firstName: data.firstName,
         lastName: data.lastName,
