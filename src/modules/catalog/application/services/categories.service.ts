@@ -5,7 +5,9 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import type { Category } from '../../../../generated/prisma/client';
+import { StorageService } from '../../../../infrastructure/storage/storage.service';
 import { ensureUniqueSlug } from '../../../../shared/helpers/slug.helper';
+import type { UploadedImageFile } from '../../../../shared/types/uploaded-file.type';
 import type { CategoryNode } from '../../domain/types/catalog.types';
 import { PrismaCategoryRepository } from '../../infrastructure/repositories/prisma-category.repository';
 import { AssignCategoryAttributesDto } from '../dto/assign-category-attributes.dto';
@@ -14,7 +16,10 @@ import { UpdateCategoryDto } from '../dto/update-category.dto';
 
 @Injectable()
 export class CategoriesService {
-  constructor(private readonly categoryRepository: PrismaCategoryRepository) {}
+  constructor(
+    private readonly categoryRepository: PrismaCategoryRepository,
+    private readonly storageService: StorageService,
+  ) {}
 
   async listTree() {
     const categories = await this.categoryRepository.listAll();
@@ -186,6 +191,62 @@ export class CategoriesService {
     return this.getCategory(categoryId);
   }
 
+  async uploadCategoryImage(categoryId: string, file: UploadedImageFile) {
+    if (!file) {
+      throw new BadRequestException({
+        code: 'IMAGE_FILE_REQUIRED',
+        message: 'Debes enviar un archivo de imagen.',
+      });
+    }
+
+    const category = await this.categoryRepository.findById(categoryId);
+    if (!category) {
+      throw new NotFoundException({
+        code: 'CATEGORY_NOT_FOUND',
+        message: 'Categoría no encontrada.',
+      });
+    }
+
+    if (category.imageKey) {
+      await this.storageService.deleteObject(category.imageKey);
+    }
+
+    const uploaded = await this.storageService.uploadObject({
+      folder: `catalog/categories/${categoryId}`,
+      originalName: file.originalname,
+      buffer: file.buffer,
+      mimeType: file.mimetype,
+    });
+
+    const updated = await this.categoryRepository.update(categoryId, {
+      imageKey: uploaded.storageKey,
+      imageUrl: this.storageService.getReadableUrl(uploaded.storageKey),
+    });
+
+    return this.mapCategory(updated);
+  }
+
+  async deleteCategoryImage(categoryId: string) {
+    const category = await this.categoryRepository.findById(categoryId);
+    if (!category) {
+      throw new NotFoundException({
+        code: 'CATEGORY_NOT_FOUND',
+        message: 'Categoría no encontrada.',
+      });
+    }
+
+    if (category.imageKey) {
+      await this.storageService.deleteObject(category.imageKey);
+    }
+
+    const updated = await this.categoryRepository.update(categoryId, {
+      imageKey: null,
+      imageUrl: null,
+    });
+
+    return this.mapCategory(updated);
+  }
+
   private mapCategory(category: Category) {
     return {
       id: category.id,
@@ -193,7 +254,9 @@ export class CategoriesService {
       slug: category.slug,
       description: category.description,
       parentId: category.parentId,
-      imageUrl: category.imageUrl,
+      imageUrl: category.imageKey
+        ? this.storageService.getReadableUrl(category.imageKey)
+        : category.imageUrl,
       sortOrder: category.sortOrder,
       isActive: category.isActive,
       createdAt: category.createdAt.toISOString(),

@@ -166,6 +166,7 @@ export class PrismaProductRepository {
       categoryIds?: string[];
       attributeValues?: Array<{ attributeId: string; value: string }>;
       variants?: Array<{
+        id?: string;
         sku: string;
         barcode?: string;
         name?: string;
@@ -209,28 +210,66 @@ export class PrismaProductRepository {
       }
 
       if (data.variants) {
-        await tx.productVariant.deleteMany({ where: { productId: id } });
-        for (const variant of data.variants) {
-          const createdVariant = await tx.productVariant.create({
-            data: {
-              productId: id,
-              sku: variant.sku,
-              barcode: variant.barcode,
-              name: variant.name,
-              price: variant.price,
-              compareAtPrice: variant.compareAtPrice,
-              cost: variant.cost,
-              weight: variant.weight,
-              isDefault: variant.isDefault,
-              isActive: variant.isActive,
-              sortOrder: variant.sortOrder,
-            },
+        const existingVariants = await tx.productVariant.findMany({
+          where: { productId: id },
+          select: { id: true },
+        });
+        const existingIds = new Set(existingVariants.map((entry) => entry.id));
+        const payloadIds = new Set(
+          data.variants
+            .map((variant) => variant.id)
+            .filter((variantId): variantId is string => Boolean(variantId)),
+        );
+
+        const idsToRemove = [...existingIds].filter(
+          (variantId) => !payloadIds.has(variantId),
+        );
+
+        if (idsToRemove.length > 0) {
+          await tx.productVariant.deleteMany({
+            where: { id: { in: idsToRemove }, productId: id },
           });
+        }
+
+        for (const variant of data.variants) {
+          const variantData = {
+            sku: variant.sku,
+            barcode: variant.barcode,
+            name: variant.name,
+            price: variant.price,
+            compareAtPrice: variant.compareAtPrice,
+            cost: variant.cost,
+            weight: variant.weight,
+            isDefault: variant.isDefault,
+            isActive: variant.isActive,
+            sortOrder: variant.sortOrder,
+          };
+
+          let variantId: string;
+
+          if (variant.id && existingIds.has(variant.id)) {
+            await tx.productVariant.update({
+              where: { id: variant.id },
+              data: variantData,
+            });
+            variantId = variant.id;
+            await tx.variantAttributeValue.deleteMany({
+              where: { variantId },
+            });
+          } else {
+            const createdVariant = await tx.productVariant.create({
+              data: {
+                productId: id,
+                ...variantData,
+              },
+            });
+            variantId = createdVariant.id;
+          }
 
           if (variant.attributeValues.length > 0) {
             await tx.variantAttributeValue.createMany({
               data: variant.attributeValues.map((entry) => ({
-                variantId: createdVariant.id,
+                variantId,
                 attributeId: entry.attributeId,
                 value: entry.value,
               })),

@@ -7,8 +7,13 @@ import {
   Patch,
   Post,
   Put,
+  UploadedFile,
+  UseInterceptors,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { ApiBearerAuth, ApiBody, ApiConsumes, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { memoryStorage } from 'multer';
+import type { UploadedImageFile } from '../../../../shared/types/uploaded-file.type';
 import { PERMISSIONS } from '../../../../shared/constants/permissions.constants';
 import { RequirePermissions } from '../../../../shared/decorators/permissions.decorator';
 import { UserTypes } from '../../../../shared/decorators/user-types.decorator';
@@ -16,6 +21,11 @@ import { AssignCategoryAttributesDto } from '../../application/dto/assign-catego
 import { CreateCategoryDto } from '../../application/dto/create-category.dto';
 import { UpdateCategoryDto } from '../../application/dto/update-category.dto';
 import { CategoriesService } from '../../application/services/categories.service';
+
+const imageUploadInterceptor = FileInterceptor('file', {
+  storage: memoryStorage(),
+  limits: { fileSize: 5 * 1024 * 1024 },
+});
 
 @ApiTags('Admin Catalog')
 @ApiBearerAuth()
@@ -57,6 +67,31 @@ export class AdminCategoriesController {
   @ApiOperation({ summary: 'Actualizar categoría' })
   update(@Param('id') id: string, @Body() dto: UpdateCategoryDto) {
     return this.categoriesService.updateCategory(id, dto);
+  }
+
+  @Post(':id/image')
+  @RequirePermissions(PERMISSIONS.PRODUCTS_WRITE)
+  @UseInterceptors(imageUploadInterceptor)
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: { file: { type: 'string', format: 'binary' } },
+    },
+  })
+  @ApiOperation({ summary: 'Subir imagen de categoría' })
+  uploadImage(
+    @Param('id') id: string,
+    @UploadedFile() file: UploadedImageFile,
+  ) {
+    return this.categoriesService.uploadCategoryImage(id, file);
+  }
+
+  @Delete(':id/image')
+  @RequirePermissions(PERMISSIONS.PRODUCTS_WRITE)
+  @ApiOperation({ summary: 'Eliminar imagen de categoría' })
+  removeImage(@Param('id') id: string) {
+    return this.categoriesService.deleteCategoryImage(id);
   }
 
   @Put(':id/attributes')

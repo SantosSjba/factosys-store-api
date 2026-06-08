@@ -580,6 +580,7 @@ export class ProductsService {
 
   private normalizeVariants(variants: CreateProductVariantDto[]) {
     return variants.map((variant, index) => ({
+      id: variant.id,
       sku: variant.sku.trim().toUpperCase(),
       barcode: variant.barcode?.trim(),
       name: variant.name?.trim(),

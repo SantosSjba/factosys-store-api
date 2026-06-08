@@ -28,6 +28,11 @@ export class AttributeValueDto {
 }
 
 export class CreateProductVariantDto {
+  @ApiPropertyOptional({ description: 'ID de variante existente (solo en actualización)' })
+  @IsOptional()
+  @IsUUID()
+  id?: string;
+
   @ApiProperty({ example: 'LAPTOP-I7-16-512' })
   @IsString()
   sku!: string;

@@ -1,18 +1,24 @@
 import {
+  BadRequestException,
   ConflictException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import { StorageService } from '../../../../infrastructure/storage/storage.service';
 import { buildPaginationMeta } from '../../../../shared/helpers/pagination.helper';
 import { ensureUniqueSlug } from '../../../../shared/helpers/slug.helper';
 import { PaginationQueryDto } from '../../../../shared/dto/pagination-query.dto';
+import type { UploadedImageFile } from '../../../../shared/types/uploaded-file.type';
 import { PrismaBrandRepository } from '../../infrastructure/repositories/prisma-brand.repository';
 import { CreateBrandDto } from '../dto/create-brand.dto';
 import { UpdateBrandDto } from '../dto/update-brand.dto';
 
 @Injectable()
 export class BrandsService {
-  constructor(private readonly brandRepository: PrismaBrandRepository) {}
+  constructor(
+    private readonly brandRepository: PrismaBrandRepository,
+    private readonly storageService: StorageService,
+  ) {}
 
   async listBrands(query: PaginationQueryDto) {
     const page = query.page ?? 1;
@@ -119,8 +125,68 @@ export class BrandsService {
       });
     }
 
+    if (existing.logoKey) {
+      await this.storageService.deleteObject(existing.logoKey);
+    }
+
     await this.brandRepository.delete(id);
     return { message: 'Marca eliminada correctamente.' };
+  }
+
+  async uploadBrandLogo(brandId: string, file: UploadedImageFile) {
+    if (!file) {
+      throw new BadRequestException({
+        code: 'IMAGE_FILE_REQUIRED',
+        message: 'Debes enviar un archivo de imagen.',
+      });
+    }
+
+    const brand = await this.brandRepository.findById(brandId);
+    if (!brand) {
+      throw new NotFoundException({
+        code: 'BRAND_NOT_FOUND',
+        message: 'Marca no encontrada.',
+      });
+    }
+
+    if (brand.logoKey) {
+      await this.storageService.deleteObject(brand.logoKey);
+    }
+
+    const uploaded = await this.storageService.uploadObject({
+      folder: `catalog/brands/${brandId}`,
+      originalName: file.originalname,
+      buffer: file.buffer,
+      mimeType: file.mimetype,
+    });
+
+    const updated = await this.brandRepository.update(brandId, {
+      logoKey: uploaded.storageKey,
+      logoUrl: this.storageService.getReadableUrl(uploaded.storageKey),
+    });
+
+    return this.mapBrand(updated);
+  }
+
+  async deleteBrandLogo(brandId: string) {
+    const brand = await this.brandRepository.findById(brandId);
+    if (!brand) {
+      throw new NotFoundException({
+        code: 'BRAND_NOT_FOUND',
+        message: 'Marca no encontrada.',
+      });
+    }
+
+    if (brand.logoKey) {
+      await this.storageService.deleteObject(brand.logoKey);
+    }
+
+    const updated = await this.brandRepository.update(brandId, {
+      logoKey: null,
+      logoUrl: null,
+    });
+
+    return this.mapBrand(updated);
   }
 
   private mapBrand(brand: {
@@ -129,6 +195,7 @@ export class BrandsService {
     slug: string;
     description: string | null;
     logoUrl: string | null;
+    logoKey?: string | null;
     website: string | null;
     isActive: boolean;
     createdAt: Date;
@@ -139,7 +206,9 @@ export class BrandsService {
       name: brand.name,
       slug: brand.slug,
       description: brand.description,
-      logoUrl: brand.logoUrl,
+      logoUrl: brand.logoKey
+        ? this.storageService.getReadableUrl(brand.logoKey)
+        : brand.logoUrl,
       website: brand.website,
       isActive: brand.isActive,
       createdAt: brand.createdAt.toISOString(),
