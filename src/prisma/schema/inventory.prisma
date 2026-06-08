@@ -26,6 +26,7 @@ model Warehouse {
   stockMovements      StockMovement[] @relation("MovementWarehouse")
   incomingTransfers   StockMovement[] @relation("MovementTargetWarehouse")
   stockReservations   StockReservation[]
+  storeSettings       StoreSettings[]
 
   @@index([isActive, sortOrder])
 }

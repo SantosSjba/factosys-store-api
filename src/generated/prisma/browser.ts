@@ -127,3 +127,23 @@ export type StockMovement = Prisma.StockMovementModel
  * 
  */
 export type StockReservation = Prisma.StockReservationModel
+/**
+ * Model CompanyProfile
+ * 
+ */
+export type CompanyProfile = Prisma.CompanyProfileModel
+/**
+ * Model StoreSettings
+ * 
+ */
+export type StoreSettings = Prisma.StoreSettingsModel
+/**
+ * Model Currency
+ * 
+ */
+export type Currency = Prisma.CurrencyModel
+/**
+ * Model TaxRate
+ * 
+ */
+export type TaxRate = Prisma.TaxRateModel

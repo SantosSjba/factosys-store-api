@@ -1,0 +1,93 @@
+model CompanyProfile {
+  id            String   @id @default("default")
+  legalName     String?
+  tradeName     String?
+  taxId         String?
+  taxRegime     String?
+  fiscalAddress String?
+  district      String?
+  province      String?
+  department    String?
+  country       String   @default("PE")
+  supportEmail  String?
+  supportPhone  String?
+  whatsapp      String?
+  website       String?
+  logoUrl       String?
+  logoKey       String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model StoreSettings {
+  id                            String   @id @default("default")
+  storeName                     String   @default("Factosys Store")
+  storeTagline                  String?
+  logoUrl                       String?
+  logoKey                       String?
+  faviconUrl                    String?
+  faviconKey                    String?
+  defaultLocale                 String   @default("es-PE")
+  timezone                      String   @default("America/Lima")
+  defaultCurrencyCode           String   @default("PEN")
+  defaultTaxRateId              String?
+  pricesIncludeTax              Boolean  @default(false)
+  metaTitleDefault              String?
+  metaDescriptionDefault        String?
+  maintenanceMode               Boolean  @default(false)
+  maintenanceMessage            String?
+  guestCheckoutEnabled          Boolean  @default(true)
+  minOrderAmount                Decimal? @db.Decimal(12, 2)
+  orderNumberPrefix             String   @default("FS-")
+  defaultWarehouseId            String?
+  lowStockGlobalThreshold       Int?
+  freeShippingMinAmount         Decimal? @db.Decimal(12, 2)
+  handlingDaysMin               Int?
+  handlingDaysMax               Int?
+  warrantyPolicyUrl             String?
+  returnsPolicyUrl              String?
+  privacyPolicyUrl              String?
+  termsUrl                      String?
+  complaintsBookUrl             String?
+  serialNumberRequired          Boolean  @default(false)
+  orderConfirmationEmailEnabled Boolean  @default(true)
+  mailFromName                  String?
+  createdAt                     DateTime @default(now())
+  updatedAt                     DateTime @updatedAt
+
+  defaultTaxRate   TaxRate?   @relation(fields: [defaultTaxRateId], references: [id], onDelete: SetNull)
+  defaultWarehouse Warehouse? @relation(fields: [defaultWarehouseId], references: [id], onDelete: SetNull)
+}
+
+model Currency {
+  id            String   @id @default(uuid())
+  code          String   @unique
+  name          String
+  symbol        String
+  exchangeRate  Decimal  @default(1) @db.Decimal(12, 6)
+  decimalPlaces Int      @default(2)
+  isDefault     Boolean  @default(false)
+  isActive      Boolean  @default(true)
+  sortOrder     Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([isActive, sortOrder])
+}
+
+model TaxRate {
+  id                String   @id @default(uuid())
+  name              String
+  code              String?
+  rate              Decimal  @db.Decimal(5, 2)
+  isDefault         Boolean  @default(false)
+  isActive          Boolean  @default(true)
+  appliesToShipping Boolean  @default(false)
+  sortOrder         Int      @default(0)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  storeSettings StoreSettings[]
+
+  @@index([isActive, sortOrder])
+}

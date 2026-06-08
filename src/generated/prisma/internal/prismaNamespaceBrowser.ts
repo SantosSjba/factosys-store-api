@@ -72,7 +72,11 @@ export const ModelName = {
   Warehouse: 'Warehouse',
   StockLevel: 'StockLevel',
   StockMovement: 'StockMovement',
-  StockReservation: 'StockReservation'
+  StockReservation: 'StockReservation',
+  CompanyProfile: 'CompanyProfile',
+  StoreSettings: 'StoreSettings',
+  Currency: 'Currency',
+  TaxRate: 'TaxRate'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -401,6 +405,103 @@ export const StockReservationScalarFieldEnum = {
 } as const
 
 export type StockReservationScalarFieldEnum = (typeof StockReservationScalarFieldEnum)[keyof typeof StockReservationScalarFieldEnum]
+
+
+export const CompanyProfileScalarFieldEnum = {
+  id: 'id',
+  legalName: 'legalName',
+  tradeName: 'tradeName',
+  taxId: 'taxId',
+  taxRegime: 'taxRegime',
+  fiscalAddress: 'fiscalAddress',
+  district: 'district',
+  province: 'province',
+  department: 'department',
+  country: 'country',
+  supportEmail: 'supportEmail',
+  supportPhone: 'supportPhone',
+  whatsapp: 'whatsapp',
+  website: 'website',
+  logoUrl: 'logoUrl',
+  logoKey: 'logoKey',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CompanyProfileScalarFieldEnum = (typeof CompanyProfileScalarFieldEnum)[keyof typeof CompanyProfileScalarFieldEnum]
+
+
+export const StoreSettingsScalarFieldEnum = {
+  id: 'id',
+  storeName: 'storeName',
+  storeTagline: 'storeTagline',
+  logoUrl: 'logoUrl',
+  logoKey: 'logoKey',
+  faviconUrl: 'faviconUrl',
+  faviconKey: 'faviconKey',
+  defaultLocale: 'defaultLocale',
+  timezone: 'timezone',
+  defaultCurrencyCode: 'defaultCurrencyCode',
+  defaultTaxRateId: 'defaultTaxRateId',
+  pricesIncludeTax: 'pricesIncludeTax',
+  metaTitleDefault: 'metaTitleDefault',
+  metaDescriptionDefault: 'metaDescriptionDefault',
+  maintenanceMode: 'maintenanceMode',
+  maintenanceMessage: 'maintenanceMessage',
+  guestCheckoutEnabled: 'guestCheckoutEnabled',
+  minOrderAmount: 'minOrderAmount',
+  orderNumberPrefix: 'orderNumberPrefix',
+  defaultWarehouseId: 'defaultWarehouseId',
+  lowStockGlobalThreshold: 'lowStockGlobalThreshold',
+  freeShippingMinAmount: 'freeShippingMinAmount',
+  handlingDaysMin: 'handlingDaysMin',
+  handlingDaysMax: 'handlingDaysMax',
+  warrantyPolicyUrl: 'warrantyPolicyUrl',
+  returnsPolicyUrl: 'returnsPolicyUrl',
+  privacyPolicyUrl: 'privacyPolicyUrl',
+  termsUrl: 'termsUrl',
+  complaintsBookUrl: 'complaintsBookUrl',
+  serialNumberRequired: 'serialNumberRequired',
+  orderConfirmationEmailEnabled: 'orderConfirmationEmailEnabled',
+  mailFromName: 'mailFromName',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type StoreSettingsScalarFieldEnum = (typeof StoreSettingsScalarFieldEnum)[keyof typeof StoreSettingsScalarFieldEnum]
+
+
+export const CurrencyScalarFieldEnum = {
+  id: 'id',
+  code: 'code',
+  name: 'name',
+  symbol: 'symbol',
+  exchangeRate: 'exchangeRate',
+  decimalPlaces: 'decimalPlaces',
+  isDefault: 'isDefault',
+  isActive: 'isActive',
+  sortOrder: 'sortOrder',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CurrencyScalarFieldEnum = (typeof CurrencyScalarFieldEnum)[keyof typeof CurrencyScalarFieldEnum]
+
+
+export const TaxRateScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  code: 'code',
+  rate: 'rate',
+  isDefault: 'isDefault',
+  isActive: 'isActive',
+  appliesToShipping: 'appliesToShipping',
+  sortOrder: 'sortOrder',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type TaxRateScalarFieldEnum = (typeof TaxRateScalarFieldEnum)[keyof typeof TaxRateScalarFieldEnum]
 
 
 export const SortOrder = {
