@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Get,
+  Header,
   Param,
   Patch,
   Post,
@@ -34,6 +35,15 @@ export class AdminOrdersController {
   @ApiOperation({ summary: 'Listar pedidos (paginado)' })
   listOrders(@Query() query: ListOrdersQueryDto) {
     return this.ordersService.listOrders(query);
+  }
+
+  @Get('export')
+  @RequirePermissions(PERMISSIONS.ORDERS_READ)
+  @Header('Content-Type', 'text/csv; charset=utf-8')
+  @Header('Content-Disposition', 'attachment; filename="pedidos.csv"')
+  @ApiOperation({ summary: 'Exportar pedidos a CSV' })
+  exportOrders(@Query() query: ListOrdersQueryDto) {
+    return this.ordersService.exportOrdersCsv(query);
   }
 
   @Post()

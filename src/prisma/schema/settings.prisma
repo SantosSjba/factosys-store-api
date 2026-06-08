@@ -43,8 +43,23 @@ model StoreSettings {
   defaultWarehouseId            String?
   lowStockGlobalThreshold       Int?
   freeShippingMinAmount         Decimal? @db.Decimal(12, 2)
+  flatShippingFee               Decimal? @db.Decimal(12, 2)
   handlingDaysMin               Int?
   handlingDaysMax               Int?
+  pickupPointName               String?
+  pickupPointAddress            String?
+  pickupPointDistrict           String?
+  pickupPointProvince           String?
+  pickupPointDepartment         String?
+  pickupPointHours              String?
+  pickupPointPhone              String?
+  paymentCashEnabled            Boolean  @default(true)
+  paymentBankTransferEnabled    Boolean  @default(true)
+  paymentYapeEnabled            Boolean  @default(false)
+  paymentPlinEnabled            Boolean  @default(false)
+  bankTransferInstructions      String?
+  yapeNumber                    String?
+  plinNumber                    String?
   warrantyPolicyUrl             String?
   returnsPolicyUrl              String?
   privacyPolicyUrl              String?

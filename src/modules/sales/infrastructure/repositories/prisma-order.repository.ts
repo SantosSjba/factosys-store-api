@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import type {
   OrderAddressType,
+  OrderDeliveryMethod,
   OrderPaymentStatus,
   OrderSource,
   OrderStatus,
@@ -48,6 +49,7 @@ export class PrismaOrderRepository {
     status?: OrderStatus;
     paymentStatus?: OrderPaymentStatus;
     customerId?: string;
+    deliveryMethod?: OrderDeliveryMethod;
     dateFrom?: Date;
     dateTo?: Date;
   }) {
@@ -55,6 +57,7 @@ export class PrismaOrderRepository {
       ...(params.status ? { status: params.status } : {}),
       ...(params.paymentStatus ? { paymentStatus: params.paymentStatus } : {}),
       ...(params.customerId ? { customerId: params.customerId } : {}),
+      ...(params.deliveryMethod ? { deliveryMethod: params.deliveryMethod } : {}),
       ...(params.dateFrom || params.dateTo
         ? {
             createdAt: {

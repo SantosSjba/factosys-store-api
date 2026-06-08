@@ -88,8 +88,35 @@ export class StoreSettingsService {
       orderNumberPrefix: dto.orderNumberPrefix?.trim(),
       lowStockGlobalThreshold: dto.lowStockGlobalThreshold,
       freeShippingMinAmount: dto.freeShippingMinAmount,
+      flatShippingFee: dto.flatShippingFee,
       handlingDaysMin: dto.handlingDaysMin,
       handlingDaysMax: dto.handlingDaysMax,
+      pickupPointName:
+        dto.pickupPointName !== undefined ? dto.pickupPointName?.trim() ?? null : undefined,
+      pickupPointAddress:
+        dto.pickupPointAddress !== undefined ? dto.pickupPointAddress?.trim() ?? null : undefined,
+      pickupPointDistrict:
+        dto.pickupPointDistrict !== undefined ? dto.pickupPointDistrict?.trim() ?? null : undefined,
+      pickupPointProvince:
+        dto.pickupPointProvince !== undefined ? dto.pickupPointProvince?.trim() ?? null : undefined,
+      pickupPointDepartment:
+        dto.pickupPointDepartment !== undefined
+          ? dto.pickupPointDepartment?.trim() ?? null
+          : undefined,
+      pickupPointHours:
+        dto.pickupPointHours !== undefined ? dto.pickupPointHours?.trim() ?? null : undefined,
+      pickupPointPhone:
+        dto.pickupPointPhone !== undefined ? dto.pickupPointPhone?.trim() ?? null : undefined,
+      paymentCashEnabled: dto.paymentCashEnabled,
+      paymentBankTransferEnabled: dto.paymentBankTransferEnabled,
+      paymentYapeEnabled: dto.paymentYapeEnabled,
+      paymentPlinEnabled: dto.paymentPlinEnabled,
+      bankTransferInstructions:
+        dto.bankTransferInstructions !== undefined
+          ? dto.bankTransferInstructions?.trim() ?? null
+          : undefined,
+      yapeNumber: dto.yapeNumber !== undefined ? dto.yapeNumber?.trim() ?? null : undefined,
+      plinNumber: dto.plinNumber !== undefined ? dto.plinNumber?.trim() ?? null : undefined,
       warrantyPolicyUrl: dto.warrantyPolicyUrl !== undefined ? dto.warrantyPolicyUrl?.trim() ?? null : undefined,
       returnsPolicyUrl: dto.returnsPolicyUrl !== undefined ? dto.returnsPolicyUrl?.trim() ?? null : undefined,
       privacyPolicyUrl: dto.privacyPolicyUrl !== undefined ? dto.privacyPolicyUrl?.trim() ?? null : undefined,
@@ -269,8 +296,23 @@ export class StoreSettingsService {
     defaultWarehouseId: string | null;
     lowStockGlobalThreshold: number | null;
     freeShippingMinAmount: { toString(): string } | null;
+    flatShippingFee: { toString(): string } | null;
     handlingDaysMin: number | null;
     handlingDaysMax: number | null;
+    pickupPointName: string | null;
+    pickupPointAddress: string | null;
+    pickupPointDistrict: string | null;
+    pickupPointProvince: string | null;
+    pickupPointDepartment: string | null;
+    pickupPointHours: string | null;
+    pickupPointPhone: string | null;
+    paymentCashEnabled: boolean;
+    paymentBankTransferEnabled: boolean;
+    paymentYapeEnabled: boolean;
+    paymentPlinEnabled: boolean;
+    bankTransferInstructions: string | null;
+    yapeNumber: string | null;
+    plinNumber: string | null;
     warrantyPolicyUrl: string | null;
     returnsPolicyUrl: string | null;
     privacyPolicyUrl: string | null;
@@ -313,8 +355,23 @@ export class StoreSettingsService {
       defaultWarehouseName: settings.defaultWarehouse?.name ?? null,
       lowStockGlobalThreshold: settings.lowStockGlobalThreshold,
       freeShippingMinAmount: this.decimalToString(settings.freeShippingMinAmount),
+      flatShippingFee: this.decimalToString(settings.flatShippingFee),
       handlingDaysMin: settings.handlingDaysMin,
       handlingDaysMax: settings.handlingDaysMax,
+      pickupPointName: settings.pickupPointName,
+      pickupPointAddress: settings.pickupPointAddress,
+      pickupPointDistrict: settings.pickupPointDistrict,
+      pickupPointProvince: settings.pickupPointProvince,
+      pickupPointDepartment: settings.pickupPointDepartment,
+      pickupPointHours: settings.pickupPointHours,
+      pickupPointPhone: settings.pickupPointPhone,
+      paymentCashEnabled: settings.paymentCashEnabled,
+      paymentBankTransferEnabled: settings.paymentBankTransferEnabled,
+      paymentYapeEnabled: settings.paymentYapeEnabled,
+      paymentPlinEnabled: settings.paymentPlinEnabled,
+      bankTransferInstructions: settings.bankTransferInstructions,
+      yapeNumber: settings.yapeNumber,
+      plinNumber: settings.plinNumber,
       warrantyPolicyUrl: settings.warrantyPolicyUrl,
       returnsPolicyUrl: settings.returnsPolicyUrl,
       privacyPolicyUrl: settings.privacyPolicyUrl,

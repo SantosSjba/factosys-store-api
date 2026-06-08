@@ -31,6 +31,7 @@ export type StoreSettingsAvgAggregateOutputType = {
   lastOrderNumber: number | null
   lowStockGlobalThreshold: number | null
   freeShippingMinAmount: runtime.Decimal | null
+  flatShippingFee: runtime.Decimal | null
   handlingDaysMin: number | null
   handlingDaysMax: number | null
 }
@@ -40,6 +41,7 @@ export type StoreSettingsSumAggregateOutputType = {
   lastOrderNumber: number | null
   lowStockGlobalThreshold: number | null
   freeShippingMinAmount: runtime.Decimal | null
+  flatShippingFee: runtime.Decimal | null
   handlingDaysMin: number | null
   handlingDaysMax: number | null
 }
@@ -68,8 +70,23 @@ export type StoreSettingsMinAggregateOutputType = {
   defaultWarehouseId: string | null
   lowStockGlobalThreshold: number | null
   freeShippingMinAmount: runtime.Decimal | null
+  flatShippingFee: runtime.Decimal | null
   handlingDaysMin: number | null
   handlingDaysMax: number | null
+  pickupPointName: string | null
+  pickupPointAddress: string | null
+  pickupPointDistrict: string | null
+  pickupPointProvince: string | null
+  pickupPointDepartment: string | null
+  pickupPointHours: string | null
+  pickupPointPhone: string | null
+  paymentCashEnabled: boolean | null
+  paymentBankTransferEnabled: boolean | null
+  paymentYapeEnabled: boolean | null
+  paymentPlinEnabled: boolean | null
+  bankTransferInstructions: string | null
+  yapeNumber: string | null
+  plinNumber: string | null
   warrantyPolicyUrl: string | null
   returnsPolicyUrl: string | null
   privacyPolicyUrl: string | null
@@ -106,8 +123,23 @@ export type StoreSettingsMaxAggregateOutputType = {
   defaultWarehouseId: string | null
   lowStockGlobalThreshold: number | null
   freeShippingMinAmount: runtime.Decimal | null
+  flatShippingFee: runtime.Decimal | null
   handlingDaysMin: number | null
   handlingDaysMax: number | null
+  pickupPointName: string | null
+  pickupPointAddress: string | null
+  pickupPointDistrict: string | null
+  pickupPointProvince: string | null
+  pickupPointDepartment: string | null
+  pickupPointHours: string | null
+  pickupPointPhone: string | null
+  paymentCashEnabled: boolean | null
+  paymentBankTransferEnabled: boolean | null
+  paymentYapeEnabled: boolean | null
+  paymentPlinEnabled: boolean | null
+  bankTransferInstructions: string | null
+  yapeNumber: string | null
+  plinNumber: string | null
   warrantyPolicyUrl: string | null
   returnsPolicyUrl: string | null
   privacyPolicyUrl: string | null
@@ -144,8 +176,23 @@ export type StoreSettingsCountAggregateOutputType = {
   defaultWarehouseId: number
   lowStockGlobalThreshold: number
   freeShippingMinAmount: number
+  flatShippingFee: number
   handlingDaysMin: number
   handlingDaysMax: number
+  pickupPointName: number
+  pickupPointAddress: number
+  pickupPointDistrict: number
+  pickupPointProvince: number
+  pickupPointDepartment: number
+  pickupPointHours: number
+  pickupPointPhone: number
+  paymentCashEnabled: number
+  paymentBankTransferEnabled: number
+  paymentYapeEnabled: number
+  paymentPlinEnabled: number
+  bankTransferInstructions: number
+  yapeNumber: number
+  plinNumber: number
   warrantyPolicyUrl: number
   returnsPolicyUrl: number
   privacyPolicyUrl: number
@@ -165,6 +212,7 @@ export type StoreSettingsAvgAggregateInputType = {
   lastOrderNumber?: true
   lowStockGlobalThreshold?: true
   freeShippingMinAmount?: true
+  flatShippingFee?: true
   handlingDaysMin?: true
   handlingDaysMax?: true
 }
@@ -174,6 +222,7 @@ export type StoreSettingsSumAggregateInputType = {
   lastOrderNumber?: true
   lowStockGlobalThreshold?: true
   freeShippingMinAmount?: true
+  flatShippingFee?: true
   handlingDaysMin?: true
   handlingDaysMax?: true
 }
@@ -202,8 +251,23 @@ export type StoreSettingsMinAggregateInputType = {
   defaultWarehouseId?: true
   lowStockGlobalThreshold?: true
   freeShippingMinAmount?: true
+  flatShippingFee?: true
   handlingDaysMin?: true
   handlingDaysMax?: true
+  pickupPointName?: true
+  pickupPointAddress?: true
+  pickupPointDistrict?: true
+  pickupPointProvince?: true
+  pickupPointDepartment?: true
+  pickupPointHours?: true
+  pickupPointPhone?: true
+  paymentCashEnabled?: true
+  paymentBankTransferEnabled?: true
+  paymentYapeEnabled?: true
+  paymentPlinEnabled?: true
+  bankTransferInstructions?: true
+  yapeNumber?: true
+  plinNumber?: true
   warrantyPolicyUrl?: true
   returnsPolicyUrl?: true
   privacyPolicyUrl?: true
@@ -240,8 +304,23 @@ export type StoreSettingsMaxAggregateInputType = {
   defaultWarehouseId?: true
   lowStockGlobalThreshold?: true
   freeShippingMinAmount?: true
+  flatShippingFee?: true
   handlingDaysMin?: true
   handlingDaysMax?: true
+  pickupPointName?: true
+  pickupPointAddress?: true
+  pickupPointDistrict?: true
+  pickupPointProvince?: true
+  pickupPointDepartment?: true
+  pickupPointHours?: true
+  pickupPointPhone?: true
+  paymentCashEnabled?: true
+  paymentBankTransferEnabled?: true
+  paymentYapeEnabled?: true
+  paymentPlinEnabled?: true
+  bankTransferInstructions?: true
+  yapeNumber?: true
+  plinNumber?: true
   warrantyPolicyUrl?: true
   returnsPolicyUrl?: true
   privacyPolicyUrl?: true
@@ -278,8 +357,23 @@ export type StoreSettingsCountAggregateInputType = {
   defaultWarehouseId?: true
   lowStockGlobalThreshold?: true
   freeShippingMinAmount?: true
+  flatShippingFee?: true
   handlingDaysMin?: true
   handlingDaysMax?: true
+  pickupPointName?: true
+  pickupPointAddress?: true
+  pickupPointDistrict?: true
+  pickupPointProvince?: true
+  pickupPointDepartment?: true
+  pickupPointHours?: true
+  pickupPointPhone?: true
+  paymentCashEnabled?: true
+  paymentBankTransferEnabled?: true
+  paymentYapeEnabled?: true
+  paymentPlinEnabled?: true
+  bankTransferInstructions?: true
+  yapeNumber?: true
+  plinNumber?: true
   warrantyPolicyUrl?: true
   returnsPolicyUrl?: true
   privacyPolicyUrl?: true
@@ -403,8 +497,23 @@ export type StoreSettingsGroupByOutputType = {
   defaultWarehouseId: string | null
   lowStockGlobalThreshold: number | null
   freeShippingMinAmount: runtime.Decimal | null
+  flatShippingFee: runtime.Decimal | null
   handlingDaysMin: number | null
   handlingDaysMax: number | null
+  pickupPointName: string | null
+  pickupPointAddress: string | null
+  pickupPointDistrict: string | null
+  pickupPointProvince: string | null
+  pickupPointDepartment: string | null
+  pickupPointHours: string | null
+  pickupPointPhone: string | null
+  paymentCashEnabled: boolean
+  paymentBankTransferEnabled: boolean
+  paymentYapeEnabled: boolean
+  paymentPlinEnabled: boolean
+  bankTransferInstructions: string | null
+  yapeNumber: string | null
+  plinNumber: string | null
   warrantyPolicyUrl: string | null
   returnsPolicyUrl: string | null
   privacyPolicyUrl: string | null
@@ -464,8 +573,23 @@ export type StoreSettingsWhereInput = {
   defaultWarehouseId?: Prisma.StringNullableFilter<"StoreSettings"> | string | null
   lowStockGlobalThreshold?: Prisma.IntNullableFilter<"StoreSettings"> | number | null
   freeShippingMinAmount?: Prisma.DecimalNullableFilter<"StoreSettings"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  flatShippingFee?: Prisma.DecimalNullableFilter<"StoreSettings"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   handlingDaysMin?: Prisma.IntNullableFilter<"StoreSettings"> | number | null
   handlingDaysMax?: Prisma.IntNullableFilter<"StoreSettings"> | number | null
+  pickupPointName?: Prisma.StringNullableFilter<"StoreSettings"> | string | null
+  pickupPointAddress?: Prisma.StringNullableFilter<"StoreSettings"> | string | null
+  pickupPointDistrict?: Prisma.StringNullableFilter<"StoreSettings"> | string | null
+  pickupPointProvince?: Prisma.StringNullableFilter<"StoreSettings"> | string | null
+  pickupPointDepartment?: Prisma.StringNullableFilter<"StoreSettings"> | string | null
+  pickupPointHours?: Prisma.StringNullableFilter<"StoreSettings"> | string | null
+  pickupPointPhone?: Prisma.StringNullableFilter<"StoreSettings"> | string | null
+  paymentCashEnabled?: Prisma.BoolFilter<"StoreSettings"> | boolean
+  paymentBankTransferEnabled?: Prisma.BoolFilter<"StoreSettings"> | boolean
+  paymentYapeEnabled?: Prisma.BoolFilter<"StoreSettings"> | boolean
+  paymentPlinEnabled?: Prisma.BoolFilter<"StoreSettings"> | boolean
+  bankTransferInstructions?: Prisma.StringNullableFilter<"StoreSettings"> | string | null
+  yapeNumber?: Prisma.StringNullableFilter<"StoreSettings"> | string | null
+  plinNumber?: Prisma.StringNullableFilter<"StoreSettings"> | string | null
   warrantyPolicyUrl?: Prisma.StringNullableFilter<"StoreSettings"> | string | null
   returnsPolicyUrl?: Prisma.StringNullableFilter<"StoreSettings"> | string | null
   privacyPolicyUrl?: Prisma.StringNullableFilter<"StoreSettings"> | string | null
@@ -504,8 +628,23 @@ export type StoreSettingsOrderByWithRelationInput = {
   defaultWarehouseId?: Prisma.SortOrderInput | Prisma.SortOrder
   lowStockGlobalThreshold?: Prisma.SortOrderInput | Prisma.SortOrder
   freeShippingMinAmount?: Prisma.SortOrderInput | Prisma.SortOrder
+  flatShippingFee?: Prisma.SortOrderInput | Prisma.SortOrder
   handlingDaysMin?: Prisma.SortOrderInput | Prisma.SortOrder
   handlingDaysMax?: Prisma.SortOrderInput | Prisma.SortOrder
+  pickupPointName?: Prisma.SortOrderInput | Prisma.SortOrder
+  pickupPointAddress?: Prisma.SortOrderInput | Prisma.SortOrder
+  pickupPointDistrict?: Prisma.SortOrderInput | Prisma.SortOrder
+  pickupPointProvince?: Prisma.SortOrderInput | Prisma.SortOrder
+  pickupPointDepartment?: Prisma.SortOrderInput | Prisma.SortOrder
+  pickupPointHours?: Prisma.SortOrderInput | Prisma.SortOrder
+  pickupPointPhone?: Prisma.SortOrderInput | Prisma.SortOrder
+  paymentCashEnabled?: Prisma.SortOrder
+  paymentBankTransferEnabled?: Prisma.SortOrder
+  paymentYapeEnabled?: Prisma.SortOrder
+  paymentPlinEnabled?: Prisma.SortOrder
+  bankTransferInstructions?: Prisma.SortOrderInput | Prisma.SortOrder
+  yapeNumber?: Prisma.SortOrderInput | Prisma.SortOrder
+  plinNumber?: Prisma.SortOrderInput | Prisma.SortOrder
   warrantyPolicyUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   returnsPolicyUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   privacyPolicyUrl?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -547,8 +686,23 @@ export type StoreSettingsWhereUniqueInput = Prisma.AtLeast<{
   defaultWarehouseId?: Prisma.StringNullableFilter<"StoreSettings"> | string | null
   lowStockGlobalThreshold?: Prisma.IntNullableFilter<"StoreSettings"> | number | null
   freeShippingMinAmount?: Prisma.DecimalNullableFilter<"StoreSettings"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  flatShippingFee?: Prisma.DecimalNullableFilter<"StoreSettings"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   handlingDaysMin?: Prisma.IntNullableFilter<"StoreSettings"> | number | null
   handlingDaysMax?: Prisma.IntNullableFilter<"StoreSettings"> | number | null
+  pickupPointName?: Prisma.StringNullableFilter<"StoreSettings"> | string | null
+  pickupPointAddress?: Prisma.StringNullableFilter<"StoreSettings"> | string | null
+  pickupPointDistrict?: Prisma.StringNullableFilter<"StoreSettings"> | string | null
+  pickupPointProvince?: Prisma.StringNullableFilter<"StoreSettings"> | string | null
+  pickupPointDepartment?: Prisma.StringNullableFilter<"StoreSettings"> | string | null
+  pickupPointHours?: Prisma.StringNullableFilter<"StoreSettings"> | string | null
+  pickupPointPhone?: Prisma.StringNullableFilter<"StoreSettings"> | string | null
+  paymentCashEnabled?: Prisma.BoolFilter<"StoreSettings"> | boolean
+  paymentBankTransferEnabled?: Prisma.BoolFilter<"StoreSettings"> | boolean
+  paymentYapeEnabled?: Prisma.BoolFilter<"StoreSettings"> | boolean
+  paymentPlinEnabled?: Prisma.BoolFilter<"StoreSettings"> | boolean
+  bankTransferInstructions?: Prisma.StringNullableFilter<"StoreSettings"> | string | null
+  yapeNumber?: Prisma.StringNullableFilter<"StoreSettings"> | string | null
+  plinNumber?: Prisma.StringNullableFilter<"StoreSettings"> | string | null
   warrantyPolicyUrl?: Prisma.StringNullableFilter<"StoreSettings"> | string | null
   returnsPolicyUrl?: Prisma.StringNullableFilter<"StoreSettings"> | string | null
   privacyPolicyUrl?: Prisma.StringNullableFilter<"StoreSettings"> | string | null
@@ -587,8 +741,23 @@ export type StoreSettingsOrderByWithAggregationInput = {
   defaultWarehouseId?: Prisma.SortOrderInput | Prisma.SortOrder
   lowStockGlobalThreshold?: Prisma.SortOrderInput | Prisma.SortOrder
   freeShippingMinAmount?: Prisma.SortOrderInput | Prisma.SortOrder
+  flatShippingFee?: Prisma.SortOrderInput | Prisma.SortOrder
   handlingDaysMin?: Prisma.SortOrderInput | Prisma.SortOrder
   handlingDaysMax?: Prisma.SortOrderInput | Prisma.SortOrder
+  pickupPointName?: Prisma.SortOrderInput | Prisma.SortOrder
+  pickupPointAddress?: Prisma.SortOrderInput | Prisma.SortOrder
+  pickupPointDistrict?: Prisma.SortOrderInput | Prisma.SortOrder
+  pickupPointProvince?: Prisma.SortOrderInput | Prisma.SortOrder
+  pickupPointDepartment?: Prisma.SortOrderInput | Prisma.SortOrder
+  pickupPointHours?: Prisma.SortOrderInput | Prisma.SortOrder
+  pickupPointPhone?: Prisma.SortOrderInput | Prisma.SortOrder
+  paymentCashEnabled?: Prisma.SortOrder
+  paymentBankTransferEnabled?: Prisma.SortOrder
+  paymentYapeEnabled?: Prisma.SortOrder
+  paymentPlinEnabled?: Prisma.SortOrder
+  bankTransferInstructions?: Prisma.SortOrderInput | Prisma.SortOrder
+  yapeNumber?: Prisma.SortOrderInput | Prisma.SortOrder
+  plinNumber?: Prisma.SortOrderInput | Prisma.SortOrder
   warrantyPolicyUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   returnsPolicyUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   privacyPolicyUrl?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -633,8 +802,23 @@ export type StoreSettingsScalarWhereWithAggregatesInput = {
   defaultWarehouseId?: Prisma.StringNullableWithAggregatesFilter<"StoreSettings"> | string | null
   lowStockGlobalThreshold?: Prisma.IntNullableWithAggregatesFilter<"StoreSettings"> | number | null
   freeShippingMinAmount?: Prisma.DecimalNullableWithAggregatesFilter<"StoreSettings"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  flatShippingFee?: Prisma.DecimalNullableWithAggregatesFilter<"StoreSettings"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   handlingDaysMin?: Prisma.IntNullableWithAggregatesFilter<"StoreSettings"> | number | null
   handlingDaysMax?: Prisma.IntNullableWithAggregatesFilter<"StoreSettings"> | number | null
+  pickupPointName?: Prisma.StringNullableWithAggregatesFilter<"StoreSettings"> | string | null
+  pickupPointAddress?: Prisma.StringNullableWithAggregatesFilter<"StoreSettings"> | string | null
+  pickupPointDistrict?: Prisma.StringNullableWithAggregatesFilter<"StoreSettings"> | string | null
+  pickupPointProvince?: Prisma.StringNullableWithAggregatesFilter<"StoreSettings"> | string | null
+  pickupPointDepartment?: Prisma.StringNullableWithAggregatesFilter<"StoreSettings"> | string | null
+  pickupPointHours?: Prisma.StringNullableWithAggregatesFilter<"StoreSettings"> | string | null
+  pickupPointPhone?: Prisma.StringNullableWithAggregatesFilter<"StoreSettings"> | string | null
+  paymentCashEnabled?: Prisma.BoolWithAggregatesFilter<"StoreSettings"> | boolean
+  paymentBankTransferEnabled?: Prisma.BoolWithAggregatesFilter<"StoreSettings"> | boolean
+  paymentYapeEnabled?: Prisma.BoolWithAggregatesFilter<"StoreSettings"> | boolean
+  paymentPlinEnabled?: Prisma.BoolWithAggregatesFilter<"StoreSettings"> | boolean
+  bankTransferInstructions?: Prisma.StringNullableWithAggregatesFilter<"StoreSettings"> | string | null
+  yapeNumber?: Prisma.StringNullableWithAggregatesFilter<"StoreSettings"> | string | null
+  plinNumber?: Prisma.StringNullableWithAggregatesFilter<"StoreSettings"> | string | null
   warrantyPolicyUrl?: Prisma.StringNullableWithAggregatesFilter<"StoreSettings"> | string | null
   returnsPolicyUrl?: Prisma.StringNullableWithAggregatesFilter<"StoreSettings"> | string | null
   privacyPolicyUrl?: Prisma.StringNullableWithAggregatesFilter<"StoreSettings"> | string | null
@@ -669,8 +853,23 @@ export type StoreSettingsCreateInput = {
   lastOrderNumber?: number
   lowStockGlobalThreshold?: number | null
   freeShippingMinAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  flatShippingFee?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   handlingDaysMin?: number | null
   handlingDaysMax?: number | null
+  pickupPointName?: string | null
+  pickupPointAddress?: string | null
+  pickupPointDistrict?: string | null
+  pickupPointProvince?: string | null
+  pickupPointDepartment?: string | null
+  pickupPointHours?: string | null
+  pickupPointPhone?: string | null
+  paymentCashEnabled?: boolean
+  paymentBankTransferEnabled?: boolean
+  paymentYapeEnabled?: boolean
+  paymentPlinEnabled?: boolean
+  bankTransferInstructions?: string | null
+  yapeNumber?: string | null
+  plinNumber?: string | null
   warrantyPolicyUrl?: string | null
   returnsPolicyUrl?: string | null
   privacyPolicyUrl?: string | null
@@ -709,8 +908,23 @@ export type StoreSettingsUncheckedCreateInput = {
   defaultWarehouseId?: string | null
   lowStockGlobalThreshold?: number | null
   freeShippingMinAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  flatShippingFee?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   handlingDaysMin?: number | null
   handlingDaysMax?: number | null
+  pickupPointName?: string | null
+  pickupPointAddress?: string | null
+  pickupPointDistrict?: string | null
+  pickupPointProvince?: string | null
+  pickupPointDepartment?: string | null
+  pickupPointHours?: string | null
+  pickupPointPhone?: string | null
+  paymentCashEnabled?: boolean
+  paymentBankTransferEnabled?: boolean
+  paymentYapeEnabled?: boolean
+  paymentPlinEnabled?: boolean
+  bankTransferInstructions?: string | null
+  yapeNumber?: string | null
+  plinNumber?: string | null
   warrantyPolicyUrl?: string | null
   returnsPolicyUrl?: string | null
   privacyPolicyUrl?: string | null
@@ -745,8 +959,23 @@ export type StoreSettingsUpdateInput = {
   lastOrderNumber?: Prisma.IntFieldUpdateOperationsInput | number
   lowStockGlobalThreshold?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   freeShippingMinAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  flatShippingFee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   handlingDaysMin?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   handlingDaysMax?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  pickupPointName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupPointAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupPointDistrict?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupPointProvince?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupPointDepartment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupPointHours?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupPointPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentCashEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  paymentBankTransferEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  paymentYapeEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  paymentPlinEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  bankTransferInstructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  yapeNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  plinNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   warrantyPolicyUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   returnsPolicyUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   privacyPolicyUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -785,8 +1014,23 @@ export type StoreSettingsUncheckedUpdateInput = {
   defaultWarehouseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lowStockGlobalThreshold?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   freeShippingMinAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  flatShippingFee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   handlingDaysMin?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   handlingDaysMax?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  pickupPointName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupPointAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupPointDistrict?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupPointProvince?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupPointDepartment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupPointHours?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupPointPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentCashEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  paymentBankTransferEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  paymentYapeEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  paymentPlinEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  bankTransferInstructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  yapeNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  plinNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   warrantyPolicyUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   returnsPolicyUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   privacyPolicyUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -823,8 +1067,23 @@ export type StoreSettingsCreateManyInput = {
   defaultWarehouseId?: string | null
   lowStockGlobalThreshold?: number | null
   freeShippingMinAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  flatShippingFee?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   handlingDaysMin?: number | null
   handlingDaysMax?: number | null
+  pickupPointName?: string | null
+  pickupPointAddress?: string | null
+  pickupPointDistrict?: string | null
+  pickupPointProvince?: string | null
+  pickupPointDepartment?: string | null
+  pickupPointHours?: string | null
+  pickupPointPhone?: string | null
+  paymentCashEnabled?: boolean
+  paymentBankTransferEnabled?: boolean
+  paymentYapeEnabled?: boolean
+  paymentPlinEnabled?: boolean
+  bankTransferInstructions?: string | null
+  yapeNumber?: string | null
+  plinNumber?: string | null
   warrantyPolicyUrl?: string | null
   returnsPolicyUrl?: string | null
   privacyPolicyUrl?: string | null
@@ -859,8 +1118,23 @@ export type StoreSettingsUpdateManyMutationInput = {
   lastOrderNumber?: Prisma.IntFieldUpdateOperationsInput | number
   lowStockGlobalThreshold?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   freeShippingMinAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  flatShippingFee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   handlingDaysMin?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   handlingDaysMax?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  pickupPointName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupPointAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupPointDistrict?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupPointProvince?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupPointDepartment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupPointHours?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupPointPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentCashEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  paymentBankTransferEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  paymentYapeEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  paymentPlinEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  bankTransferInstructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  yapeNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  plinNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   warrantyPolicyUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   returnsPolicyUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   privacyPolicyUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -897,8 +1171,23 @@ export type StoreSettingsUncheckedUpdateManyInput = {
   defaultWarehouseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lowStockGlobalThreshold?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   freeShippingMinAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  flatShippingFee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   handlingDaysMin?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   handlingDaysMax?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  pickupPointName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupPointAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupPointDistrict?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupPointProvince?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupPointDepartment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupPointHours?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupPointPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentCashEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  paymentBankTransferEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  paymentYapeEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  paymentPlinEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  bankTransferInstructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  yapeNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  plinNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   warrantyPolicyUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   returnsPolicyUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   privacyPolicyUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -945,8 +1234,23 @@ export type StoreSettingsCountOrderByAggregateInput = {
   defaultWarehouseId?: Prisma.SortOrder
   lowStockGlobalThreshold?: Prisma.SortOrder
   freeShippingMinAmount?: Prisma.SortOrder
+  flatShippingFee?: Prisma.SortOrder
   handlingDaysMin?: Prisma.SortOrder
   handlingDaysMax?: Prisma.SortOrder
+  pickupPointName?: Prisma.SortOrder
+  pickupPointAddress?: Prisma.SortOrder
+  pickupPointDistrict?: Prisma.SortOrder
+  pickupPointProvince?: Prisma.SortOrder
+  pickupPointDepartment?: Prisma.SortOrder
+  pickupPointHours?: Prisma.SortOrder
+  pickupPointPhone?: Prisma.SortOrder
+  paymentCashEnabled?: Prisma.SortOrder
+  paymentBankTransferEnabled?: Prisma.SortOrder
+  paymentYapeEnabled?: Prisma.SortOrder
+  paymentPlinEnabled?: Prisma.SortOrder
+  bankTransferInstructions?: Prisma.SortOrder
+  yapeNumber?: Prisma.SortOrder
+  plinNumber?: Prisma.SortOrder
   warrantyPolicyUrl?: Prisma.SortOrder
   returnsPolicyUrl?: Prisma.SortOrder
   privacyPolicyUrl?: Prisma.SortOrder
@@ -964,6 +1268,7 @@ export type StoreSettingsAvgOrderByAggregateInput = {
   lastOrderNumber?: Prisma.SortOrder
   lowStockGlobalThreshold?: Prisma.SortOrder
   freeShippingMinAmount?: Prisma.SortOrder
+  flatShippingFee?: Prisma.SortOrder
   handlingDaysMin?: Prisma.SortOrder
   handlingDaysMax?: Prisma.SortOrder
 }
@@ -992,8 +1297,23 @@ export type StoreSettingsMaxOrderByAggregateInput = {
   defaultWarehouseId?: Prisma.SortOrder
   lowStockGlobalThreshold?: Prisma.SortOrder
   freeShippingMinAmount?: Prisma.SortOrder
+  flatShippingFee?: Prisma.SortOrder
   handlingDaysMin?: Prisma.SortOrder
   handlingDaysMax?: Prisma.SortOrder
+  pickupPointName?: Prisma.SortOrder
+  pickupPointAddress?: Prisma.SortOrder
+  pickupPointDistrict?: Prisma.SortOrder
+  pickupPointProvince?: Prisma.SortOrder
+  pickupPointDepartment?: Prisma.SortOrder
+  pickupPointHours?: Prisma.SortOrder
+  pickupPointPhone?: Prisma.SortOrder
+  paymentCashEnabled?: Prisma.SortOrder
+  paymentBankTransferEnabled?: Prisma.SortOrder
+  paymentYapeEnabled?: Prisma.SortOrder
+  paymentPlinEnabled?: Prisma.SortOrder
+  bankTransferInstructions?: Prisma.SortOrder
+  yapeNumber?: Prisma.SortOrder
+  plinNumber?: Prisma.SortOrder
   warrantyPolicyUrl?: Prisma.SortOrder
   returnsPolicyUrl?: Prisma.SortOrder
   privacyPolicyUrl?: Prisma.SortOrder
@@ -1030,8 +1350,23 @@ export type StoreSettingsMinOrderByAggregateInput = {
   defaultWarehouseId?: Prisma.SortOrder
   lowStockGlobalThreshold?: Prisma.SortOrder
   freeShippingMinAmount?: Prisma.SortOrder
+  flatShippingFee?: Prisma.SortOrder
   handlingDaysMin?: Prisma.SortOrder
   handlingDaysMax?: Prisma.SortOrder
+  pickupPointName?: Prisma.SortOrder
+  pickupPointAddress?: Prisma.SortOrder
+  pickupPointDistrict?: Prisma.SortOrder
+  pickupPointProvince?: Prisma.SortOrder
+  pickupPointDepartment?: Prisma.SortOrder
+  pickupPointHours?: Prisma.SortOrder
+  pickupPointPhone?: Prisma.SortOrder
+  paymentCashEnabled?: Prisma.SortOrder
+  paymentBankTransferEnabled?: Prisma.SortOrder
+  paymentYapeEnabled?: Prisma.SortOrder
+  paymentPlinEnabled?: Prisma.SortOrder
+  bankTransferInstructions?: Prisma.SortOrder
+  yapeNumber?: Prisma.SortOrder
+  plinNumber?: Prisma.SortOrder
   warrantyPolicyUrl?: Prisma.SortOrder
   returnsPolicyUrl?: Prisma.SortOrder
   privacyPolicyUrl?: Prisma.SortOrder
@@ -1049,6 +1384,7 @@ export type StoreSettingsSumOrderByAggregateInput = {
   lastOrderNumber?: Prisma.SortOrder
   lowStockGlobalThreshold?: Prisma.SortOrder
   freeShippingMinAmount?: Prisma.SortOrder
+  flatShippingFee?: Prisma.SortOrder
   handlingDaysMin?: Prisma.SortOrder
   handlingDaysMax?: Prisma.SortOrder
 }
@@ -1159,8 +1495,23 @@ export type StoreSettingsCreateWithoutDefaultWarehouseInput = {
   lastOrderNumber?: number
   lowStockGlobalThreshold?: number | null
   freeShippingMinAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  flatShippingFee?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   handlingDaysMin?: number | null
   handlingDaysMax?: number | null
+  pickupPointName?: string | null
+  pickupPointAddress?: string | null
+  pickupPointDistrict?: string | null
+  pickupPointProvince?: string | null
+  pickupPointDepartment?: string | null
+  pickupPointHours?: string | null
+  pickupPointPhone?: string | null
+  paymentCashEnabled?: boolean
+  paymentBankTransferEnabled?: boolean
+  paymentYapeEnabled?: boolean
+  paymentPlinEnabled?: boolean
+  bankTransferInstructions?: string | null
+  yapeNumber?: string | null
+  plinNumber?: string | null
   warrantyPolicyUrl?: string | null
   returnsPolicyUrl?: string | null
   privacyPolicyUrl?: string | null
@@ -1197,8 +1548,23 @@ export type StoreSettingsUncheckedCreateWithoutDefaultWarehouseInput = {
   lastOrderNumber?: number
   lowStockGlobalThreshold?: number | null
   freeShippingMinAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  flatShippingFee?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   handlingDaysMin?: number | null
   handlingDaysMax?: number | null
+  pickupPointName?: string | null
+  pickupPointAddress?: string | null
+  pickupPointDistrict?: string | null
+  pickupPointProvince?: string | null
+  pickupPointDepartment?: string | null
+  pickupPointHours?: string | null
+  pickupPointPhone?: string | null
+  paymentCashEnabled?: boolean
+  paymentBankTransferEnabled?: boolean
+  paymentYapeEnabled?: boolean
+  paymentPlinEnabled?: boolean
+  bankTransferInstructions?: string | null
+  yapeNumber?: string | null
+  plinNumber?: string | null
   warrantyPolicyUrl?: string | null
   returnsPolicyUrl?: string | null
   privacyPolicyUrl?: string | null
@@ -1264,8 +1630,23 @@ export type StoreSettingsScalarWhereInput = {
   defaultWarehouseId?: Prisma.StringNullableFilter<"StoreSettings"> | string | null
   lowStockGlobalThreshold?: Prisma.IntNullableFilter<"StoreSettings"> | number | null
   freeShippingMinAmount?: Prisma.DecimalNullableFilter<"StoreSettings"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  flatShippingFee?: Prisma.DecimalNullableFilter<"StoreSettings"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   handlingDaysMin?: Prisma.IntNullableFilter<"StoreSettings"> | number | null
   handlingDaysMax?: Prisma.IntNullableFilter<"StoreSettings"> | number | null
+  pickupPointName?: Prisma.StringNullableFilter<"StoreSettings"> | string | null
+  pickupPointAddress?: Prisma.StringNullableFilter<"StoreSettings"> | string | null
+  pickupPointDistrict?: Prisma.StringNullableFilter<"StoreSettings"> | string | null
+  pickupPointProvince?: Prisma.StringNullableFilter<"StoreSettings"> | string | null
+  pickupPointDepartment?: Prisma.StringNullableFilter<"StoreSettings"> | string | null
+  pickupPointHours?: Prisma.StringNullableFilter<"StoreSettings"> | string | null
+  pickupPointPhone?: Prisma.StringNullableFilter<"StoreSettings"> | string | null
+  paymentCashEnabled?: Prisma.BoolFilter<"StoreSettings"> | boolean
+  paymentBankTransferEnabled?: Prisma.BoolFilter<"StoreSettings"> | boolean
+  paymentYapeEnabled?: Prisma.BoolFilter<"StoreSettings"> | boolean
+  paymentPlinEnabled?: Prisma.BoolFilter<"StoreSettings"> | boolean
+  bankTransferInstructions?: Prisma.StringNullableFilter<"StoreSettings"> | string | null
+  yapeNumber?: Prisma.StringNullableFilter<"StoreSettings"> | string | null
+  plinNumber?: Prisma.StringNullableFilter<"StoreSettings"> | string | null
   warrantyPolicyUrl?: Prisma.StringNullableFilter<"StoreSettings"> | string | null
   returnsPolicyUrl?: Prisma.StringNullableFilter<"StoreSettings"> | string | null
   privacyPolicyUrl?: Prisma.StringNullableFilter<"StoreSettings"> | string | null
@@ -1300,8 +1681,23 @@ export type StoreSettingsCreateWithoutDefaultTaxRateInput = {
   lastOrderNumber?: number
   lowStockGlobalThreshold?: number | null
   freeShippingMinAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  flatShippingFee?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   handlingDaysMin?: number | null
   handlingDaysMax?: number | null
+  pickupPointName?: string | null
+  pickupPointAddress?: string | null
+  pickupPointDistrict?: string | null
+  pickupPointProvince?: string | null
+  pickupPointDepartment?: string | null
+  pickupPointHours?: string | null
+  pickupPointPhone?: string | null
+  paymentCashEnabled?: boolean
+  paymentBankTransferEnabled?: boolean
+  paymentYapeEnabled?: boolean
+  paymentPlinEnabled?: boolean
+  bankTransferInstructions?: string | null
+  yapeNumber?: string | null
+  plinNumber?: string | null
   warrantyPolicyUrl?: string | null
   returnsPolicyUrl?: string | null
   privacyPolicyUrl?: string | null
@@ -1338,8 +1734,23 @@ export type StoreSettingsUncheckedCreateWithoutDefaultTaxRateInput = {
   defaultWarehouseId?: string | null
   lowStockGlobalThreshold?: number | null
   freeShippingMinAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  flatShippingFee?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   handlingDaysMin?: number | null
   handlingDaysMax?: number | null
+  pickupPointName?: string | null
+  pickupPointAddress?: string | null
+  pickupPointDistrict?: string | null
+  pickupPointProvince?: string | null
+  pickupPointDepartment?: string | null
+  pickupPointHours?: string | null
+  pickupPointPhone?: string | null
+  paymentCashEnabled?: boolean
+  paymentBankTransferEnabled?: boolean
+  paymentYapeEnabled?: boolean
+  paymentPlinEnabled?: boolean
+  bankTransferInstructions?: string | null
+  yapeNumber?: string | null
+  plinNumber?: string | null
   warrantyPolicyUrl?: string | null
   returnsPolicyUrl?: string | null
   privacyPolicyUrl?: string | null
@@ -1401,8 +1812,23 @@ export type StoreSettingsCreateManyDefaultWarehouseInput = {
   lastOrderNumber?: number
   lowStockGlobalThreshold?: number | null
   freeShippingMinAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  flatShippingFee?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   handlingDaysMin?: number | null
   handlingDaysMax?: number | null
+  pickupPointName?: string | null
+  pickupPointAddress?: string | null
+  pickupPointDistrict?: string | null
+  pickupPointProvince?: string | null
+  pickupPointDepartment?: string | null
+  pickupPointHours?: string | null
+  pickupPointPhone?: string | null
+  paymentCashEnabled?: boolean
+  paymentBankTransferEnabled?: boolean
+  paymentYapeEnabled?: boolean
+  paymentPlinEnabled?: boolean
+  bankTransferInstructions?: string | null
+  yapeNumber?: string | null
+  plinNumber?: string | null
   warrantyPolicyUrl?: string | null
   returnsPolicyUrl?: string | null
   privacyPolicyUrl?: string | null
@@ -1437,8 +1863,23 @@ export type StoreSettingsUpdateWithoutDefaultWarehouseInput = {
   lastOrderNumber?: Prisma.IntFieldUpdateOperationsInput | number
   lowStockGlobalThreshold?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   freeShippingMinAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  flatShippingFee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   handlingDaysMin?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   handlingDaysMax?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  pickupPointName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupPointAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupPointDistrict?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupPointProvince?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupPointDepartment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupPointHours?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupPointPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentCashEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  paymentBankTransferEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  paymentYapeEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  paymentPlinEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  bankTransferInstructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  yapeNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  plinNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   warrantyPolicyUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   returnsPolicyUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   privacyPolicyUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1475,8 +1916,23 @@ export type StoreSettingsUncheckedUpdateWithoutDefaultWarehouseInput = {
   lastOrderNumber?: Prisma.IntFieldUpdateOperationsInput | number
   lowStockGlobalThreshold?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   freeShippingMinAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  flatShippingFee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   handlingDaysMin?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   handlingDaysMax?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  pickupPointName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupPointAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupPointDistrict?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupPointProvince?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupPointDepartment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupPointHours?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupPointPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentCashEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  paymentBankTransferEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  paymentYapeEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  paymentPlinEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  bankTransferInstructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  yapeNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  plinNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   warrantyPolicyUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   returnsPolicyUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   privacyPolicyUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1512,8 +1968,23 @@ export type StoreSettingsUncheckedUpdateManyWithoutDefaultWarehouseInput = {
   lastOrderNumber?: Prisma.IntFieldUpdateOperationsInput | number
   lowStockGlobalThreshold?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   freeShippingMinAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  flatShippingFee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   handlingDaysMin?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   handlingDaysMax?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  pickupPointName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupPointAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupPointDistrict?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupPointProvince?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupPointDepartment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupPointHours?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupPointPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentCashEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  paymentBankTransferEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  paymentYapeEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  paymentPlinEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  bankTransferInstructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  yapeNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  plinNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   warrantyPolicyUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   returnsPolicyUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   privacyPolicyUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1549,8 +2020,23 @@ export type StoreSettingsCreateManyDefaultTaxRateInput = {
   defaultWarehouseId?: string | null
   lowStockGlobalThreshold?: number | null
   freeShippingMinAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  flatShippingFee?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   handlingDaysMin?: number | null
   handlingDaysMax?: number | null
+  pickupPointName?: string | null
+  pickupPointAddress?: string | null
+  pickupPointDistrict?: string | null
+  pickupPointProvince?: string | null
+  pickupPointDepartment?: string | null
+  pickupPointHours?: string | null
+  pickupPointPhone?: string | null
+  paymentCashEnabled?: boolean
+  paymentBankTransferEnabled?: boolean
+  paymentYapeEnabled?: boolean
+  paymentPlinEnabled?: boolean
+  bankTransferInstructions?: string | null
+  yapeNumber?: string | null
+  plinNumber?: string | null
   warrantyPolicyUrl?: string | null
   returnsPolicyUrl?: string | null
   privacyPolicyUrl?: string | null
@@ -1585,8 +2071,23 @@ export type StoreSettingsUpdateWithoutDefaultTaxRateInput = {
   lastOrderNumber?: Prisma.IntFieldUpdateOperationsInput | number
   lowStockGlobalThreshold?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   freeShippingMinAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  flatShippingFee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   handlingDaysMin?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   handlingDaysMax?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  pickupPointName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupPointAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupPointDistrict?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupPointProvince?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupPointDepartment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupPointHours?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupPointPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentCashEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  paymentBankTransferEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  paymentYapeEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  paymentPlinEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  bankTransferInstructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  yapeNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  plinNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   warrantyPolicyUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   returnsPolicyUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   privacyPolicyUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1623,8 +2124,23 @@ export type StoreSettingsUncheckedUpdateWithoutDefaultTaxRateInput = {
   defaultWarehouseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lowStockGlobalThreshold?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   freeShippingMinAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  flatShippingFee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   handlingDaysMin?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   handlingDaysMax?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  pickupPointName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupPointAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupPointDistrict?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupPointProvince?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupPointDepartment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupPointHours?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupPointPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentCashEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  paymentBankTransferEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  paymentYapeEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  paymentPlinEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  bankTransferInstructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  yapeNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  plinNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   warrantyPolicyUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   returnsPolicyUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   privacyPolicyUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1660,8 +2176,23 @@ export type StoreSettingsUncheckedUpdateManyWithoutDefaultTaxRateInput = {
   defaultWarehouseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lowStockGlobalThreshold?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   freeShippingMinAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  flatShippingFee?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   handlingDaysMin?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   handlingDaysMax?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  pickupPointName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupPointAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupPointDistrict?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupPointProvince?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupPointDepartment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupPointHours?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pickupPointPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentCashEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  paymentBankTransferEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  paymentYapeEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  paymentPlinEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  bankTransferInstructions?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  yapeNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  plinNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   warrantyPolicyUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   returnsPolicyUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   privacyPolicyUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1700,8 +2231,23 @@ export type StoreSettingsSelect<ExtArgs extends runtime.Types.Extensions.Interna
   defaultWarehouseId?: boolean
   lowStockGlobalThreshold?: boolean
   freeShippingMinAmount?: boolean
+  flatShippingFee?: boolean
   handlingDaysMin?: boolean
   handlingDaysMax?: boolean
+  pickupPointName?: boolean
+  pickupPointAddress?: boolean
+  pickupPointDistrict?: boolean
+  pickupPointProvince?: boolean
+  pickupPointDepartment?: boolean
+  pickupPointHours?: boolean
+  pickupPointPhone?: boolean
+  paymentCashEnabled?: boolean
+  paymentBankTransferEnabled?: boolean
+  paymentYapeEnabled?: boolean
+  paymentPlinEnabled?: boolean
+  bankTransferInstructions?: boolean
+  yapeNumber?: boolean
+  plinNumber?: boolean
   warrantyPolicyUrl?: boolean
   returnsPolicyUrl?: boolean
   privacyPolicyUrl?: boolean
@@ -1740,8 +2286,23 @@ export type StoreSettingsSelectCreateManyAndReturn<ExtArgs extends runtime.Types
   defaultWarehouseId?: boolean
   lowStockGlobalThreshold?: boolean
   freeShippingMinAmount?: boolean
+  flatShippingFee?: boolean
   handlingDaysMin?: boolean
   handlingDaysMax?: boolean
+  pickupPointName?: boolean
+  pickupPointAddress?: boolean
+  pickupPointDistrict?: boolean
+  pickupPointProvince?: boolean
+  pickupPointDepartment?: boolean
+  pickupPointHours?: boolean
+  pickupPointPhone?: boolean
+  paymentCashEnabled?: boolean
+  paymentBankTransferEnabled?: boolean
+  paymentYapeEnabled?: boolean
+  paymentPlinEnabled?: boolean
+  bankTransferInstructions?: boolean
+  yapeNumber?: boolean
+  plinNumber?: boolean
   warrantyPolicyUrl?: boolean
   returnsPolicyUrl?: boolean
   privacyPolicyUrl?: boolean
@@ -1780,8 +2341,23 @@ export type StoreSettingsSelectUpdateManyAndReturn<ExtArgs extends runtime.Types
   defaultWarehouseId?: boolean
   lowStockGlobalThreshold?: boolean
   freeShippingMinAmount?: boolean
+  flatShippingFee?: boolean
   handlingDaysMin?: boolean
   handlingDaysMax?: boolean
+  pickupPointName?: boolean
+  pickupPointAddress?: boolean
+  pickupPointDistrict?: boolean
+  pickupPointProvince?: boolean
+  pickupPointDepartment?: boolean
+  pickupPointHours?: boolean
+  pickupPointPhone?: boolean
+  paymentCashEnabled?: boolean
+  paymentBankTransferEnabled?: boolean
+  paymentYapeEnabled?: boolean
+  paymentPlinEnabled?: boolean
+  bankTransferInstructions?: boolean
+  yapeNumber?: boolean
+  plinNumber?: boolean
   warrantyPolicyUrl?: boolean
   returnsPolicyUrl?: boolean
   privacyPolicyUrl?: boolean
@@ -1820,8 +2396,23 @@ export type StoreSettingsSelectScalar = {
   defaultWarehouseId?: boolean
   lowStockGlobalThreshold?: boolean
   freeShippingMinAmount?: boolean
+  flatShippingFee?: boolean
   handlingDaysMin?: boolean
   handlingDaysMax?: boolean
+  pickupPointName?: boolean
+  pickupPointAddress?: boolean
+  pickupPointDistrict?: boolean
+  pickupPointProvince?: boolean
+  pickupPointDepartment?: boolean
+  pickupPointHours?: boolean
+  pickupPointPhone?: boolean
+  paymentCashEnabled?: boolean
+  paymentBankTransferEnabled?: boolean
+  paymentYapeEnabled?: boolean
+  paymentPlinEnabled?: boolean
+  bankTransferInstructions?: boolean
+  yapeNumber?: boolean
+  plinNumber?: boolean
   warrantyPolicyUrl?: boolean
   returnsPolicyUrl?: boolean
   privacyPolicyUrl?: boolean
@@ -1834,7 +2425,7 @@ export type StoreSettingsSelectScalar = {
   updatedAt?: boolean
 }
 
-export type StoreSettingsOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "storeName" | "storeTagline" | "logoUrl" | "logoKey" | "faviconUrl" | "faviconKey" | "defaultLocale" | "timezone" | "defaultCurrencyCode" | "defaultTaxRateId" | "pricesIncludeTax" | "metaTitleDefault" | "metaDescriptionDefault" | "maintenanceMode" | "maintenanceMessage" | "guestCheckoutEnabled" | "minOrderAmount" | "orderNumberPrefix" | "lastOrderNumber" | "defaultWarehouseId" | "lowStockGlobalThreshold" | "freeShippingMinAmount" | "handlingDaysMin" | "handlingDaysMax" | "warrantyPolicyUrl" | "returnsPolicyUrl" | "privacyPolicyUrl" | "termsUrl" | "complaintsBookUrl" | "serialNumberRequired" | "orderConfirmationEmailEnabled" | "mailFromName" | "createdAt" | "updatedAt", ExtArgs["result"]["storeSettings"]>
+export type StoreSettingsOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "storeName" | "storeTagline" | "logoUrl" | "logoKey" | "faviconUrl" | "faviconKey" | "defaultLocale" | "timezone" | "defaultCurrencyCode" | "defaultTaxRateId" | "pricesIncludeTax" | "metaTitleDefault" | "metaDescriptionDefault" | "maintenanceMode" | "maintenanceMessage" | "guestCheckoutEnabled" | "minOrderAmount" | "orderNumberPrefix" | "lastOrderNumber" | "defaultWarehouseId" | "lowStockGlobalThreshold" | "freeShippingMinAmount" | "flatShippingFee" | "handlingDaysMin" | "handlingDaysMax" | "pickupPointName" | "pickupPointAddress" | "pickupPointDistrict" | "pickupPointProvince" | "pickupPointDepartment" | "pickupPointHours" | "pickupPointPhone" | "paymentCashEnabled" | "paymentBankTransferEnabled" | "paymentYapeEnabled" | "paymentPlinEnabled" | "bankTransferInstructions" | "yapeNumber" | "plinNumber" | "warrantyPolicyUrl" | "returnsPolicyUrl" | "privacyPolicyUrl" | "termsUrl" | "complaintsBookUrl" | "serialNumberRequired" | "orderConfirmationEmailEnabled" | "mailFromName" | "createdAt" | "updatedAt", ExtArgs["result"]["storeSettings"]>
 export type StoreSettingsInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   defaultTaxRate?: boolean | Prisma.StoreSettings$defaultTaxRateArgs<ExtArgs>
   defaultWarehouse?: boolean | Prisma.StoreSettings$defaultWarehouseArgs<ExtArgs>
@@ -1878,8 +2469,23 @@ export type $StoreSettingsPayload<ExtArgs extends runtime.Types.Extensions.Inter
     defaultWarehouseId: string | null
     lowStockGlobalThreshold: number | null
     freeShippingMinAmount: runtime.Decimal | null
+    flatShippingFee: runtime.Decimal | null
     handlingDaysMin: number | null
     handlingDaysMax: number | null
+    pickupPointName: string | null
+    pickupPointAddress: string | null
+    pickupPointDistrict: string | null
+    pickupPointProvince: string | null
+    pickupPointDepartment: string | null
+    pickupPointHours: string | null
+    pickupPointPhone: string | null
+    paymentCashEnabled: boolean
+    paymentBankTransferEnabled: boolean
+    paymentYapeEnabled: boolean
+    paymentPlinEnabled: boolean
+    bankTransferInstructions: string | null
+    yapeNumber: string | null
+    plinNumber: string | null
     warrantyPolicyUrl: string | null
     returnsPolicyUrl: string | null
     privacyPolicyUrl: string | null
@@ -2338,8 +2944,23 @@ export interface StoreSettingsFieldRefs {
   readonly defaultWarehouseId: Prisma.FieldRef<"StoreSettings", 'String'>
   readonly lowStockGlobalThreshold: Prisma.FieldRef<"StoreSettings", 'Int'>
   readonly freeShippingMinAmount: Prisma.FieldRef<"StoreSettings", 'Decimal'>
+  readonly flatShippingFee: Prisma.FieldRef<"StoreSettings", 'Decimal'>
   readonly handlingDaysMin: Prisma.FieldRef<"StoreSettings", 'Int'>
   readonly handlingDaysMax: Prisma.FieldRef<"StoreSettings", 'Int'>
+  readonly pickupPointName: Prisma.FieldRef<"StoreSettings", 'String'>
+  readonly pickupPointAddress: Prisma.FieldRef<"StoreSettings", 'String'>
+  readonly pickupPointDistrict: Prisma.FieldRef<"StoreSettings", 'String'>
+  readonly pickupPointProvince: Prisma.FieldRef<"StoreSettings", 'String'>
+  readonly pickupPointDepartment: Prisma.FieldRef<"StoreSettings", 'String'>
+  readonly pickupPointHours: Prisma.FieldRef<"StoreSettings", 'String'>
+  readonly pickupPointPhone: Prisma.FieldRef<"StoreSettings", 'String'>
+  readonly paymentCashEnabled: Prisma.FieldRef<"StoreSettings", 'Boolean'>
+  readonly paymentBankTransferEnabled: Prisma.FieldRef<"StoreSettings", 'Boolean'>
+  readonly paymentYapeEnabled: Prisma.FieldRef<"StoreSettings", 'Boolean'>
+  readonly paymentPlinEnabled: Prisma.FieldRef<"StoreSettings", 'Boolean'>
+  readonly bankTransferInstructions: Prisma.FieldRef<"StoreSettings", 'String'>
+  readonly yapeNumber: Prisma.FieldRef<"StoreSettings", 'String'>
+  readonly plinNumber: Prisma.FieldRef<"StoreSettings", 'String'>
   readonly warrantyPolicyUrl: Prisma.FieldRef<"StoreSettings", 'String'>
   readonly returnsPolicyUrl: Prisma.FieldRef<"StoreSettings", 'String'>
   readonly privacyPolicyUrl: Prisma.FieldRef<"StoreSettings", 'String'>

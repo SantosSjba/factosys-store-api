@@ -1,6 +1,7 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { IsEnum, IsISO8601, IsOptional, IsUUID } from 'class-validator';
 import {
+  OrderDeliveryMethod,
   OrderPaymentStatus,
   OrderStatus,
 } from '../../../../generated/prisma/client';
@@ -21,6 +22,11 @@ export class ListOrdersQueryDto extends PaginationQueryDto {
   @IsOptional()
   @IsUUID()
   customerId?: string;
+
+  @ApiPropertyOptional({ enum: OrderDeliveryMethod })
+  @IsOptional()
+  @IsEnum(OrderDeliveryMethod)
+  deliveryMethod?: OrderDeliveryMethod;
 
   @ApiPropertyOptional()
   @IsOptional()

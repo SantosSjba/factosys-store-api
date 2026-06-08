@@ -39,7 +39,12 @@ const TERMINAL_STATUSES: OrderStatus[] = [
 const ALLOWED_STATUS_TRANSITIONS: Record<OrderStatus, OrderStatus[]> = {
   [OrderStatus.PENDING_PAYMENT]: [OrderStatus.CONFIRMED, OrderStatus.CANCELLED],
   [OrderStatus.CONFIRMED]: [OrderStatus.PROCESSING, OrderStatus.CANCELLED],
-  [OrderStatus.PROCESSING]: [OrderStatus.SHIPPED, OrderStatus.CANCELLED],
+  [OrderStatus.PROCESSING]: [
+    OrderStatus.SHIPPED,
+    OrderStatus.READY_FOR_PICKUP,
+    OrderStatus.CANCELLED,
+  ],
+  [OrderStatus.READY_FOR_PICKUP]: [OrderStatus.DELIVERED, OrderStatus.CANCELLED],
   [OrderStatus.SHIPPED]: [OrderStatus.DELIVERED, OrderStatus.CANCELLED],
   [OrderStatus.DELIVERED]: [OrderStatus.REFUNDED],
   [OrderStatus.CANCELLED]: [],
@@ -65,6 +70,7 @@ export class OrdersService {
       status: query.status,
       paymentStatus: query.paymentStatus,
       customerId: query.customerId,
+      deliveryMethod: query.deliveryMethod,
       dateFrom: query.dateFrom ? new Date(query.dateFrom) : undefined,
       dateTo: query.dateTo ? new Date(query.dateTo) : undefined,
     });
@@ -74,6 +80,53 @@ export class OrdersService {
       items.map((item) => this.mapOrderSummary(item)),
       total,
     );
+  }
+
+  async exportOrdersCsv(query: ListOrdersQueryDto) {
+    const { items } = await this.orderRepository.listPaginated({
+      page: 1,
+      limit: 5000,
+      search: query.search,
+      status: query.status,
+      paymentStatus: query.paymentStatus,
+      customerId: query.customerId,
+      deliveryMethod: query.deliveryMethod,
+      dateFrom: query.dateFrom ? new Date(query.dateFrom) : undefined,
+      dateTo: query.dateTo ? new Date(query.dateTo) : undefined,
+    });
+
+    const headers = [
+      'Pedido',
+      'Estado',
+      'Pago',
+      'Entrega',
+      'Cliente',
+      'Correo',
+      'Total',
+      'Moneda',
+      'Items',
+      'Fecha',
+    ];
+
+    const rows = items.map((order) => {
+      const summary = this.mapOrderSummary(order);
+      return [
+        summary.orderNumber,
+        summary.status,
+        summary.paymentStatus,
+        summary.deliveryMethod,
+        summary.customerName ?? '',
+        summary.customerEmail ?? '',
+        summary.total,
+        summary.currencyCode,
+        String(summary.itemCount),
+        summary.createdAt.toISOString(),
+      ];
+    });
+
+    return [headers, ...rows]
+      .map((row) => row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(','))
+      .join('\n');
   }
 
   async getOrder(id: string) {
@@ -245,6 +298,14 @@ export class OrdersService {
         await this.fulfillStockForOrder(tx, updated, staffUserId);
       }
 
+      if (
+        dto.status === OrderStatus.DELIVERED &&
+        updated.deliveryMethod === OrderDeliveryMethod.PICKUP &&
+        !existing.shippedAt
+      ) {
+        await this.fulfillStockForOrder(tx, updated, staffUserId);
+      }
+
       if (dto.status === OrderStatus.CANCELLED) {
         await this.releaseStockForOrder(tx, id);
       }
@@ -377,7 +438,9 @@ export class OrdersService {
 
   private resolveFulfillmentStatus(status: OrderStatus): OrderFulfillmentStatus {
     if (status === OrderStatus.DELIVERED) return OrderFulfillmentStatus.FULFILLED;
-    if (status === OrderStatus.SHIPPED) return OrderFulfillmentStatus.PARTIAL;
+    if (status === OrderStatus.SHIPPED || status === OrderStatus.READY_FOR_PICKUP) {
+      return OrderFulfillmentStatus.PARTIAL;
+    }
     return OrderFulfillmentStatus.UNFULFILLED;
   }
 
