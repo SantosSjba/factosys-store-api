@@ -129,6 +129,8 @@ export class HealthService {
         ? new Redis(redisOptions, { lazyConnect: true })
         : new Redis(redisOptions);
 
+    redis.on('error', () => undefined);
+
     const startedAt = Date.now();
 
     try {
