@@ -2,6 +2,10 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Client as ElasticsearchClient } from '@elastic/elasticsearch';
 import Redis from 'ioredis';
+import {
+  buildRedisOptions,
+  type RedisConnectionConfig,
+} from '../../config/redis.config';
 import { Pool } from 'pg';
 import {
   HealthResponseDto,
@@ -108,22 +112,22 @@ export class HealthService {
   }
 
   private async checkRedis(): Promise<TechnologyHealthDto> {
-    const host = this.configService.get<string>('redis.host');
-    const port = this.configService.get<number>('redis.port', 6379);
-    const password = process.env.REDIS_PASSWORD;
+    const config = this.configService.get<RedisConnectionConfig>('redis');
 
-    if (!host) {
+    if (!config?.url && !config?.host) {
       return this.down('redis', 'Redis', 'REDIS_HOST no configurado');
     }
 
-    const redis = new Redis({
-      host,
-      port,
-      password: password || undefined,
+    const redisOptions = buildRedisOptions(config, {
       connectTimeout: CHECK_TIMEOUT_MS,
       maxRetriesPerRequest: 1,
       lazyConnect: true,
     });
+
+    const redis =
+      typeof redisOptions === 'string'
+        ? new Redis(redisOptions, { lazyConnect: true })
+        : new Redis(redisOptions);
 
     const startedAt = Date.now();
 
