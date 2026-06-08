@@ -26,6 +26,7 @@ export const envValidationSchema = Joi.object({
   AWS_S3_BUCKET_NAME: Joi.string().required(),
   AWS_S3_ENDPOINT: Joi.string().uri().optional().allow(''),
   AWS_S3_PUBLIC_URL: Joi.string().uri().optional().allow(''),
+  AWS_S3_READABLE_URL_BASE: Joi.string().uri().optional().allow(''),
   AWS_S3_FORCE_PATH_STYLE: Joi.boolean().optional().default(true),
   MAIL_HOST: Joi.string().required(),
   MAIL_PORT: Joi.number().required(),

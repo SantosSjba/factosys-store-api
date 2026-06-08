@@ -19,6 +19,8 @@ import { UserTypes } from '../../../../shared/decorators/user-types.decorator';
 import type { UploadedImageFile } from '../../../../shared/types/uploaded-file.type';
 import { ListProductsQueryDto } from '../../application/dto/list-products-query.dto';
 import { CreateProductDto, UpdateProductDto } from '../../application/dto/product-payload.dto';
+import { ReorderProductImagesDto } from '../../application/dto/reorder-product-images.dto';
+import { SetProductImagePrimaryDto } from '../../application/dto/set-product-image-primary.dto';
 import { ProductsService } from '../../application/services/products.service';
 
 const imageUploadInterceptor = FileInterceptor('file', {
@@ -96,6 +98,28 @@ export class AdminProductsController {
       alt: alt || undefined,
       isPrimary: isPrimary === 'true',
     });
+  }
+
+  @Patch(':id/images/order')
+  @RequirePermissions(PERMISSIONS.PRODUCTS_WRITE)
+  @ApiOperation({ summary: 'Reordenar imágenes del producto' })
+  reorderImages(@Param('id') id: string, @Body() dto: ReorderProductImagesDto) {
+    return this.productsService.reorderProductImages(id, dto.imageIds);
+  }
+
+  @Patch(':id/images/:imageId/primary')
+  @RequirePermissions(PERMISSIONS.PRODUCTS_WRITE)
+  @ApiOperation({ summary: 'Marcar o quitar imagen como principal' })
+  setPrimaryImage(
+    @Param('id') id: string,
+    @Param('imageId') imageId: string,
+    @Body() dto: SetProductImagePrimaryDto,
+  ) {
+    return this.productsService.setProductImagePrimary(
+      id,
+      imageId,
+      dto.isPrimary !== false,
+    );
   }
 
   @Delete(':id/images/:imageId')

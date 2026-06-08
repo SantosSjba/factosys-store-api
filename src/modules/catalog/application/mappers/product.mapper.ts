@@ -1,6 +1,7 @@
 import type { Decimal } from '@prisma/client/runtime/client';
 import type { Prisma } from '../../../../generated/prisma/client';
 import type { ProductRecord } from '../../domain/types/catalog.types';
+import { resolveDisplayPrimaryImage } from '../helpers/product-image.helper';
 
 export const productDetailInclude = {
   brand: true,
@@ -31,8 +32,7 @@ export function mapProductRecord(product: ProductWithDetails): ProductRecord {
     product.variants[0] ??
     null;
 
-  const primaryImage =
-    product.images.find((image) => image.isPrimary) ?? product.images[0] ?? null;
+  const primaryImage = resolveDisplayPrimaryImage(product.images);
 
   return {
     id: product.id,

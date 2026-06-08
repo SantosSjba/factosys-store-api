@@ -7,6 +7,7 @@ export const storageConfig = registerAs('storage', () => ({
   bucketName: process.env.AWS_S3_BUCKET_NAME ?? '',
   endpoint: process.env.AWS_S3_ENDPOINT ?? '',
   publicUrl: process.env.AWS_S3_PUBLIC_URL ?? process.env.AWS_S3_ENDPOINT ?? '',
+  readableUrlBase: process.env.AWS_S3_READABLE_URL_BASE ?? '',
   forcePathStyle:
     process.env.AWS_S3_FORCE_PATH_STYLE !== 'false' &&
     process.env.AWS_S3_FORCE_PATH_STYLE !== '0',

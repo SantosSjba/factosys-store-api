@@ -24,6 +24,8 @@ import {
   CreateProductVariantDto,
   UpdateProductDto,
 } from '../dto/product-payload.dto';
+import type { ProductRecord } from '../../domain/types/catalog.types';
+import { resolveDisplayPrimaryImage } from '../helpers/product-image.helper';
 import { mapProductRecord } from '../mappers/product.mapper';
 
 @Injectable()
@@ -49,7 +51,11 @@ export class ProductsService {
       status: query.status,
     });
 
-    return buildPaginationMeta({ page, limit }, items, total);
+    return buildPaginationMeta(
+      { page, limit },
+      items.map((item) => this.presentProduct(item)),
+      total,
+    );
   }
 
   async listStoreProducts(query: ListProductsQueryDto) {
@@ -65,7 +71,11 @@ export class ProductsService {
       onlyActive: true,
     });
 
-    return buildPaginationMeta({ page, limit }, items, total);
+    return buildPaginationMeta(
+      { page, limit },
+      items.map((item) => this.presentProduct(item)),
+      total,
+    );
   }
 
   async getAdminProduct(id: string) {
@@ -77,7 +87,7 @@ export class ProductsService {
       });
     }
 
-    return mapProductRecord(product);
+    return this.presentProduct(mapProductRecord(product));
   }
 
   async getStoreProductBySlug(slug: string) {
@@ -89,7 +99,7 @@ export class ProductsService {
       });
     }
 
-    return mapProductRecord(product);
+    return this.presentProduct(mapProductRecord(product));
   }
 
   async createProduct(dto: CreateProductDto) {
@@ -114,7 +124,7 @@ export class ProductsService {
 
     const status = dto.status ?? ProductStatus.DRAFT;
 
-    return this.productRepository.createWithRelations({
+    const created = await this.productRepository.createWithRelations({
       product: {
         name: dto.name.trim(),
         slug,
@@ -133,6 +143,8 @@ export class ProductsService {
       attributeValues: dto.attributeValues ?? [],
       variants: this.normalizeVariants(dto.variants),
     });
+
+    return this.presentProduct(created);
   }
 
   async updateProduct(id: string, dto: UpdateProductDto) {
@@ -182,7 +194,7 @@ export class ProductsService {
           ? null
           : existing.publishedAt;
 
-    return this.productRepository.updateWithRelations(id, {
+    const updated = await this.productRepository.updateWithRelations(id, {
       product: {
         name: dto.name?.trim(),
         slug,
@@ -222,6 +234,8 @@ export class ProductsService {
       attributeValues: dto.attributeValues,
       variants: dto.variants ? this.normalizeVariants(dto.variants) : undefined,
     });
+
+    return this.presentProduct(updated);
   }
 
   async deleteProduct(id: string) {
@@ -297,18 +311,7 @@ export class ProductsService {
       sizeBytes: uploaded.sizeBytes,
     });
 
-    return {
-      id: image.id,
-      productId: image.productId,
-      variantId: image.variantId,
-      url: image.url,
-      storageKey: image.storageKey,
-      alt: image.alt,
-      sortOrder: image.sortOrder,
-      isPrimary: image.isPrimary,
-      mimeType: image.mimeType,
-      sizeBytes: image.sizeBytes,
-    };
+    return this.mapProductImage(image);
   }
 
   async deleteProductImage(productId: string, imageId: string) {
@@ -320,10 +323,117 @@ export class ProductsService {
       });
     }
 
+    const wasPrimary = image.isPrimary;
+
     await this.storageService.deleteObject(image.storageKey);
     await this.productRepository.deleteImage(imageId);
 
+    if (wasPrimary) {
+      const remaining = await this.productRepository.findImagesByProductId(productId);
+      if (remaining[0]) {
+        await this.productRepository.clearPrimaryImage(productId, remaining[0].id);
+        await this.productRepository.setImagePrimary(remaining[0].id, productId);
+      }
+    }
+
     return { message: 'Imagen eliminada correctamente.' };
+  }
+
+  async setProductImagePrimary(
+    productId: string,
+    imageId: string,
+    isPrimary = true,
+  ) {
+    const image = await this.productRepository.findImageById(imageId);
+    if (!image || image.productId !== productId) {
+      throw new NotFoundException({
+        code: 'PRODUCT_IMAGE_NOT_FOUND',
+        message: 'Imagen no encontrada.',
+      });
+    }
+
+    if (!isPrimary) {
+      if (!image.isPrimary) {
+        return this.mapProductImage(image);
+      }
+
+      const updated = await this.productRepository.unsetImagePrimary(
+        imageId,
+        productId,
+      );
+      return this.mapProductImage(updated);
+    }
+
+    await this.productRepository.clearPrimaryImage(productId, imageId);
+    const updated = await this.productRepository.setImagePrimary(imageId, productId);
+
+    return this.mapProductImage(updated);
+  }
+
+  async reorderProductImages(productId: string, imageIds: string[]) {
+    const product = await this.productRepository.findById(productId);
+    if (!product) {
+      throw new NotFoundException({
+        code: 'PRODUCT_NOT_FOUND',
+        message: 'Producto no encontrado.',
+      });
+    }
+
+    const existingIds = new Set(product.images.map((entry) => entry.id));
+    if (
+      imageIds.length !== product.images.length ||
+      imageIds.some((id) => !existingIds.has(id))
+    ) {
+      throw new BadRequestException({
+        code: 'INVALID_IMAGE_ORDER',
+        message: 'Debes enviar todos los IDs de imágenes del producto en el orden deseado.',
+      });
+    }
+
+    await this.productRepository.updateImagesSortOrder(productId, imageIds);
+
+    const images = await this.productRepository.findImagesByProductId(productId);
+    return images.map((entry) => this.mapProductImage(entry));
+  }
+
+  private presentProduct(product: ProductRecord): ProductRecord {
+    const images = product.images.map((image) => ({
+      ...image,
+      url: this.storageService.getReadableUrl(image.storageKey),
+    }));
+    const primaryImage = resolveDisplayPrimaryImage(images);
+
+    return {
+      ...product,
+      images,
+      primaryImageUrl: primaryImage?.url ?? null,
+    };
+  }
+
+  private mapProductImage(image: {
+    id: string;
+    productId: string;
+    variantId: string | null;
+    url: string;
+    storageKey: string;
+    alt: string | null;
+    sortOrder: number;
+    isPrimary: boolean;
+    mimeType: string | null;
+    sizeBytes: number | null;
+  }) {
+    return {
+      id: image.id,
+      productId: image.productId,
+      variantId: image.variantId,
+      url: this.storageService.getReadableUrl(image.storageKey),
+      storageKey: image.storageKey,
+      alt: image.alt,
+      sortOrder: image.sortOrder,
+      isPrimary: image.isPrimary,
+      mimeType: image.mimeType,
+      sizeBytes: image.sizeBytes,
+    };
   }
 
   private async assertCatalogReferences(

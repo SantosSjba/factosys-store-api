@@ -303,4 +303,36 @@ export class PrismaProductRepository {
       data: { isPrimary: false },
     });
   }
+
+  findImagesByProductId(productId: string) {
+    return this.prisma.productImage.findMany({
+      where: { productId },
+      orderBy: { sortOrder: 'asc' },
+    });
+  }
+
+  async updateImagesSortOrder(productId: string, orderedImageIds: string[]) {
+    await this.prisma.$transaction(
+      orderedImageIds.map((id, index) =>
+        this.prisma.productImage.update({
+          where: { id, productId },
+          data: { sortOrder: index },
+        }),
+      ),
+    );
+  }
+
+  setImagePrimary(id: string, productId: string) {
+    return this.prisma.productImage.update({
+      where: { id, productId },
+      data: { isPrimary: true },
+    });
+  }
+
+  unsetImagePrimary(id: string, productId: string) {
+    return this.prisma.productImage.update({
+      where: { id, productId },
+      data: { isPrimary: false },
+    });
+  }
 }
