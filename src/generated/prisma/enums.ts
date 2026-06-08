@@ -95,3 +95,11 @@ export const StockMovementType = {
 } as const
 
 export type StockMovementType = (typeof StockMovementType)[keyof typeof StockMovementType]
+
+
+export const StockReservationStatus = {
+  ACTIVE: 'ACTIVE',
+  RELEASED: 'RELEASED'
+} as const
+
+export type StockReservationStatus = (typeof StockReservationStatus)[keyof typeof StockReservationStatus]

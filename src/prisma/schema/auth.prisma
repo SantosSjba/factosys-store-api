@@ -20,6 +20,7 @@ model User {
   verificationTokens EmailVerificationToken[]
   loginAudits        LoginAudit[]
   stockMovements     StockMovement[]
+  stockReservations  StockReservation[]
 
   @@index([userType, status])
   @@index([email])

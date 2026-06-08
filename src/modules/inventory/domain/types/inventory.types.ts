@@ -50,3 +50,22 @@ export type StockMovementRecord = {
   targetWarehouseName: string | null;
   createdAt: Date;
 };
+
+export type StockReservationRecord = {
+  id: string;
+  warehouseId: string;
+  warehouseName: string;
+  warehouseCode: string;
+  variantId: string;
+  sku: string;
+  variantName: string | null;
+  productName: string;
+  quantity: number;
+  reference: string | null;
+  note: string | null;
+  status: 'ACTIVE' | 'RELEASED';
+  performedById: string | null;
+  performedByName: string | null;
+  createdAt: Date;
+  releasedAt: Date | null;
+};

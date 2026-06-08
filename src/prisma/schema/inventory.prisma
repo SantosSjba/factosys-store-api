@@ -5,6 +5,11 @@ enum StockMovementType {
   TRANSFER
 }
 
+enum StockReservationStatus {
+  ACTIVE
+  RELEASED
+}
+
 model Warehouse {
   id          String   @id @default(uuid())
   name        String
@@ -20,6 +25,7 @@ model Warehouse {
   stockLevels       StockLevel[]
   stockMovements      StockMovement[] @relation("MovementWarehouse")
   incomingTransfers   StockMovement[] @relation("MovementTargetWarehouse")
+  stockReservations   StockReservation[]
 
   @@index([isActive, sortOrder])
 }
@@ -60,4 +66,24 @@ model StockMovement {
 
   @@index([warehouseId, createdAt])
   @@index([variantId, createdAt])
+}
+
+model StockReservation {
+  id            String                 @id @default(uuid())
+  warehouseId   String
+  variantId     String
+  quantity      Int
+  reference     String?
+  note          String?
+  status        StockReservationStatus @default(ACTIVE)
+  performedById String?
+  createdAt     DateTime               @default(now())
+  releasedAt    DateTime?
+
+  warehouse   Warehouse      @relation(fields: [warehouseId], references: [id], onDelete: Restrict)
+  variant     ProductVariant @relation(fields: [variantId], references: [id], onDelete: Restrict)
+  performedBy User?          @relation(fields: [performedById], references: [id], onDelete: SetNull)
+
+  @@index([warehouseId, status])
+  @@index([variantId, status])
 }

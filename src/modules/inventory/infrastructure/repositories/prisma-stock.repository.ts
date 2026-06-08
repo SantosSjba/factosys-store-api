@@ -35,11 +35,17 @@ export class PrismaStockRepository {
     page: number;
     limit: number;
     warehouseId?: string;
+    variantId?: string;
+    productId?: string;
     search?: string;
     lowStockOnly?: boolean;
   }) {
     const where: Prisma.StockLevelWhereInput = {
       ...(params.warehouseId ? { warehouseId: params.warehouseId } : {}),
+      ...(params.variantId ? { variantId: params.variantId } : {}),
+      ...(params.productId
+        ? { variant: { productId: params.productId } }
+        : {}),
       ...(params.search
         ? {
             OR: [

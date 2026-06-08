@@ -261,6 +261,7 @@ export type UserWhereInput = {
   verificationTokens?: Prisma.EmailVerificationTokenListRelationFilter
   loginAudits?: Prisma.LoginAuditListRelationFilter
   stockMovements?: Prisma.StockMovementListRelationFilter
+  stockReservations?: Prisma.StockReservationListRelationFilter
 }
 
 export type UserOrderByWithRelationInput = {
@@ -285,6 +286,7 @@ export type UserOrderByWithRelationInput = {
   verificationTokens?: Prisma.EmailVerificationTokenOrderByRelationAggregateInput
   loginAudits?: Prisma.LoginAuditOrderByRelationAggregateInput
   stockMovements?: Prisma.StockMovementOrderByRelationAggregateInput
+  stockReservations?: Prisma.StockReservationOrderByRelationAggregateInput
 }
 
 export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -312,6 +314,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   verificationTokens?: Prisma.EmailVerificationTokenListRelationFilter
   loginAudits?: Prisma.LoginAuditListRelationFilter
   stockMovements?: Prisma.StockMovementListRelationFilter
+  stockReservations?: Prisma.StockReservationListRelationFilter
 }, "id" | "email" | "googleId">
 
 export type UserOrderByWithAggregationInput = {
@@ -375,6 +378,7 @@ export type UserCreateInput = {
   verificationTokens?: Prisma.EmailVerificationTokenCreateNestedManyWithoutUserInput
   loginAudits?: Prisma.LoginAuditCreateNestedManyWithoutUserInput
   stockMovements?: Prisma.StockMovementCreateNestedManyWithoutPerformedByInput
+  stockReservations?: Prisma.StockReservationCreateNestedManyWithoutPerformedByInput
 }
 
 export type UserUncheckedCreateInput = {
@@ -398,6 +402,7 @@ export type UserUncheckedCreateInput = {
   verificationTokens?: Prisma.EmailVerificationTokenUncheckedCreateNestedManyWithoutUserInput
   loginAudits?: Prisma.LoginAuditUncheckedCreateNestedManyWithoutUserInput
   stockMovements?: Prisma.StockMovementUncheckedCreateNestedManyWithoutPerformedByInput
+  stockReservations?: Prisma.StockReservationUncheckedCreateNestedManyWithoutPerformedByInput
 }
 
 export type UserUpdateInput = {
@@ -421,6 +426,7 @@ export type UserUpdateInput = {
   verificationTokens?: Prisma.EmailVerificationTokenUpdateManyWithoutUserNestedInput
   loginAudits?: Prisma.LoginAuditUpdateManyWithoutUserNestedInput
   stockMovements?: Prisma.StockMovementUpdateManyWithoutPerformedByNestedInput
+  stockReservations?: Prisma.StockReservationUpdateManyWithoutPerformedByNestedInput
 }
 
 export type UserUncheckedUpdateInput = {
@@ -444,6 +450,7 @@ export type UserUncheckedUpdateInput = {
   verificationTokens?: Prisma.EmailVerificationTokenUncheckedUpdateManyWithoutUserNestedInput
   loginAudits?: Prisma.LoginAuditUncheckedUpdateManyWithoutUserNestedInput
   stockMovements?: Prisma.StockMovementUncheckedUpdateManyWithoutPerformedByNestedInput
+  stockReservations?: Prisma.StockReservationUncheckedUpdateManyWithoutPerformedByNestedInput
 }
 
 export type UserCreateManyInput = {
@@ -727,6 +734,22 @@ export type UserUpdateOneWithoutStockMovementsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutStockMovementsInput, Prisma.UserUpdateWithoutStockMovementsInput>, Prisma.UserUncheckedUpdateWithoutStockMovementsInput>
 }
 
+export type UserCreateNestedOneWithoutStockReservationsInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutStockReservationsInput, Prisma.UserUncheckedCreateWithoutStockReservationsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutStockReservationsInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneWithoutStockReservationsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutStockReservationsInput, Prisma.UserUncheckedCreateWithoutStockReservationsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutStockReservationsInput
+  upsert?: Prisma.UserUpsertWithoutStockReservationsInput
+  disconnect?: Prisma.UserWhereInput | boolean
+  delete?: Prisma.UserWhereInput | boolean
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutStockReservationsInput, Prisma.UserUpdateWithoutStockReservationsInput>, Prisma.UserUncheckedUpdateWithoutStockReservationsInput>
+}
+
 export type UserCreateWithoutCreatedUsersInput = {
   id?: string
   email: string
@@ -747,6 +770,7 @@ export type UserCreateWithoutCreatedUsersInput = {
   verificationTokens?: Prisma.EmailVerificationTokenCreateNestedManyWithoutUserInput
   loginAudits?: Prisma.LoginAuditCreateNestedManyWithoutUserInput
   stockMovements?: Prisma.StockMovementCreateNestedManyWithoutPerformedByInput
+  stockReservations?: Prisma.StockReservationCreateNestedManyWithoutPerformedByInput
 }
 
 export type UserUncheckedCreateWithoutCreatedUsersInput = {
@@ -769,6 +793,7 @@ export type UserUncheckedCreateWithoutCreatedUsersInput = {
   verificationTokens?: Prisma.EmailVerificationTokenUncheckedCreateNestedManyWithoutUserInput
   loginAudits?: Prisma.LoginAuditUncheckedCreateNestedManyWithoutUserInput
   stockMovements?: Prisma.StockMovementUncheckedCreateNestedManyWithoutPerformedByInput
+  stockReservations?: Prisma.StockReservationUncheckedCreateNestedManyWithoutPerformedByInput
 }
 
 export type UserCreateOrConnectWithoutCreatedUsersInput = {
@@ -796,6 +821,7 @@ export type UserCreateWithoutCreatedByInput = {
   verificationTokens?: Prisma.EmailVerificationTokenCreateNestedManyWithoutUserInput
   loginAudits?: Prisma.LoginAuditCreateNestedManyWithoutUserInput
   stockMovements?: Prisma.StockMovementCreateNestedManyWithoutPerformedByInput
+  stockReservations?: Prisma.StockReservationCreateNestedManyWithoutPerformedByInput
 }
 
 export type UserUncheckedCreateWithoutCreatedByInput = {
@@ -818,6 +844,7 @@ export type UserUncheckedCreateWithoutCreatedByInput = {
   verificationTokens?: Prisma.EmailVerificationTokenUncheckedCreateNestedManyWithoutUserInput
   loginAudits?: Prisma.LoginAuditUncheckedCreateNestedManyWithoutUserInput
   stockMovements?: Prisma.StockMovementUncheckedCreateNestedManyWithoutPerformedByInput
+  stockReservations?: Prisma.StockReservationUncheckedCreateNestedManyWithoutPerformedByInput
 }
 
 export type UserCreateOrConnectWithoutCreatedByInput = {
@@ -861,6 +888,7 @@ export type UserUpdateWithoutCreatedUsersInput = {
   verificationTokens?: Prisma.EmailVerificationTokenUpdateManyWithoutUserNestedInput
   loginAudits?: Prisma.LoginAuditUpdateManyWithoutUserNestedInput
   stockMovements?: Prisma.StockMovementUpdateManyWithoutPerformedByNestedInput
+  stockReservations?: Prisma.StockReservationUpdateManyWithoutPerformedByNestedInput
 }
 
 export type UserUncheckedUpdateWithoutCreatedUsersInput = {
@@ -883,6 +911,7 @@ export type UserUncheckedUpdateWithoutCreatedUsersInput = {
   verificationTokens?: Prisma.EmailVerificationTokenUncheckedUpdateManyWithoutUserNestedInput
   loginAudits?: Prisma.LoginAuditUncheckedUpdateManyWithoutUserNestedInput
   stockMovements?: Prisma.StockMovementUncheckedUpdateManyWithoutPerformedByNestedInput
+  stockReservations?: Prisma.StockReservationUncheckedUpdateManyWithoutPerformedByNestedInput
 }
 
 export type UserUpsertWithWhereUniqueWithoutCreatedByInput = {
@@ -941,6 +970,7 @@ export type UserCreateWithoutRolesInput = {
   verificationTokens?: Prisma.EmailVerificationTokenCreateNestedManyWithoutUserInput
   loginAudits?: Prisma.LoginAuditCreateNestedManyWithoutUserInput
   stockMovements?: Prisma.StockMovementCreateNestedManyWithoutPerformedByInput
+  stockReservations?: Prisma.StockReservationCreateNestedManyWithoutPerformedByInput
 }
 
 export type UserUncheckedCreateWithoutRolesInput = {
@@ -963,6 +993,7 @@ export type UserUncheckedCreateWithoutRolesInput = {
   verificationTokens?: Prisma.EmailVerificationTokenUncheckedCreateNestedManyWithoutUserInput
   loginAudits?: Prisma.LoginAuditUncheckedCreateNestedManyWithoutUserInput
   stockMovements?: Prisma.StockMovementUncheckedCreateNestedManyWithoutPerformedByInput
+  stockReservations?: Prisma.StockReservationUncheckedCreateNestedManyWithoutPerformedByInput
 }
 
 export type UserCreateOrConnectWithoutRolesInput = {
@@ -1001,6 +1032,7 @@ export type UserUpdateWithoutRolesInput = {
   verificationTokens?: Prisma.EmailVerificationTokenUpdateManyWithoutUserNestedInput
   loginAudits?: Prisma.LoginAuditUpdateManyWithoutUserNestedInput
   stockMovements?: Prisma.StockMovementUpdateManyWithoutPerformedByNestedInput
+  stockReservations?: Prisma.StockReservationUpdateManyWithoutPerformedByNestedInput
 }
 
 export type UserUncheckedUpdateWithoutRolesInput = {
@@ -1023,6 +1055,7 @@ export type UserUncheckedUpdateWithoutRolesInput = {
   verificationTokens?: Prisma.EmailVerificationTokenUncheckedUpdateManyWithoutUserNestedInput
   loginAudits?: Prisma.LoginAuditUncheckedUpdateManyWithoutUserNestedInput
   stockMovements?: Prisma.StockMovementUncheckedUpdateManyWithoutPerformedByNestedInput
+  stockReservations?: Prisma.StockReservationUncheckedUpdateManyWithoutPerformedByNestedInput
 }
 
 export type UserCreateWithoutRefreshTokensInput = {
@@ -1045,6 +1078,7 @@ export type UserCreateWithoutRefreshTokensInput = {
   verificationTokens?: Prisma.EmailVerificationTokenCreateNestedManyWithoutUserInput
   loginAudits?: Prisma.LoginAuditCreateNestedManyWithoutUserInput
   stockMovements?: Prisma.StockMovementCreateNestedManyWithoutPerformedByInput
+  stockReservations?: Prisma.StockReservationCreateNestedManyWithoutPerformedByInput
 }
 
 export type UserUncheckedCreateWithoutRefreshTokensInput = {
@@ -1067,6 +1101,7 @@ export type UserUncheckedCreateWithoutRefreshTokensInput = {
   verificationTokens?: Prisma.EmailVerificationTokenUncheckedCreateNestedManyWithoutUserInput
   loginAudits?: Prisma.LoginAuditUncheckedCreateNestedManyWithoutUserInput
   stockMovements?: Prisma.StockMovementUncheckedCreateNestedManyWithoutPerformedByInput
+  stockReservations?: Prisma.StockReservationUncheckedCreateNestedManyWithoutPerformedByInput
 }
 
 export type UserCreateOrConnectWithoutRefreshTokensInput = {
@@ -1105,6 +1140,7 @@ export type UserUpdateWithoutRefreshTokensInput = {
   verificationTokens?: Prisma.EmailVerificationTokenUpdateManyWithoutUserNestedInput
   loginAudits?: Prisma.LoginAuditUpdateManyWithoutUserNestedInput
   stockMovements?: Prisma.StockMovementUpdateManyWithoutPerformedByNestedInput
+  stockReservations?: Prisma.StockReservationUpdateManyWithoutPerformedByNestedInput
 }
 
 export type UserUncheckedUpdateWithoutRefreshTokensInput = {
@@ -1127,6 +1163,7 @@ export type UserUncheckedUpdateWithoutRefreshTokensInput = {
   verificationTokens?: Prisma.EmailVerificationTokenUncheckedUpdateManyWithoutUserNestedInput
   loginAudits?: Prisma.LoginAuditUncheckedUpdateManyWithoutUserNestedInput
   stockMovements?: Prisma.StockMovementUncheckedUpdateManyWithoutPerformedByNestedInput
+  stockReservations?: Prisma.StockReservationUncheckedUpdateManyWithoutPerformedByNestedInput
 }
 
 export type UserCreateWithoutVerificationTokensInput = {
@@ -1149,6 +1186,7 @@ export type UserCreateWithoutVerificationTokensInput = {
   refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
   loginAudits?: Prisma.LoginAuditCreateNestedManyWithoutUserInput
   stockMovements?: Prisma.StockMovementCreateNestedManyWithoutPerformedByInput
+  stockReservations?: Prisma.StockReservationCreateNestedManyWithoutPerformedByInput
 }
 
 export type UserUncheckedCreateWithoutVerificationTokensInput = {
@@ -1171,6 +1209,7 @@ export type UserUncheckedCreateWithoutVerificationTokensInput = {
   refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
   loginAudits?: Prisma.LoginAuditUncheckedCreateNestedManyWithoutUserInput
   stockMovements?: Prisma.StockMovementUncheckedCreateNestedManyWithoutPerformedByInput
+  stockReservations?: Prisma.StockReservationUncheckedCreateNestedManyWithoutPerformedByInput
 }
 
 export type UserCreateOrConnectWithoutVerificationTokensInput = {
@@ -1209,6 +1248,7 @@ export type UserUpdateWithoutVerificationTokensInput = {
   refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
   loginAudits?: Prisma.LoginAuditUpdateManyWithoutUserNestedInput
   stockMovements?: Prisma.StockMovementUpdateManyWithoutPerformedByNestedInput
+  stockReservations?: Prisma.StockReservationUpdateManyWithoutPerformedByNestedInput
 }
 
 export type UserUncheckedUpdateWithoutVerificationTokensInput = {
@@ -1231,6 +1271,7 @@ export type UserUncheckedUpdateWithoutVerificationTokensInput = {
   refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
   loginAudits?: Prisma.LoginAuditUncheckedUpdateManyWithoutUserNestedInput
   stockMovements?: Prisma.StockMovementUncheckedUpdateManyWithoutPerformedByNestedInput
+  stockReservations?: Prisma.StockReservationUncheckedUpdateManyWithoutPerformedByNestedInput
 }
 
 export type UserCreateWithoutLoginAuditsInput = {
@@ -1253,6 +1294,7 @@ export type UserCreateWithoutLoginAuditsInput = {
   refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
   verificationTokens?: Prisma.EmailVerificationTokenCreateNestedManyWithoutUserInput
   stockMovements?: Prisma.StockMovementCreateNestedManyWithoutPerformedByInput
+  stockReservations?: Prisma.StockReservationCreateNestedManyWithoutPerformedByInput
 }
 
 export type UserUncheckedCreateWithoutLoginAuditsInput = {
@@ -1275,6 +1317,7 @@ export type UserUncheckedCreateWithoutLoginAuditsInput = {
   refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
   verificationTokens?: Prisma.EmailVerificationTokenUncheckedCreateNestedManyWithoutUserInput
   stockMovements?: Prisma.StockMovementUncheckedCreateNestedManyWithoutPerformedByInput
+  stockReservations?: Prisma.StockReservationUncheckedCreateNestedManyWithoutPerformedByInput
 }
 
 export type UserCreateOrConnectWithoutLoginAuditsInput = {
@@ -1313,6 +1356,7 @@ export type UserUpdateWithoutLoginAuditsInput = {
   refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
   verificationTokens?: Prisma.EmailVerificationTokenUpdateManyWithoutUserNestedInput
   stockMovements?: Prisma.StockMovementUpdateManyWithoutPerformedByNestedInput
+  stockReservations?: Prisma.StockReservationUpdateManyWithoutPerformedByNestedInput
 }
 
 export type UserUncheckedUpdateWithoutLoginAuditsInput = {
@@ -1335,6 +1379,7 @@ export type UserUncheckedUpdateWithoutLoginAuditsInput = {
   refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
   verificationTokens?: Prisma.EmailVerificationTokenUncheckedUpdateManyWithoutUserNestedInput
   stockMovements?: Prisma.StockMovementUncheckedUpdateManyWithoutPerformedByNestedInput
+  stockReservations?: Prisma.StockReservationUncheckedUpdateManyWithoutPerformedByNestedInput
 }
 
 export type UserCreateWithoutStockMovementsInput = {
@@ -1357,6 +1402,7 @@ export type UserCreateWithoutStockMovementsInput = {
   refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
   verificationTokens?: Prisma.EmailVerificationTokenCreateNestedManyWithoutUserInput
   loginAudits?: Prisma.LoginAuditCreateNestedManyWithoutUserInput
+  stockReservations?: Prisma.StockReservationCreateNestedManyWithoutPerformedByInput
 }
 
 export type UserUncheckedCreateWithoutStockMovementsInput = {
@@ -1379,6 +1425,7 @@ export type UserUncheckedCreateWithoutStockMovementsInput = {
   refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
   verificationTokens?: Prisma.EmailVerificationTokenUncheckedCreateNestedManyWithoutUserInput
   loginAudits?: Prisma.LoginAuditUncheckedCreateNestedManyWithoutUserInput
+  stockReservations?: Prisma.StockReservationUncheckedCreateNestedManyWithoutPerformedByInput
 }
 
 export type UserCreateOrConnectWithoutStockMovementsInput = {
@@ -1417,6 +1464,7 @@ export type UserUpdateWithoutStockMovementsInput = {
   refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
   verificationTokens?: Prisma.EmailVerificationTokenUpdateManyWithoutUserNestedInput
   loginAudits?: Prisma.LoginAuditUpdateManyWithoutUserNestedInput
+  stockReservations?: Prisma.StockReservationUpdateManyWithoutPerformedByNestedInput
 }
 
 export type UserUncheckedUpdateWithoutStockMovementsInput = {
@@ -1439,6 +1487,115 @@ export type UserUncheckedUpdateWithoutStockMovementsInput = {
   refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
   verificationTokens?: Prisma.EmailVerificationTokenUncheckedUpdateManyWithoutUserNestedInput
   loginAudits?: Prisma.LoginAuditUncheckedUpdateManyWithoutUserNestedInput
+  stockReservations?: Prisma.StockReservationUncheckedUpdateManyWithoutPerformedByNestedInput
+}
+
+export type UserCreateWithoutStockReservationsInput = {
+  id?: string
+  email: string
+  userType: $Enums.UserType
+  authProvider?: $Enums.AuthProvider
+  status?: $Enums.UserStatus
+  passwordHash?: string | null
+  googleId?: string | null
+  emailVerifiedAt?: Date | string | null
+  firstName?: string | null
+  lastName?: string | null
+  phone?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  createdBy?: Prisma.UserCreateNestedOneWithoutCreatedUsersInput
+  createdUsers?: Prisma.UserCreateNestedManyWithoutCreatedByInput
+  roles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
+  refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
+  verificationTokens?: Prisma.EmailVerificationTokenCreateNestedManyWithoutUserInput
+  loginAudits?: Prisma.LoginAuditCreateNestedManyWithoutUserInput
+  stockMovements?: Prisma.StockMovementCreateNestedManyWithoutPerformedByInput
+}
+
+export type UserUncheckedCreateWithoutStockReservationsInput = {
+  id?: string
+  email: string
+  userType: $Enums.UserType
+  authProvider?: $Enums.AuthProvider
+  status?: $Enums.UserStatus
+  passwordHash?: string | null
+  googleId?: string | null
+  emailVerifiedAt?: Date | string | null
+  firstName?: string | null
+  lastName?: string | null
+  phone?: string | null
+  createdById?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  createdUsers?: Prisma.UserUncheckedCreateNestedManyWithoutCreatedByInput
+  roles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
+  refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
+  verificationTokens?: Prisma.EmailVerificationTokenUncheckedCreateNestedManyWithoutUserInput
+  loginAudits?: Prisma.LoginAuditUncheckedCreateNestedManyWithoutUserInput
+  stockMovements?: Prisma.StockMovementUncheckedCreateNestedManyWithoutPerformedByInput
+}
+
+export type UserCreateOrConnectWithoutStockReservationsInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutStockReservationsInput, Prisma.UserUncheckedCreateWithoutStockReservationsInput>
+}
+
+export type UserUpsertWithoutStockReservationsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutStockReservationsInput, Prisma.UserUncheckedUpdateWithoutStockReservationsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutStockReservationsInput, Prisma.UserUncheckedCreateWithoutStockReservationsInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutStockReservationsInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutStockReservationsInput, Prisma.UserUncheckedUpdateWithoutStockReservationsInput>
+}
+
+export type UserUpdateWithoutStockReservationsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  userType?: Prisma.EnumUserTypeFieldUpdateOperationsInput | $Enums.UserType
+  authProvider?: Prisma.EnumAuthProviderFieldUpdateOperationsInput | $Enums.AuthProvider
+  status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdBy?: Prisma.UserUpdateOneWithoutCreatedUsersNestedInput
+  createdUsers?: Prisma.UserUpdateManyWithoutCreatedByNestedInput
+  roles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
+  refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
+  verificationTokens?: Prisma.EmailVerificationTokenUpdateManyWithoutUserNestedInput
+  loginAudits?: Prisma.LoginAuditUpdateManyWithoutUserNestedInput
+  stockMovements?: Prisma.StockMovementUpdateManyWithoutPerformedByNestedInput
+}
+
+export type UserUncheckedUpdateWithoutStockReservationsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  userType?: Prisma.EnumUserTypeFieldUpdateOperationsInput | $Enums.UserType
+  authProvider?: Prisma.EnumAuthProviderFieldUpdateOperationsInput | $Enums.AuthProvider
+  status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdUsers?: Prisma.UserUncheckedUpdateManyWithoutCreatedByNestedInput
+  roles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
+  refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
+  verificationTokens?: Prisma.EmailVerificationTokenUncheckedUpdateManyWithoutUserNestedInput
+  loginAudits?: Prisma.LoginAuditUncheckedUpdateManyWithoutUserNestedInput
+  stockMovements?: Prisma.StockMovementUncheckedUpdateManyWithoutPerformedByNestedInput
 }
 
 export type UserCreateManyCreatedByInput = {
@@ -1477,6 +1634,7 @@ export type UserUpdateWithoutCreatedByInput = {
   verificationTokens?: Prisma.EmailVerificationTokenUpdateManyWithoutUserNestedInput
   loginAudits?: Prisma.LoginAuditUpdateManyWithoutUserNestedInput
   stockMovements?: Prisma.StockMovementUpdateManyWithoutPerformedByNestedInput
+  stockReservations?: Prisma.StockReservationUpdateManyWithoutPerformedByNestedInput
 }
 
 export type UserUncheckedUpdateWithoutCreatedByInput = {
@@ -1499,6 +1657,7 @@ export type UserUncheckedUpdateWithoutCreatedByInput = {
   verificationTokens?: Prisma.EmailVerificationTokenUncheckedUpdateManyWithoutUserNestedInput
   loginAudits?: Prisma.LoginAuditUncheckedUpdateManyWithoutUserNestedInput
   stockMovements?: Prisma.StockMovementUncheckedUpdateManyWithoutPerformedByNestedInput
+  stockReservations?: Prisma.StockReservationUncheckedUpdateManyWithoutPerformedByNestedInput
 }
 
 export type UserUncheckedUpdateManyWithoutCreatedByInput = {
@@ -1529,6 +1688,7 @@ export type UserCountOutputType = {
   verificationTokens: number
   loginAudits: number
   stockMovements: number
+  stockReservations: number
 }
 
 export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1538,6 +1698,7 @@ export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.I
   verificationTokens?: boolean | UserCountOutputTypeCountVerificationTokensArgs
   loginAudits?: boolean | UserCountOutputTypeCountLoginAuditsArgs
   stockMovements?: boolean | UserCountOutputTypeCountStockMovementsArgs
+  stockReservations?: boolean | UserCountOutputTypeCountStockReservationsArgs
 }
 
 /**
@@ -1592,6 +1753,13 @@ export type UserCountOutputTypeCountStockMovementsArgs<ExtArgs extends runtime.T
   where?: Prisma.StockMovementWhereInput
 }
 
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountStockReservationsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.StockReservationWhereInput
+}
+
 
 export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -1615,6 +1783,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   verificationTokens?: boolean | Prisma.User$verificationTokensArgs<ExtArgs>
   loginAudits?: boolean | Prisma.User$loginAuditsArgs<ExtArgs>
   stockMovements?: boolean | Prisma.User$stockMovementsArgs<ExtArgs>
+  stockReservations?: boolean | Prisma.User$stockReservationsArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
@@ -1680,6 +1849,7 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   verificationTokens?: boolean | Prisma.User$verificationTokensArgs<ExtArgs>
   loginAudits?: boolean | Prisma.User$loginAuditsArgs<ExtArgs>
   stockMovements?: boolean | Prisma.User$stockMovementsArgs<ExtArgs>
+  stockReservations?: boolean | Prisma.User$stockReservationsArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type UserIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1699,6 +1869,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     verificationTokens: Prisma.$EmailVerificationTokenPayload<ExtArgs>[]
     loginAudits: Prisma.$LoginAuditPayload<ExtArgs>[]
     stockMovements: Prisma.$StockMovementPayload<ExtArgs>[]
+    stockReservations: Prisma.$StockReservationPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -2116,6 +2287,7 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   verificationTokens<T extends Prisma.User$verificationTokensArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$verificationTokensArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$EmailVerificationTokenPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   loginAudits<T extends Prisma.User$loginAuditsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$loginAuditsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LoginAuditPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   stockMovements<T extends Prisma.User$stockMovementsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$stockMovementsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$StockMovementPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  stockReservations<T extends Prisma.User$stockReservationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$stockReservationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$StockReservationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2720,6 +2892,30 @@ export type User$stockMovementsArgs<ExtArgs extends runtime.Types.Extensions.Int
   take?: number
   skip?: number
   distinct?: Prisma.StockMovementScalarFieldEnum | Prisma.StockMovementScalarFieldEnum[]
+}
+
+/**
+ * User.stockReservations
+ */
+export type User$stockReservationsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the StockReservation
+   */
+  select?: Prisma.StockReservationSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the StockReservation
+   */
+  omit?: Prisma.StockReservationOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.StockReservationInclude<ExtArgs> | null
+  where?: Prisma.StockReservationWhereInput
+  orderBy?: Prisma.StockReservationOrderByWithRelationInput | Prisma.StockReservationOrderByWithRelationInput[]
+  cursor?: Prisma.StockReservationWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.StockReservationScalarFieldEnum | Prisma.StockReservationScalarFieldEnum[]
 }
 
 /**

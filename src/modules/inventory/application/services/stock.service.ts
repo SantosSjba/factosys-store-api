@@ -35,6 +35,8 @@ export class StockService {
       page,
       limit,
       warehouseId: query.warehouseId,
+      variantId: query.variantId,
+      productId: query.productId,
       search: query.search,
       lowStockOnly,
     });
@@ -55,6 +57,10 @@ export class StockService {
       limit,
       warehouseId: query.warehouseId,
       variantId: query.variantId,
+      type: query.type,
+      search: query.search,
+      dateFrom: query.dateFrom ? new Date(query.dateFrom) : undefined,
+      dateTo: query.dateTo ? new Date(query.dateTo) : undefined,
     });
 
     return buildPaginationMeta(
@@ -154,12 +160,20 @@ export class StockService {
         dto.variantId,
       );
       const quantityBefore = sourceLevel?.quantityOnHand ?? 0;
+      const quantityReserved = sourceLevel?.quantityReserved ?? 0;
       const quantityAfter = quantityBefore + quantityChange;
 
       if (quantityAfter < 0) {
         throw new BadRequestException({
           code: 'INSUFFICIENT_STOCK',
           message: 'Stock insuficiente para completar el movimiento.',
+        });
+      }
+
+      if (quantityAfter < quantityReserved) {
+        throw new BadRequestException({
+          code: 'STOCK_BELOW_RESERVED',
+          message: `No puedes dejar el stock por debajo de lo reservado (${quantityReserved} unidades).`,
         });
       }
 

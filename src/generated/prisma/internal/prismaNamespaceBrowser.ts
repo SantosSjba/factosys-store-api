@@ -71,7 +71,8 @@ export const ModelName = {
   ProductImage: 'ProductImage',
   Warehouse: 'Warehouse',
   StockLevel: 'StockLevel',
-  StockMovement: 'StockMovement'
+  StockMovement: 'StockMovement',
+  StockReservation: 'StockReservation'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -384,6 +385,22 @@ export const StockMovementScalarFieldEnum = {
 } as const
 
 export type StockMovementScalarFieldEnum = (typeof StockMovementScalarFieldEnum)[keyof typeof StockMovementScalarFieldEnum]
+
+
+export const StockReservationScalarFieldEnum = {
+  id: 'id',
+  warehouseId: 'warehouseId',
+  variantId: 'variantId',
+  quantity: 'quantity',
+  reference: 'reference',
+  note: 'note',
+  status: 'status',
+  performedById: 'performedById',
+  createdAt: 'createdAt',
+  releasedAt: 'releasedAt'
+} as const
+
+export type StockReservationScalarFieldEnum = (typeof StockReservationScalarFieldEnum)[keyof typeof StockReservationScalarFieldEnum]
 
 
 export const SortOrder = {

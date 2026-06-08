@@ -404,7 +404,8 @@ export const ModelName = {
   ProductImage: 'ProductImage',
   Warehouse: 'Warehouse',
   StockLevel: 'StockLevel',
-  StockMovement: 'StockMovement'
+  StockMovement: 'StockMovement',
+  StockReservation: 'StockReservation'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -420,7 +421,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "role" | "permission" | "userRole" | "rolePermission" | "refreshToken" | "emailVerificationToken" | "loginAudit" | "category" | "brand" | "attribute" | "categoryAttribute" | "product" | "productCategory" | "productVariant" | "productAttributeValue" | "variantAttributeValue" | "productImage" | "warehouse" | "stockLevel" | "stockMovement"
+    modelProps: "user" | "role" | "permission" | "userRole" | "rolePermission" | "refreshToken" | "emailVerificationToken" | "loginAudit" | "category" | "brand" | "attribute" | "categoryAttribute" | "product" | "productCategory" | "productVariant" | "productAttributeValue" | "variantAttributeValue" | "productImage" | "warehouse" | "stockLevel" | "stockMovement" | "stockReservation"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1978,6 +1979,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    StockReservation: {
+      payload: Prisma.$StockReservationPayload<ExtArgs>
+      fields: Prisma.StockReservationFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.StockReservationFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StockReservationPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.StockReservationFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StockReservationPayload>
+        }
+        findFirst: {
+          args: Prisma.StockReservationFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StockReservationPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.StockReservationFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StockReservationPayload>
+        }
+        findMany: {
+          args: Prisma.StockReservationFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StockReservationPayload>[]
+        }
+        create: {
+          args: Prisma.StockReservationCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StockReservationPayload>
+        }
+        createMany: {
+          args: Prisma.StockReservationCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.StockReservationCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StockReservationPayload>[]
+        }
+        delete: {
+          args: Prisma.StockReservationDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StockReservationPayload>
+        }
+        update: {
+          args: Prisma.StockReservationUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StockReservationPayload>
+        }
+        deleteMany: {
+          args: Prisma.StockReservationDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.StockReservationUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.StockReservationUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StockReservationPayload>[]
+        }
+        upsert: {
+          args: Prisma.StockReservationUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StockReservationPayload>
+        }
+        aggregate: {
+          args: Prisma.StockReservationAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateStockReservation>
+        }
+        groupBy: {
+          args: Prisma.StockReservationGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.StockReservationGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.StockReservationCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.StockReservationCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -2313,6 +2388,22 @@ export const StockMovementScalarFieldEnum = {
 export type StockMovementScalarFieldEnum = (typeof StockMovementScalarFieldEnum)[keyof typeof StockMovementScalarFieldEnum]
 
 
+export const StockReservationScalarFieldEnum = {
+  id: 'id',
+  warehouseId: 'warehouseId',
+  variantId: 'variantId',
+  quantity: 'quantity',
+  reference: 'reference',
+  note: 'note',
+  status: 'status',
+  performedById: 'performedById',
+  createdAt: 'createdAt',
+  releasedAt: 'releasedAt'
+} as const
+
+export type StockReservationScalarFieldEnum = (typeof StockReservationScalarFieldEnum)[keyof typeof StockReservationScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -2547,6 +2638,20 @@ export type ListEnumStockMovementTypeFieldRefInput<$PrismaModel> = FieldRefInput
 
 
 /**
+ * Reference to a field of type 'StockReservationStatus'
+ */
+export type EnumStockReservationStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'StockReservationStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'StockReservationStatus[]'
+ */
+export type ListEnumStockReservationStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'StockReservationStatus[]'>
+    
+
+
+/**
  * Reference to a field of type 'Float'
  */
 export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
@@ -2690,6 +2795,7 @@ export type GlobalOmitConfig = {
   warehouse?: Prisma.WarehouseOmit
   stockLevel?: Prisma.StockLevelOmit
   stockMovement?: Prisma.StockMovementOmit
+  stockReservation?: Prisma.StockReservationOmit
 }
 
 /* Types for Logging */

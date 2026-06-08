@@ -144,3 +144,8 @@ export type StockLevel = Prisma.StockLevelModel
  * 
  */
 export type StockMovement = Prisma.StockMovementModel
+/**
+ * Model StockReservation
+ * 
+ */
+export type StockReservation = Prisma.StockReservationModel

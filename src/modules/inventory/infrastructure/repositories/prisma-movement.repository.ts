@@ -18,10 +18,52 @@ export class PrismaMovementRepository {
     limit: number;
     warehouseId?: string;
     variantId?: string;
+    type?: Prisma.EnumStockMovementTypeFilter['equals'];
+    search?: string;
+    dateFrom?: Date;
+    dateTo?: Date;
   }) {
     const where: Prisma.StockMovementWhereInput = {
       ...(params.warehouseId ? { warehouseId: params.warehouseId } : {}),
       ...(params.variantId ? { variantId: params.variantId } : {}),
+      ...(params.type ? { type: params.type } : {}),
+      ...(params.dateFrom || params.dateTo
+        ? {
+            createdAt: {
+              ...(params.dateFrom ? { gte: params.dateFrom } : {}),
+              ...(params.dateTo ? { lte: params.dateTo } : {}),
+            },
+          }
+        : {}),
+      ...(params.search
+        ? {
+            OR: [
+              { note: { contains: params.search, mode: 'insensitive' } },
+              { variant: { sku: { contains: params.search, mode: 'insensitive' } } },
+              { variant: { name: { contains: params.search, mode: 'insensitive' } } },
+              {
+                variant: {
+                  product: { name: { contains: params.search, mode: 'insensitive' } },
+                },
+              },
+              {
+                performedBy: {
+                  email: { contains: params.search, mode: 'insensitive' },
+                },
+              },
+              {
+                performedBy: {
+                  firstName: { contains: params.search, mode: 'insensitive' },
+                },
+              },
+              {
+                performedBy: {
+                  lastName: { contains: params.search, mode: 'insensitive' },
+                },
+              },
+            ],
+          }
+        : {}),
     };
 
     const [items, total] = await Promise.all([
