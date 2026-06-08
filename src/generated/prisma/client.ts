@@ -129,3 +129,18 @@ export type VariantAttributeValue = Prisma.VariantAttributeValueModel
  * 
  */
 export type ProductImage = Prisma.ProductImageModel
+/**
+ * Model Warehouse
+ * 
+ */
+export type Warehouse = Prisma.WarehouseModel
+/**
+ * Model StockLevel
+ * 
+ */
+export type StockLevel = Prisma.StockLevelModel
+/**
+ * Model StockMovement
+ * 
+ */
+export type StockMovement = Prisma.StockMovementModel

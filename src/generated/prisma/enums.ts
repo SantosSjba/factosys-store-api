@@ -85,3 +85,13 @@ export const LoginResult = {
 } as const
 
 export type LoginResult = (typeof LoginResult)[keyof typeof LoginResult]
+
+
+export const StockMovementType = {
+  RECEIPT: 'RECEIPT',
+  SHIPMENT: 'SHIPMENT',
+  ADJUSTMENT: 'ADJUSTMENT',
+  TRANSFER: 'TRANSFER'
+} as const
+
+export type StockMovementType = (typeof StockMovementType)[keyof typeof StockMovementType]

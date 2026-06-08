@@ -155,6 +155,8 @@ model ProductVariant {
   product         Product                 @relation(fields: [productId], references: [id], onDelete: Cascade)
   attributeValues VariantAttributeValue[]
   images          ProductImage[]
+  stockLevels     StockLevel[]
+  stockMovements  StockMovement[]
 
   @@index([productId, sortOrder])
   @@index([isActive])
