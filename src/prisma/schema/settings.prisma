@@ -39,6 +39,7 @@ model StoreSettings {
   guestCheckoutEnabled          Boolean  @default(true)
   minOrderAmount                Decimal? @db.Decimal(12, 2)
   orderNumberPrefix             String   @default("FS-")
+  lastOrderNumber               Int      @default(0)
   defaultWarehouseId            String?
   lowStockGlobalThreshold       Int?
   freeShippingMinAmount         Decimal? @db.Decimal(12, 2)

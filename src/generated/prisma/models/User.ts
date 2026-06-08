@@ -262,6 +262,10 @@ export type UserWhereInput = {
   loginAudits?: Prisma.LoginAuditListRelationFilter
   stockMovements?: Prisma.StockMovementListRelationFilter
   stockReservations?: Prisma.StockReservationListRelationFilter
+  customerOrders?: Prisma.OrderListRelationFilter
+  createdOrders?: Prisma.OrderListRelationFilter
+  updatedOrders?: Prisma.OrderListRelationFilter
+  orderStatusHistory?: Prisma.OrderStatusHistoryListRelationFilter
 }
 
 export type UserOrderByWithRelationInput = {
@@ -287,6 +291,10 @@ export type UserOrderByWithRelationInput = {
   loginAudits?: Prisma.LoginAuditOrderByRelationAggregateInput
   stockMovements?: Prisma.StockMovementOrderByRelationAggregateInput
   stockReservations?: Prisma.StockReservationOrderByRelationAggregateInput
+  customerOrders?: Prisma.OrderOrderByRelationAggregateInput
+  createdOrders?: Prisma.OrderOrderByRelationAggregateInput
+  updatedOrders?: Prisma.OrderOrderByRelationAggregateInput
+  orderStatusHistory?: Prisma.OrderStatusHistoryOrderByRelationAggregateInput
 }
 
 export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -315,6 +323,10 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   loginAudits?: Prisma.LoginAuditListRelationFilter
   stockMovements?: Prisma.StockMovementListRelationFilter
   stockReservations?: Prisma.StockReservationListRelationFilter
+  customerOrders?: Prisma.OrderListRelationFilter
+  createdOrders?: Prisma.OrderListRelationFilter
+  updatedOrders?: Prisma.OrderListRelationFilter
+  orderStatusHistory?: Prisma.OrderStatusHistoryListRelationFilter
 }, "id" | "email" | "googleId">
 
 export type UserOrderByWithAggregationInput = {
@@ -379,6 +391,10 @@ export type UserCreateInput = {
   loginAudits?: Prisma.LoginAuditCreateNestedManyWithoutUserInput
   stockMovements?: Prisma.StockMovementCreateNestedManyWithoutPerformedByInput
   stockReservations?: Prisma.StockReservationCreateNestedManyWithoutPerformedByInput
+  customerOrders?: Prisma.OrderCreateNestedManyWithoutCustomerInput
+  createdOrders?: Prisma.OrderCreateNestedManyWithoutCreatedByInput
+  updatedOrders?: Prisma.OrderCreateNestedManyWithoutUpdatedByInput
+  orderStatusHistory?: Prisma.OrderStatusHistoryCreateNestedManyWithoutPerformedByInput
 }
 
 export type UserUncheckedCreateInput = {
@@ -403,6 +419,10 @@ export type UserUncheckedCreateInput = {
   loginAudits?: Prisma.LoginAuditUncheckedCreateNestedManyWithoutUserInput
   stockMovements?: Prisma.StockMovementUncheckedCreateNestedManyWithoutPerformedByInput
   stockReservations?: Prisma.StockReservationUncheckedCreateNestedManyWithoutPerformedByInput
+  customerOrders?: Prisma.OrderUncheckedCreateNestedManyWithoutCustomerInput
+  createdOrders?: Prisma.OrderUncheckedCreateNestedManyWithoutCreatedByInput
+  updatedOrders?: Prisma.OrderUncheckedCreateNestedManyWithoutUpdatedByInput
+  orderStatusHistory?: Prisma.OrderStatusHistoryUncheckedCreateNestedManyWithoutPerformedByInput
 }
 
 export type UserUpdateInput = {
@@ -427,6 +447,10 @@ export type UserUpdateInput = {
   loginAudits?: Prisma.LoginAuditUpdateManyWithoutUserNestedInput
   stockMovements?: Prisma.StockMovementUpdateManyWithoutPerformedByNestedInput
   stockReservations?: Prisma.StockReservationUpdateManyWithoutPerformedByNestedInput
+  customerOrders?: Prisma.OrderUpdateManyWithoutCustomerNestedInput
+  createdOrders?: Prisma.OrderUpdateManyWithoutCreatedByNestedInput
+  updatedOrders?: Prisma.OrderUpdateManyWithoutUpdatedByNestedInput
+  orderStatusHistory?: Prisma.OrderStatusHistoryUpdateManyWithoutPerformedByNestedInput
 }
 
 export type UserUncheckedUpdateInput = {
@@ -451,6 +475,10 @@ export type UserUncheckedUpdateInput = {
   loginAudits?: Prisma.LoginAuditUncheckedUpdateManyWithoutUserNestedInput
   stockMovements?: Prisma.StockMovementUncheckedUpdateManyWithoutPerformedByNestedInput
   stockReservations?: Prisma.StockReservationUncheckedUpdateManyWithoutPerformedByNestedInput
+  customerOrders?: Prisma.OrderUncheckedUpdateManyWithoutCustomerNestedInput
+  createdOrders?: Prisma.OrderUncheckedUpdateManyWithoutCreatedByNestedInput
+  updatedOrders?: Prisma.OrderUncheckedUpdateManyWithoutUpdatedByNestedInput
+  orderStatusHistory?: Prisma.OrderStatusHistoryUncheckedUpdateManyWithoutPerformedByNestedInput
 }
 
 export type UserCreateManyInput = {
@@ -750,6 +778,70 @@ export type UserUpdateOneWithoutStockReservationsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutStockReservationsInput, Prisma.UserUpdateWithoutStockReservationsInput>, Prisma.UserUncheckedUpdateWithoutStockReservationsInput>
 }
 
+export type UserCreateNestedOneWithoutCustomerOrdersInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutCustomerOrdersInput, Prisma.UserUncheckedCreateWithoutCustomerOrdersInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutCustomerOrdersInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserCreateNestedOneWithoutCreatedOrdersInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutCreatedOrdersInput, Prisma.UserUncheckedCreateWithoutCreatedOrdersInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutCreatedOrdersInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserCreateNestedOneWithoutUpdatedOrdersInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutUpdatedOrdersInput, Prisma.UserUncheckedCreateWithoutUpdatedOrdersInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutUpdatedOrdersInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneWithoutCustomerOrdersNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutCustomerOrdersInput, Prisma.UserUncheckedCreateWithoutCustomerOrdersInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutCustomerOrdersInput
+  upsert?: Prisma.UserUpsertWithoutCustomerOrdersInput
+  disconnect?: Prisma.UserWhereInput | boolean
+  delete?: Prisma.UserWhereInput | boolean
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutCustomerOrdersInput, Prisma.UserUpdateWithoutCustomerOrdersInput>, Prisma.UserUncheckedUpdateWithoutCustomerOrdersInput>
+}
+
+export type UserUpdateOneWithoutCreatedOrdersNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutCreatedOrdersInput, Prisma.UserUncheckedCreateWithoutCreatedOrdersInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutCreatedOrdersInput
+  upsert?: Prisma.UserUpsertWithoutCreatedOrdersInput
+  disconnect?: Prisma.UserWhereInput | boolean
+  delete?: Prisma.UserWhereInput | boolean
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutCreatedOrdersInput, Prisma.UserUpdateWithoutCreatedOrdersInput>, Prisma.UserUncheckedUpdateWithoutCreatedOrdersInput>
+}
+
+export type UserUpdateOneWithoutUpdatedOrdersNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutUpdatedOrdersInput, Prisma.UserUncheckedCreateWithoutUpdatedOrdersInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutUpdatedOrdersInput
+  upsert?: Prisma.UserUpsertWithoutUpdatedOrdersInput
+  disconnect?: Prisma.UserWhereInput | boolean
+  delete?: Prisma.UserWhereInput | boolean
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutUpdatedOrdersInput, Prisma.UserUpdateWithoutUpdatedOrdersInput>, Prisma.UserUncheckedUpdateWithoutUpdatedOrdersInput>
+}
+
+export type UserCreateNestedOneWithoutOrderStatusHistoryInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutOrderStatusHistoryInput, Prisma.UserUncheckedCreateWithoutOrderStatusHistoryInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutOrderStatusHistoryInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneWithoutOrderStatusHistoryNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutOrderStatusHistoryInput, Prisma.UserUncheckedCreateWithoutOrderStatusHistoryInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutOrderStatusHistoryInput
+  upsert?: Prisma.UserUpsertWithoutOrderStatusHistoryInput
+  disconnect?: Prisma.UserWhereInput | boolean
+  delete?: Prisma.UserWhereInput | boolean
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutOrderStatusHistoryInput, Prisma.UserUpdateWithoutOrderStatusHistoryInput>, Prisma.UserUncheckedUpdateWithoutOrderStatusHistoryInput>
+}
+
 export type UserCreateWithoutCreatedUsersInput = {
   id?: string
   email: string
@@ -771,6 +863,10 @@ export type UserCreateWithoutCreatedUsersInput = {
   loginAudits?: Prisma.LoginAuditCreateNestedManyWithoutUserInput
   stockMovements?: Prisma.StockMovementCreateNestedManyWithoutPerformedByInput
   stockReservations?: Prisma.StockReservationCreateNestedManyWithoutPerformedByInput
+  customerOrders?: Prisma.OrderCreateNestedManyWithoutCustomerInput
+  createdOrders?: Prisma.OrderCreateNestedManyWithoutCreatedByInput
+  updatedOrders?: Prisma.OrderCreateNestedManyWithoutUpdatedByInput
+  orderStatusHistory?: Prisma.OrderStatusHistoryCreateNestedManyWithoutPerformedByInput
 }
 
 export type UserUncheckedCreateWithoutCreatedUsersInput = {
@@ -794,6 +890,10 @@ export type UserUncheckedCreateWithoutCreatedUsersInput = {
   loginAudits?: Prisma.LoginAuditUncheckedCreateNestedManyWithoutUserInput
   stockMovements?: Prisma.StockMovementUncheckedCreateNestedManyWithoutPerformedByInput
   stockReservations?: Prisma.StockReservationUncheckedCreateNestedManyWithoutPerformedByInput
+  customerOrders?: Prisma.OrderUncheckedCreateNestedManyWithoutCustomerInput
+  createdOrders?: Prisma.OrderUncheckedCreateNestedManyWithoutCreatedByInput
+  updatedOrders?: Prisma.OrderUncheckedCreateNestedManyWithoutUpdatedByInput
+  orderStatusHistory?: Prisma.OrderStatusHistoryUncheckedCreateNestedManyWithoutPerformedByInput
 }
 
 export type UserCreateOrConnectWithoutCreatedUsersInput = {
@@ -822,6 +922,10 @@ export type UserCreateWithoutCreatedByInput = {
   loginAudits?: Prisma.LoginAuditCreateNestedManyWithoutUserInput
   stockMovements?: Prisma.StockMovementCreateNestedManyWithoutPerformedByInput
   stockReservations?: Prisma.StockReservationCreateNestedManyWithoutPerformedByInput
+  customerOrders?: Prisma.OrderCreateNestedManyWithoutCustomerInput
+  createdOrders?: Prisma.OrderCreateNestedManyWithoutCreatedByInput
+  updatedOrders?: Prisma.OrderCreateNestedManyWithoutUpdatedByInput
+  orderStatusHistory?: Prisma.OrderStatusHistoryCreateNestedManyWithoutPerformedByInput
 }
 
 export type UserUncheckedCreateWithoutCreatedByInput = {
@@ -845,6 +949,10 @@ export type UserUncheckedCreateWithoutCreatedByInput = {
   loginAudits?: Prisma.LoginAuditUncheckedCreateNestedManyWithoutUserInput
   stockMovements?: Prisma.StockMovementUncheckedCreateNestedManyWithoutPerformedByInput
   stockReservations?: Prisma.StockReservationUncheckedCreateNestedManyWithoutPerformedByInput
+  customerOrders?: Prisma.OrderUncheckedCreateNestedManyWithoutCustomerInput
+  createdOrders?: Prisma.OrderUncheckedCreateNestedManyWithoutCreatedByInput
+  updatedOrders?: Prisma.OrderUncheckedCreateNestedManyWithoutUpdatedByInput
+  orderStatusHistory?: Prisma.OrderStatusHistoryUncheckedCreateNestedManyWithoutPerformedByInput
 }
 
 export type UserCreateOrConnectWithoutCreatedByInput = {
@@ -889,6 +997,10 @@ export type UserUpdateWithoutCreatedUsersInput = {
   loginAudits?: Prisma.LoginAuditUpdateManyWithoutUserNestedInput
   stockMovements?: Prisma.StockMovementUpdateManyWithoutPerformedByNestedInput
   stockReservations?: Prisma.StockReservationUpdateManyWithoutPerformedByNestedInput
+  customerOrders?: Prisma.OrderUpdateManyWithoutCustomerNestedInput
+  createdOrders?: Prisma.OrderUpdateManyWithoutCreatedByNestedInput
+  updatedOrders?: Prisma.OrderUpdateManyWithoutUpdatedByNestedInput
+  orderStatusHistory?: Prisma.OrderStatusHistoryUpdateManyWithoutPerformedByNestedInput
 }
 
 export type UserUncheckedUpdateWithoutCreatedUsersInput = {
@@ -912,6 +1024,10 @@ export type UserUncheckedUpdateWithoutCreatedUsersInput = {
   loginAudits?: Prisma.LoginAuditUncheckedUpdateManyWithoutUserNestedInput
   stockMovements?: Prisma.StockMovementUncheckedUpdateManyWithoutPerformedByNestedInput
   stockReservations?: Prisma.StockReservationUncheckedUpdateManyWithoutPerformedByNestedInput
+  customerOrders?: Prisma.OrderUncheckedUpdateManyWithoutCustomerNestedInput
+  createdOrders?: Prisma.OrderUncheckedUpdateManyWithoutCreatedByNestedInput
+  updatedOrders?: Prisma.OrderUncheckedUpdateManyWithoutUpdatedByNestedInput
+  orderStatusHistory?: Prisma.OrderStatusHistoryUncheckedUpdateManyWithoutPerformedByNestedInput
 }
 
 export type UserUpsertWithWhereUniqueWithoutCreatedByInput = {
@@ -971,6 +1087,10 @@ export type UserCreateWithoutRolesInput = {
   loginAudits?: Prisma.LoginAuditCreateNestedManyWithoutUserInput
   stockMovements?: Prisma.StockMovementCreateNestedManyWithoutPerformedByInput
   stockReservations?: Prisma.StockReservationCreateNestedManyWithoutPerformedByInput
+  customerOrders?: Prisma.OrderCreateNestedManyWithoutCustomerInput
+  createdOrders?: Prisma.OrderCreateNestedManyWithoutCreatedByInput
+  updatedOrders?: Prisma.OrderCreateNestedManyWithoutUpdatedByInput
+  orderStatusHistory?: Prisma.OrderStatusHistoryCreateNestedManyWithoutPerformedByInput
 }
 
 export type UserUncheckedCreateWithoutRolesInput = {
@@ -994,6 +1114,10 @@ export type UserUncheckedCreateWithoutRolesInput = {
   loginAudits?: Prisma.LoginAuditUncheckedCreateNestedManyWithoutUserInput
   stockMovements?: Prisma.StockMovementUncheckedCreateNestedManyWithoutPerformedByInput
   stockReservations?: Prisma.StockReservationUncheckedCreateNestedManyWithoutPerformedByInput
+  customerOrders?: Prisma.OrderUncheckedCreateNestedManyWithoutCustomerInput
+  createdOrders?: Prisma.OrderUncheckedCreateNestedManyWithoutCreatedByInput
+  updatedOrders?: Prisma.OrderUncheckedCreateNestedManyWithoutUpdatedByInput
+  orderStatusHistory?: Prisma.OrderStatusHistoryUncheckedCreateNestedManyWithoutPerformedByInput
 }
 
 export type UserCreateOrConnectWithoutRolesInput = {
@@ -1033,6 +1157,10 @@ export type UserUpdateWithoutRolesInput = {
   loginAudits?: Prisma.LoginAuditUpdateManyWithoutUserNestedInput
   stockMovements?: Prisma.StockMovementUpdateManyWithoutPerformedByNestedInput
   stockReservations?: Prisma.StockReservationUpdateManyWithoutPerformedByNestedInput
+  customerOrders?: Prisma.OrderUpdateManyWithoutCustomerNestedInput
+  createdOrders?: Prisma.OrderUpdateManyWithoutCreatedByNestedInput
+  updatedOrders?: Prisma.OrderUpdateManyWithoutUpdatedByNestedInput
+  orderStatusHistory?: Prisma.OrderStatusHistoryUpdateManyWithoutPerformedByNestedInput
 }
 
 export type UserUncheckedUpdateWithoutRolesInput = {
@@ -1056,6 +1184,10 @@ export type UserUncheckedUpdateWithoutRolesInput = {
   loginAudits?: Prisma.LoginAuditUncheckedUpdateManyWithoutUserNestedInput
   stockMovements?: Prisma.StockMovementUncheckedUpdateManyWithoutPerformedByNestedInput
   stockReservations?: Prisma.StockReservationUncheckedUpdateManyWithoutPerformedByNestedInput
+  customerOrders?: Prisma.OrderUncheckedUpdateManyWithoutCustomerNestedInput
+  createdOrders?: Prisma.OrderUncheckedUpdateManyWithoutCreatedByNestedInput
+  updatedOrders?: Prisma.OrderUncheckedUpdateManyWithoutUpdatedByNestedInput
+  orderStatusHistory?: Prisma.OrderStatusHistoryUncheckedUpdateManyWithoutPerformedByNestedInput
 }
 
 export type UserCreateWithoutRefreshTokensInput = {
@@ -1079,6 +1211,10 @@ export type UserCreateWithoutRefreshTokensInput = {
   loginAudits?: Prisma.LoginAuditCreateNestedManyWithoutUserInput
   stockMovements?: Prisma.StockMovementCreateNestedManyWithoutPerformedByInput
   stockReservations?: Prisma.StockReservationCreateNestedManyWithoutPerformedByInput
+  customerOrders?: Prisma.OrderCreateNestedManyWithoutCustomerInput
+  createdOrders?: Prisma.OrderCreateNestedManyWithoutCreatedByInput
+  updatedOrders?: Prisma.OrderCreateNestedManyWithoutUpdatedByInput
+  orderStatusHistory?: Prisma.OrderStatusHistoryCreateNestedManyWithoutPerformedByInput
 }
 
 export type UserUncheckedCreateWithoutRefreshTokensInput = {
@@ -1102,6 +1238,10 @@ export type UserUncheckedCreateWithoutRefreshTokensInput = {
   loginAudits?: Prisma.LoginAuditUncheckedCreateNestedManyWithoutUserInput
   stockMovements?: Prisma.StockMovementUncheckedCreateNestedManyWithoutPerformedByInput
   stockReservations?: Prisma.StockReservationUncheckedCreateNestedManyWithoutPerformedByInput
+  customerOrders?: Prisma.OrderUncheckedCreateNestedManyWithoutCustomerInput
+  createdOrders?: Prisma.OrderUncheckedCreateNestedManyWithoutCreatedByInput
+  updatedOrders?: Prisma.OrderUncheckedCreateNestedManyWithoutUpdatedByInput
+  orderStatusHistory?: Prisma.OrderStatusHistoryUncheckedCreateNestedManyWithoutPerformedByInput
 }
 
 export type UserCreateOrConnectWithoutRefreshTokensInput = {
@@ -1141,6 +1281,10 @@ export type UserUpdateWithoutRefreshTokensInput = {
   loginAudits?: Prisma.LoginAuditUpdateManyWithoutUserNestedInput
   stockMovements?: Prisma.StockMovementUpdateManyWithoutPerformedByNestedInput
   stockReservations?: Prisma.StockReservationUpdateManyWithoutPerformedByNestedInput
+  customerOrders?: Prisma.OrderUpdateManyWithoutCustomerNestedInput
+  createdOrders?: Prisma.OrderUpdateManyWithoutCreatedByNestedInput
+  updatedOrders?: Prisma.OrderUpdateManyWithoutUpdatedByNestedInput
+  orderStatusHistory?: Prisma.OrderStatusHistoryUpdateManyWithoutPerformedByNestedInput
 }
 
 export type UserUncheckedUpdateWithoutRefreshTokensInput = {
@@ -1164,6 +1308,10 @@ export type UserUncheckedUpdateWithoutRefreshTokensInput = {
   loginAudits?: Prisma.LoginAuditUncheckedUpdateManyWithoutUserNestedInput
   stockMovements?: Prisma.StockMovementUncheckedUpdateManyWithoutPerformedByNestedInput
   stockReservations?: Prisma.StockReservationUncheckedUpdateManyWithoutPerformedByNestedInput
+  customerOrders?: Prisma.OrderUncheckedUpdateManyWithoutCustomerNestedInput
+  createdOrders?: Prisma.OrderUncheckedUpdateManyWithoutCreatedByNestedInput
+  updatedOrders?: Prisma.OrderUncheckedUpdateManyWithoutUpdatedByNestedInput
+  orderStatusHistory?: Prisma.OrderStatusHistoryUncheckedUpdateManyWithoutPerformedByNestedInput
 }
 
 export type UserCreateWithoutVerificationTokensInput = {
@@ -1187,6 +1335,10 @@ export type UserCreateWithoutVerificationTokensInput = {
   loginAudits?: Prisma.LoginAuditCreateNestedManyWithoutUserInput
   stockMovements?: Prisma.StockMovementCreateNestedManyWithoutPerformedByInput
   stockReservations?: Prisma.StockReservationCreateNestedManyWithoutPerformedByInput
+  customerOrders?: Prisma.OrderCreateNestedManyWithoutCustomerInput
+  createdOrders?: Prisma.OrderCreateNestedManyWithoutCreatedByInput
+  updatedOrders?: Prisma.OrderCreateNestedManyWithoutUpdatedByInput
+  orderStatusHistory?: Prisma.OrderStatusHistoryCreateNestedManyWithoutPerformedByInput
 }
 
 export type UserUncheckedCreateWithoutVerificationTokensInput = {
@@ -1210,6 +1362,10 @@ export type UserUncheckedCreateWithoutVerificationTokensInput = {
   loginAudits?: Prisma.LoginAuditUncheckedCreateNestedManyWithoutUserInput
   stockMovements?: Prisma.StockMovementUncheckedCreateNestedManyWithoutPerformedByInput
   stockReservations?: Prisma.StockReservationUncheckedCreateNestedManyWithoutPerformedByInput
+  customerOrders?: Prisma.OrderUncheckedCreateNestedManyWithoutCustomerInput
+  createdOrders?: Prisma.OrderUncheckedCreateNestedManyWithoutCreatedByInput
+  updatedOrders?: Prisma.OrderUncheckedCreateNestedManyWithoutUpdatedByInput
+  orderStatusHistory?: Prisma.OrderStatusHistoryUncheckedCreateNestedManyWithoutPerformedByInput
 }
 
 export type UserCreateOrConnectWithoutVerificationTokensInput = {
@@ -1249,6 +1405,10 @@ export type UserUpdateWithoutVerificationTokensInput = {
   loginAudits?: Prisma.LoginAuditUpdateManyWithoutUserNestedInput
   stockMovements?: Prisma.StockMovementUpdateManyWithoutPerformedByNestedInput
   stockReservations?: Prisma.StockReservationUpdateManyWithoutPerformedByNestedInput
+  customerOrders?: Prisma.OrderUpdateManyWithoutCustomerNestedInput
+  createdOrders?: Prisma.OrderUpdateManyWithoutCreatedByNestedInput
+  updatedOrders?: Prisma.OrderUpdateManyWithoutUpdatedByNestedInput
+  orderStatusHistory?: Prisma.OrderStatusHistoryUpdateManyWithoutPerformedByNestedInput
 }
 
 export type UserUncheckedUpdateWithoutVerificationTokensInput = {
@@ -1272,6 +1432,10 @@ export type UserUncheckedUpdateWithoutVerificationTokensInput = {
   loginAudits?: Prisma.LoginAuditUncheckedUpdateManyWithoutUserNestedInput
   stockMovements?: Prisma.StockMovementUncheckedUpdateManyWithoutPerformedByNestedInput
   stockReservations?: Prisma.StockReservationUncheckedUpdateManyWithoutPerformedByNestedInput
+  customerOrders?: Prisma.OrderUncheckedUpdateManyWithoutCustomerNestedInput
+  createdOrders?: Prisma.OrderUncheckedUpdateManyWithoutCreatedByNestedInput
+  updatedOrders?: Prisma.OrderUncheckedUpdateManyWithoutUpdatedByNestedInput
+  orderStatusHistory?: Prisma.OrderStatusHistoryUncheckedUpdateManyWithoutPerformedByNestedInput
 }
 
 export type UserCreateWithoutLoginAuditsInput = {
@@ -1295,6 +1459,10 @@ export type UserCreateWithoutLoginAuditsInput = {
   verificationTokens?: Prisma.EmailVerificationTokenCreateNestedManyWithoutUserInput
   stockMovements?: Prisma.StockMovementCreateNestedManyWithoutPerformedByInput
   stockReservations?: Prisma.StockReservationCreateNestedManyWithoutPerformedByInput
+  customerOrders?: Prisma.OrderCreateNestedManyWithoutCustomerInput
+  createdOrders?: Prisma.OrderCreateNestedManyWithoutCreatedByInput
+  updatedOrders?: Prisma.OrderCreateNestedManyWithoutUpdatedByInput
+  orderStatusHistory?: Prisma.OrderStatusHistoryCreateNestedManyWithoutPerformedByInput
 }
 
 export type UserUncheckedCreateWithoutLoginAuditsInput = {
@@ -1318,6 +1486,10 @@ export type UserUncheckedCreateWithoutLoginAuditsInput = {
   verificationTokens?: Prisma.EmailVerificationTokenUncheckedCreateNestedManyWithoutUserInput
   stockMovements?: Prisma.StockMovementUncheckedCreateNestedManyWithoutPerformedByInput
   stockReservations?: Prisma.StockReservationUncheckedCreateNestedManyWithoutPerformedByInput
+  customerOrders?: Prisma.OrderUncheckedCreateNestedManyWithoutCustomerInput
+  createdOrders?: Prisma.OrderUncheckedCreateNestedManyWithoutCreatedByInput
+  updatedOrders?: Prisma.OrderUncheckedCreateNestedManyWithoutUpdatedByInput
+  orderStatusHistory?: Prisma.OrderStatusHistoryUncheckedCreateNestedManyWithoutPerformedByInput
 }
 
 export type UserCreateOrConnectWithoutLoginAuditsInput = {
@@ -1357,6 +1529,10 @@ export type UserUpdateWithoutLoginAuditsInput = {
   verificationTokens?: Prisma.EmailVerificationTokenUpdateManyWithoutUserNestedInput
   stockMovements?: Prisma.StockMovementUpdateManyWithoutPerformedByNestedInput
   stockReservations?: Prisma.StockReservationUpdateManyWithoutPerformedByNestedInput
+  customerOrders?: Prisma.OrderUpdateManyWithoutCustomerNestedInput
+  createdOrders?: Prisma.OrderUpdateManyWithoutCreatedByNestedInput
+  updatedOrders?: Prisma.OrderUpdateManyWithoutUpdatedByNestedInput
+  orderStatusHistory?: Prisma.OrderStatusHistoryUpdateManyWithoutPerformedByNestedInput
 }
 
 export type UserUncheckedUpdateWithoutLoginAuditsInput = {
@@ -1380,6 +1556,10 @@ export type UserUncheckedUpdateWithoutLoginAuditsInput = {
   verificationTokens?: Prisma.EmailVerificationTokenUncheckedUpdateManyWithoutUserNestedInput
   stockMovements?: Prisma.StockMovementUncheckedUpdateManyWithoutPerformedByNestedInput
   stockReservations?: Prisma.StockReservationUncheckedUpdateManyWithoutPerformedByNestedInput
+  customerOrders?: Prisma.OrderUncheckedUpdateManyWithoutCustomerNestedInput
+  createdOrders?: Prisma.OrderUncheckedUpdateManyWithoutCreatedByNestedInput
+  updatedOrders?: Prisma.OrderUncheckedUpdateManyWithoutUpdatedByNestedInput
+  orderStatusHistory?: Prisma.OrderStatusHistoryUncheckedUpdateManyWithoutPerformedByNestedInput
 }
 
 export type UserCreateWithoutStockMovementsInput = {
@@ -1403,6 +1583,10 @@ export type UserCreateWithoutStockMovementsInput = {
   verificationTokens?: Prisma.EmailVerificationTokenCreateNestedManyWithoutUserInput
   loginAudits?: Prisma.LoginAuditCreateNestedManyWithoutUserInput
   stockReservations?: Prisma.StockReservationCreateNestedManyWithoutPerformedByInput
+  customerOrders?: Prisma.OrderCreateNestedManyWithoutCustomerInput
+  createdOrders?: Prisma.OrderCreateNestedManyWithoutCreatedByInput
+  updatedOrders?: Prisma.OrderCreateNestedManyWithoutUpdatedByInput
+  orderStatusHistory?: Prisma.OrderStatusHistoryCreateNestedManyWithoutPerformedByInput
 }
 
 export type UserUncheckedCreateWithoutStockMovementsInput = {
@@ -1426,6 +1610,10 @@ export type UserUncheckedCreateWithoutStockMovementsInput = {
   verificationTokens?: Prisma.EmailVerificationTokenUncheckedCreateNestedManyWithoutUserInput
   loginAudits?: Prisma.LoginAuditUncheckedCreateNestedManyWithoutUserInput
   stockReservations?: Prisma.StockReservationUncheckedCreateNestedManyWithoutPerformedByInput
+  customerOrders?: Prisma.OrderUncheckedCreateNestedManyWithoutCustomerInput
+  createdOrders?: Prisma.OrderUncheckedCreateNestedManyWithoutCreatedByInput
+  updatedOrders?: Prisma.OrderUncheckedCreateNestedManyWithoutUpdatedByInput
+  orderStatusHistory?: Prisma.OrderStatusHistoryUncheckedCreateNestedManyWithoutPerformedByInput
 }
 
 export type UserCreateOrConnectWithoutStockMovementsInput = {
@@ -1465,6 +1653,10 @@ export type UserUpdateWithoutStockMovementsInput = {
   verificationTokens?: Prisma.EmailVerificationTokenUpdateManyWithoutUserNestedInput
   loginAudits?: Prisma.LoginAuditUpdateManyWithoutUserNestedInput
   stockReservations?: Prisma.StockReservationUpdateManyWithoutPerformedByNestedInput
+  customerOrders?: Prisma.OrderUpdateManyWithoutCustomerNestedInput
+  createdOrders?: Prisma.OrderUpdateManyWithoutCreatedByNestedInput
+  updatedOrders?: Prisma.OrderUpdateManyWithoutUpdatedByNestedInput
+  orderStatusHistory?: Prisma.OrderStatusHistoryUpdateManyWithoutPerformedByNestedInput
 }
 
 export type UserUncheckedUpdateWithoutStockMovementsInput = {
@@ -1488,6 +1680,10 @@ export type UserUncheckedUpdateWithoutStockMovementsInput = {
   verificationTokens?: Prisma.EmailVerificationTokenUncheckedUpdateManyWithoutUserNestedInput
   loginAudits?: Prisma.LoginAuditUncheckedUpdateManyWithoutUserNestedInput
   stockReservations?: Prisma.StockReservationUncheckedUpdateManyWithoutPerformedByNestedInput
+  customerOrders?: Prisma.OrderUncheckedUpdateManyWithoutCustomerNestedInput
+  createdOrders?: Prisma.OrderUncheckedUpdateManyWithoutCreatedByNestedInput
+  updatedOrders?: Prisma.OrderUncheckedUpdateManyWithoutUpdatedByNestedInput
+  orderStatusHistory?: Prisma.OrderStatusHistoryUncheckedUpdateManyWithoutPerformedByNestedInput
 }
 
 export type UserCreateWithoutStockReservationsInput = {
@@ -1511,6 +1707,10 @@ export type UserCreateWithoutStockReservationsInput = {
   verificationTokens?: Prisma.EmailVerificationTokenCreateNestedManyWithoutUserInput
   loginAudits?: Prisma.LoginAuditCreateNestedManyWithoutUserInput
   stockMovements?: Prisma.StockMovementCreateNestedManyWithoutPerformedByInput
+  customerOrders?: Prisma.OrderCreateNestedManyWithoutCustomerInput
+  createdOrders?: Prisma.OrderCreateNestedManyWithoutCreatedByInput
+  updatedOrders?: Prisma.OrderCreateNestedManyWithoutUpdatedByInput
+  orderStatusHistory?: Prisma.OrderStatusHistoryCreateNestedManyWithoutPerformedByInput
 }
 
 export type UserUncheckedCreateWithoutStockReservationsInput = {
@@ -1534,6 +1734,10 @@ export type UserUncheckedCreateWithoutStockReservationsInput = {
   verificationTokens?: Prisma.EmailVerificationTokenUncheckedCreateNestedManyWithoutUserInput
   loginAudits?: Prisma.LoginAuditUncheckedCreateNestedManyWithoutUserInput
   stockMovements?: Prisma.StockMovementUncheckedCreateNestedManyWithoutPerformedByInput
+  customerOrders?: Prisma.OrderUncheckedCreateNestedManyWithoutCustomerInput
+  createdOrders?: Prisma.OrderUncheckedCreateNestedManyWithoutCreatedByInput
+  updatedOrders?: Prisma.OrderUncheckedCreateNestedManyWithoutUpdatedByInput
+  orderStatusHistory?: Prisma.OrderStatusHistoryUncheckedCreateNestedManyWithoutPerformedByInput
 }
 
 export type UserCreateOrConnectWithoutStockReservationsInput = {
@@ -1573,6 +1777,10 @@ export type UserUpdateWithoutStockReservationsInput = {
   verificationTokens?: Prisma.EmailVerificationTokenUpdateManyWithoutUserNestedInput
   loginAudits?: Prisma.LoginAuditUpdateManyWithoutUserNestedInput
   stockMovements?: Prisma.StockMovementUpdateManyWithoutPerformedByNestedInput
+  customerOrders?: Prisma.OrderUpdateManyWithoutCustomerNestedInput
+  createdOrders?: Prisma.OrderUpdateManyWithoutCreatedByNestedInput
+  updatedOrders?: Prisma.OrderUpdateManyWithoutUpdatedByNestedInput
+  orderStatusHistory?: Prisma.OrderStatusHistoryUpdateManyWithoutPerformedByNestedInput
 }
 
 export type UserUncheckedUpdateWithoutStockReservationsInput = {
@@ -1596,6 +1804,506 @@ export type UserUncheckedUpdateWithoutStockReservationsInput = {
   verificationTokens?: Prisma.EmailVerificationTokenUncheckedUpdateManyWithoutUserNestedInput
   loginAudits?: Prisma.LoginAuditUncheckedUpdateManyWithoutUserNestedInput
   stockMovements?: Prisma.StockMovementUncheckedUpdateManyWithoutPerformedByNestedInput
+  customerOrders?: Prisma.OrderUncheckedUpdateManyWithoutCustomerNestedInput
+  createdOrders?: Prisma.OrderUncheckedUpdateManyWithoutCreatedByNestedInput
+  updatedOrders?: Prisma.OrderUncheckedUpdateManyWithoutUpdatedByNestedInput
+  orderStatusHistory?: Prisma.OrderStatusHistoryUncheckedUpdateManyWithoutPerformedByNestedInput
+}
+
+export type UserCreateWithoutCustomerOrdersInput = {
+  id?: string
+  email: string
+  userType: $Enums.UserType
+  authProvider?: $Enums.AuthProvider
+  status?: $Enums.UserStatus
+  passwordHash?: string | null
+  googleId?: string | null
+  emailVerifiedAt?: Date | string | null
+  firstName?: string | null
+  lastName?: string | null
+  phone?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  createdBy?: Prisma.UserCreateNestedOneWithoutCreatedUsersInput
+  createdUsers?: Prisma.UserCreateNestedManyWithoutCreatedByInput
+  roles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
+  refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
+  verificationTokens?: Prisma.EmailVerificationTokenCreateNestedManyWithoutUserInput
+  loginAudits?: Prisma.LoginAuditCreateNestedManyWithoutUserInput
+  stockMovements?: Prisma.StockMovementCreateNestedManyWithoutPerformedByInput
+  stockReservations?: Prisma.StockReservationCreateNestedManyWithoutPerformedByInput
+  createdOrders?: Prisma.OrderCreateNestedManyWithoutCreatedByInput
+  updatedOrders?: Prisma.OrderCreateNestedManyWithoutUpdatedByInput
+  orderStatusHistory?: Prisma.OrderStatusHistoryCreateNestedManyWithoutPerformedByInput
+}
+
+export type UserUncheckedCreateWithoutCustomerOrdersInput = {
+  id?: string
+  email: string
+  userType: $Enums.UserType
+  authProvider?: $Enums.AuthProvider
+  status?: $Enums.UserStatus
+  passwordHash?: string | null
+  googleId?: string | null
+  emailVerifiedAt?: Date | string | null
+  firstName?: string | null
+  lastName?: string | null
+  phone?: string | null
+  createdById?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  createdUsers?: Prisma.UserUncheckedCreateNestedManyWithoutCreatedByInput
+  roles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
+  refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
+  verificationTokens?: Prisma.EmailVerificationTokenUncheckedCreateNestedManyWithoutUserInput
+  loginAudits?: Prisma.LoginAuditUncheckedCreateNestedManyWithoutUserInput
+  stockMovements?: Prisma.StockMovementUncheckedCreateNestedManyWithoutPerformedByInput
+  stockReservations?: Prisma.StockReservationUncheckedCreateNestedManyWithoutPerformedByInput
+  createdOrders?: Prisma.OrderUncheckedCreateNestedManyWithoutCreatedByInput
+  updatedOrders?: Prisma.OrderUncheckedCreateNestedManyWithoutUpdatedByInput
+  orderStatusHistory?: Prisma.OrderStatusHistoryUncheckedCreateNestedManyWithoutPerformedByInput
+}
+
+export type UserCreateOrConnectWithoutCustomerOrdersInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutCustomerOrdersInput, Prisma.UserUncheckedCreateWithoutCustomerOrdersInput>
+}
+
+export type UserCreateWithoutCreatedOrdersInput = {
+  id?: string
+  email: string
+  userType: $Enums.UserType
+  authProvider?: $Enums.AuthProvider
+  status?: $Enums.UserStatus
+  passwordHash?: string | null
+  googleId?: string | null
+  emailVerifiedAt?: Date | string | null
+  firstName?: string | null
+  lastName?: string | null
+  phone?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  createdBy?: Prisma.UserCreateNestedOneWithoutCreatedUsersInput
+  createdUsers?: Prisma.UserCreateNestedManyWithoutCreatedByInput
+  roles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
+  refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
+  verificationTokens?: Prisma.EmailVerificationTokenCreateNestedManyWithoutUserInput
+  loginAudits?: Prisma.LoginAuditCreateNestedManyWithoutUserInput
+  stockMovements?: Prisma.StockMovementCreateNestedManyWithoutPerformedByInput
+  stockReservations?: Prisma.StockReservationCreateNestedManyWithoutPerformedByInput
+  customerOrders?: Prisma.OrderCreateNestedManyWithoutCustomerInput
+  updatedOrders?: Prisma.OrderCreateNestedManyWithoutUpdatedByInput
+  orderStatusHistory?: Prisma.OrderStatusHistoryCreateNestedManyWithoutPerformedByInput
+}
+
+export type UserUncheckedCreateWithoutCreatedOrdersInput = {
+  id?: string
+  email: string
+  userType: $Enums.UserType
+  authProvider?: $Enums.AuthProvider
+  status?: $Enums.UserStatus
+  passwordHash?: string | null
+  googleId?: string | null
+  emailVerifiedAt?: Date | string | null
+  firstName?: string | null
+  lastName?: string | null
+  phone?: string | null
+  createdById?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  createdUsers?: Prisma.UserUncheckedCreateNestedManyWithoutCreatedByInput
+  roles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
+  refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
+  verificationTokens?: Prisma.EmailVerificationTokenUncheckedCreateNestedManyWithoutUserInput
+  loginAudits?: Prisma.LoginAuditUncheckedCreateNestedManyWithoutUserInput
+  stockMovements?: Prisma.StockMovementUncheckedCreateNestedManyWithoutPerformedByInput
+  stockReservations?: Prisma.StockReservationUncheckedCreateNestedManyWithoutPerformedByInput
+  customerOrders?: Prisma.OrderUncheckedCreateNestedManyWithoutCustomerInput
+  updatedOrders?: Prisma.OrderUncheckedCreateNestedManyWithoutUpdatedByInput
+  orderStatusHistory?: Prisma.OrderStatusHistoryUncheckedCreateNestedManyWithoutPerformedByInput
+}
+
+export type UserCreateOrConnectWithoutCreatedOrdersInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutCreatedOrdersInput, Prisma.UserUncheckedCreateWithoutCreatedOrdersInput>
+}
+
+export type UserCreateWithoutUpdatedOrdersInput = {
+  id?: string
+  email: string
+  userType: $Enums.UserType
+  authProvider?: $Enums.AuthProvider
+  status?: $Enums.UserStatus
+  passwordHash?: string | null
+  googleId?: string | null
+  emailVerifiedAt?: Date | string | null
+  firstName?: string | null
+  lastName?: string | null
+  phone?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  createdBy?: Prisma.UserCreateNestedOneWithoutCreatedUsersInput
+  createdUsers?: Prisma.UserCreateNestedManyWithoutCreatedByInput
+  roles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
+  refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
+  verificationTokens?: Prisma.EmailVerificationTokenCreateNestedManyWithoutUserInput
+  loginAudits?: Prisma.LoginAuditCreateNestedManyWithoutUserInput
+  stockMovements?: Prisma.StockMovementCreateNestedManyWithoutPerformedByInput
+  stockReservations?: Prisma.StockReservationCreateNestedManyWithoutPerformedByInput
+  customerOrders?: Prisma.OrderCreateNestedManyWithoutCustomerInput
+  createdOrders?: Prisma.OrderCreateNestedManyWithoutCreatedByInput
+  orderStatusHistory?: Prisma.OrderStatusHistoryCreateNestedManyWithoutPerformedByInput
+}
+
+export type UserUncheckedCreateWithoutUpdatedOrdersInput = {
+  id?: string
+  email: string
+  userType: $Enums.UserType
+  authProvider?: $Enums.AuthProvider
+  status?: $Enums.UserStatus
+  passwordHash?: string | null
+  googleId?: string | null
+  emailVerifiedAt?: Date | string | null
+  firstName?: string | null
+  lastName?: string | null
+  phone?: string | null
+  createdById?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  createdUsers?: Prisma.UserUncheckedCreateNestedManyWithoutCreatedByInput
+  roles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
+  refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
+  verificationTokens?: Prisma.EmailVerificationTokenUncheckedCreateNestedManyWithoutUserInput
+  loginAudits?: Prisma.LoginAuditUncheckedCreateNestedManyWithoutUserInput
+  stockMovements?: Prisma.StockMovementUncheckedCreateNestedManyWithoutPerformedByInput
+  stockReservations?: Prisma.StockReservationUncheckedCreateNestedManyWithoutPerformedByInput
+  customerOrders?: Prisma.OrderUncheckedCreateNestedManyWithoutCustomerInput
+  createdOrders?: Prisma.OrderUncheckedCreateNestedManyWithoutCreatedByInput
+  orderStatusHistory?: Prisma.OrderStatusHistoryUncheckedCreateNestedManyWithoutPerformedByInput
+}
+
+export type UserCreateOrConnectWithoutUpdatedOrdersInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutUpdatedOrdersInput, Prisma.UserUncheckedCreateWithoutUpdatedOrdersInput>
+}
+
+export type UserUpsertWithoutCustomerOrdersInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutCustomerOrdersInput, Prisma.UserUncheckedUpdateWithoutCustomerOrdersInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutCustomerOrdersInput, Prisma.UserUncheckedCreateWithoutCustomerOrdersInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutCustomerOrdersInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutCustomerOrdersInput, Prisma.UserUncheckedUpdateWithoutCustomerOrdersInput>
+}
+
+export type UserUpdateWithoutCustomerOrdersInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  userType?: Prisma.EnumUserTypeFieldUpdateOperationsInput | $Enums.UserType
+  authProvider?: Prisma.EnumAuthProviderFieldUpdateOperationsInput | $Enums.AuthProvider
+  status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdBy?: Prisma.UserUpdateOneWithoutCreatedUsersNestedInput
+  createdUsers?: Prisma.UserUpdateManyWithoutCreatedByNestedInput
+  roles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
+  refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
+  verificationTokens?: Prisma.EmailVerificationTokenUpdateManyWithoutUserNestedInput
+  loginAudits?: Prisma.LoginAuditUpdateManyWithoutUserNestedInput
+  stockMovements?: Prisma.StockMovementUpdateManyWithoutPerformedByNestedInput
+  stockReservations?: Prisma.StockReservationUpdateManyWithoutPerformedByNestedInput
+  createdOrders?: Prisma.OrderUpdateManyWithoutCreatedByNestedInput
+  updatedOrders?: Prisma.OrderUpdateManyWithoutUpdatedByNestedInput
+  orderStatusHistory?: Prisma.OrderStatusHistoryUpdateManyWithoutPerformedByNestedInput
+}
+
+export type UserUncheckedUpdateWithoutCustomerOrdersInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  userType?: Prisma.EnumUserTypeFieldUpdateOperationsInput | $Enums.UserType
+  authProvider?: Prisma.EnumAuthProviderFieldUpdateOperationsInput | $Enums.AuthProvider
+  status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdUsers?: Prisma.UserUncheckedUpdateManyWithoutCreatedByNestedInput
+  roles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
+  refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
+  verificationTokens?: Prisma.EmailVerificationTokenUncheckedUpdateManyWithoutUserNestedInput
+  loginAudits?: Prisma.LoginAuditUncheckedUpdateManyWithoutUserNestedInput
+  stockMovements?: Prisma.StockMovementUncheckedUpdateManyWithoutPerformedByNestedInput
+  stockReservations?: Prisma.StockReservationUncheckedUpdateManyWithoutPerformedByNestedInput
+  createdOrders?: Prisma.OrderUncheckedUpdateManyWithoutCreatedByNestedInput
+  updatedOrders?: Prisma.OrderUncheckedUpdateManyWithoutUpdatedByNestedInput
+  orderStatusHistory?: Prisma.OrderStatusHistoryUncheckedUpdateManyWithoutPerformedByNestedInput
+}
+
+export type UserUpsertWithoutCreatedOrdersInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutCreatedOrdersInput, Prisma.UserUncheckedUpdateWithoutCreatedOrdersInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutCreatedOrdersInput, Prisma.UserUncheckedCreateWithoutCreatedOrdersInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutCreatedOrdersInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutCreatedOrdersInput, Prisma.UserUncheckedUpdateWithoutCreatedOrdersInput>
+}
+
+export type UserUpdateWithoutCreatedOrdersInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  userType?: Prisma.EnumUserTypeFieldUpdateOperationsInput | $Enums.UserType
+  authProvider?: Prisma.EnumAuthProviderFieldUpdateOperationsInput | $Enums.AuthProvider
+  status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdBy?: Prisma.UserUpdateOneWithoutCreatedUsersNestedInput
+  createdUsers?: Prisma.UserUpdateManyWithoutCreatedByNestedInput
+  roles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
+  refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
+  verificationTokens?: Prisma.EmailVerificationTokenUpdateManyWithoutUserNestedInput
+  loginAudits?: Prisma.LoginAuditUpdateManyWithoutUserNestedInput
+  stockMovements?: Prisma.StockMovementUpdateManyWithoutPerformedByNestedInput
+  stockReservations?: Prisma.StockReservationUpdateManyWithoutPerformedByNestedInput
+  customerOrders?: Prisma.OrderUpdateManyWithoutCustomerNestedInput
+  updatedOrders?: Prisma.OrderUpdateManyWithoutUpdatedByNestedInput
+  orderStatusHistory?: Prisma.OrderStatusHistoryUpdateManyWithoutPerformedByNestedInput
+}
+
+export type UserUncheckedUpdateWithoutCreatedOrdersInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  userType?: Prisma.EnumUserTypeFieldUpdateOperationsInput | $Enums.UserType
+  authProvider?: Prisma.EnumAuthProviderFieldUpdateOperationsInput | $Enums.AuthProvider
+  status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdUsers?: Prisma.UserUncheckedUpdateManyWithoutCreatedByNestedInput
+  roles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
+  refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
+  verificationTokens?: Prisma.EmailVerificationTokenUncheckedUpdateManyWithoutUserNestedInput
+  loginAudits?: Prisma.LoginAuditUncheckedUpdateManyWithoutUserNestedInput
+  stockMovements?: Prisma.StockMovementUncheckedUpdateManyWithoutPerformedByNestedInput
+  stockReservations?: Prisma.StockReservationUncheckedUpdateManyWithoutPerformedByNestedInput
+  customerOrders?: Prisma.OrderUncheckedUpdateManyWithoutCustomerNestedInput
+  updatedOrders?: Prisma.OrderUncheckedUpdateManyWithoutUpdatedByNestedInput
+  orderStatusHistory?: Prisma.OrderStatusHistoryUncheckedUpdateManyWithoutPerformedByNestedInput
+}
+
+export type UserUpsertWithoutUpdatedOrdersInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutUpdatedOrdersInput, Prisma.UserUncheckedUpdateWithoutUpdatedOrdersInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutUpdatedOrdersInput, Prisma.UserUncheckedCreateWithoutUpdatedOrdersInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutUpdatedOrdersInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutUpdatedOrdersInput, Prisma.UserUncheckedUpdateWithoutUpdatedOrdersInput>
+}
+
+export type UserUpdateWithoutUpdatedOrdersInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  userType?: Prisma.EnumUserTypeFieldUpdateOperationsInput | $Enums.UserType
+  authProvider?: Prisma.EnumAuthProviderFieldUpdateOperationsInput | $Enums.AuthProvider
+  status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdBy?: Prisma.UserUpdateOneWithoutCreatedUsersNestedInput
+  createdUsers?: Prisma.UserUpdateManyWithoutCreatedByNestedInput
+  roles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
+  refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
+  verificationTokens?: Prisma.EmailVerificationTokenUpdateManyWithoutUserNestedInput
+  loginAudits?: Prisma.LoginAuditUpdateManyWithoutUserNestedInput
+  stockMovements?: Prisma.StockMovementUpdateManyWithoutPerformedByNestedInput
+  stockReservations?: Prisma.StockReservationUpdateManyWithoutPerformedByNestedInput
+  customerOrders?: Prisma.OrderUpdateManyWithoutCustomerNestedInput
+  createdOrders?: Prisma.OrderUpdateManyWithoutCreatedByNestedInput
+  orderStatusHistory?: Prisma.OrderStatusHistoryUpdateManyWithoutPerformedByNestedInput
+}
+
+export type UserUncheckedUpdateWithoutUpdatedOrdersInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  userType?: Prisma.EnumUserTypeFieldUpdateOperationsInput | $Enums.UserType
+  authProvider?: Prisma.EnumAuthProviderFieldUpdateOperationsInput | $Enums.AuthProvider
+  status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdUsers?: Prisma.UserUncheckedUpdateManyWithoutCreatedByNestedInput
+  roles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
+  refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
+  verificationTokens?: Prisma.EmailVerificationTokenUncheckedUpdateManyWithoutUserNestedInput
+  loginAudits?: Prisma.LoginAuditUncheckedUpdateManyWithoutUserNestedInput
+  stockMovements?: Prisma.StockMovementUncheckedUpdateManyWithoutPerformedByNestedInput
+  stockReservations?: Prisma.StockReservationUncheckedUpdateManyWithoutPerformedByNestedInput
+  customerOrders?: Prisma.OrderUncheckedUpdateManyWithoutCustomerNestedInput
+  createdOrders?: Prisma.OrderUncheckedUpdateManyWithoutCreatedByNestedInput
+  orderStatusHistory?: Prisma.OrderStatusHistoryUncheckedUpdateManyWithoutPerformedByNestedInput
+}
+
+export type UserCreateWithoutOrderStatusHistoryInput = {
+  id?: string
+  email: string
+  userType: $Enums.UserType
+  authProvider?: $Enums.AuthProvider
+  status?: $Enums.UserStatus
+  passwordHash?: string | null
+  googleId?: string | null
+  emailVerifiedAt?: Date | string | null
+  firstName?: string | null
+  lastName?: string | null
+  phone?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  createdBy?: Prisma.UserCreateNestedOneWithoutCreatedUsersInput
+  createdUsers?: Prisma.UserCreateNestedManyWithoutCreatedByInput
+  roles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
+  refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
+  verificationTokens?: Prisma.EmailVerificationTokenCreateNestedManyWithoutUserInput
+  loginAudits?: Prisma.LoginAuditCreateNestedManyWithoutUserInput
+  stockMovements?: Prisma.StockMovementCreateNestedManyWithoutPerformedByInput
+  stockReservations?: Prisma.StockReservationCreateNestedManyWithoutPerformedByInput
+  customerOrders?: Prisma.OrderCreateNestedManyWithoutCustomerInput
+  createdOrders?: Prisma.OrderCreateNestedManyWithoutCreatedByInput
+  updatedOrders?: Prisma.OrderCreateNestedManyWithoutUpdatedByInput
+}
+
+export type UserUncheckedCreateWithoutOrderStatusHistoryInput = {
+  id?: string
+  email: string
+  userType: $Enums.UserType
+  authProvider?: $Enums.AuthProvider
+  status?: $Enums.UserStatus
+  passwordHash?: string | null
+  googleId?: string | null
+  emailVerifiedAt?: Date | string | null
+  firstName?: string | null
+  lastName?: string | null
+  phone?: string | null
+  createdById?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  createdUsers?: Prisma.UserUncheckedCreateNestedManyWithoutCreatedByInput
+  roles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
+  refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
+  verificationTokens?: Prisma.EmailVerificationTokenUncheckedCreateNestedManyWithoutUserInput
+  loginAudits?: Prisma.LoginAuditUncheckedCreateNestedManyWithoutUserInput
+  stockMovements?: Prisma.StockMovementUncheckedCreateNestedManyWithoutPerformedByInput
+  stockReservations?: Prisma.StockReservationUncheckedCreateNestedManyWithoutPerformedByInput
+  customerOrders?: Prisma.OrderUncheckedCreateNestedManyWithoutCustomerInput
+  createdOrders?: Prisma.OrderUncheckedCreateNestedManyWithoutCreatedByInput
+  updatedOrders?: Prisma.OrderUncheckedCreateNestedManyWithoutUpdatedByInput
+}
+
+export type UserCreateOrConnectWithoutOrderStatusHistoryInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutOrderStatusHistoryInput, Prisma.UserUncheckedCreateWithoutOrderStatusHistoryInput>
+}
+
+export type UserUpsertWithoutOrderStatusHistoryInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutOrderStatusHistoryInput, Prisma.UserUncheckedUpdateWithoutOrderStatusHistoryInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutOrderStatusHistoryInput, Prisma.UserUncheckedCreateWithoutOrderStatusHistoryInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutOrderStatusHistoryInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutOrderStatusHistoryInput, Prisma.UserUncheckedUpdateWithoutOrderStatusHistoryInput>
+}
+
+export type UserUpdateWithoutOrderStatusHistoryInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  userType?: Prisma.EnumUserTypeFieldUpdateOperationsInput | $Enums.UserType
+  authProvider?: Prisma.EnumAuthProviderFieldUpdateOperationsInput | $Enums.AuthProvider
+  status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdBy?: Prisma.UserUpdateOneWithoutCreatedUsersNestedInput
+  createdUsers?: Prisma.UserUpdateManyWithoutCreatedByNestedInput
+  roles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
+  refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
+  verificationTokens?: Prisma.EmailVerificationTokenUpdateManyWithoutUserNestedInput
+  loginAudits?: Prisma.LoginAuditUpdateManyWithoutUserNestedInput
+  stockMovements?: Prisma.StockMovementUpdateManyWithoutPerformedByNestedInput
+  stockReservations?: Prisma.StockReservationUpdateManyWithoutPerformedByNestedInput
+  customerOrders?: Prisma.OrderUpdateManyWithoutCustomerNestedInput
+  createdOrders?: Prisma.OrderUpdateManyWithoutCreatedByNestedInput
+  updatedOrders?: Prisma.OrderUpdateManyWithoutUpdatedByNestedInput
+}
+
+export type UserUncheckedUpdateWithoutOrderStatusHistoryInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  userType?: Prisma.EnumUserTypeFieldUpdateOperationsInput | $Enums.UserType
+  authProvider?: Prisma.EnumAuthProviderFieldUpdateOperationsInput | $Enums.AuthProvider
+  status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdUsers?: Prisma.UserUncheckedUpdateManyWithoutCreatedByNestedInput
+  roles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
+  refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
+  verificationTokens?: Prisma.EmailVerificationTokenUncheckedUpdateManyWithoutUserNestedInput
+  loginAudits?: Prisma.LoginAuditUncheckedUpdateManyWithoutUserNestedInput
+  stockMovements?: Prisma.StockMovementUncheckedUpdateManyWithoutPerformedByNestedInput
+  stockReservations?: Prisma.StockReservationUncheckedUpdateManyWithoutPerformedByNestedInput
+  customerOrders?: Prisma.OrderUncheckedUpdateManyWithoutCustomerNestedInput
+  createdOrders?: Prisma.OrderUncheckedUpdateManyWithoutCreatedByNestedInput
+  updatedOrders?: Prisma.OrderUncheckedUpdateManyWithoutUpdatedByNestedInput
 }
 
 export type UserCreateManyCreatedByInput = {
@@ -1635,6 +2343,10 @@ export type UserUpdateWithoutCreatedByInput = {
   loginAudits?: Prisma.LoginAuditUpdateManyWithoutUserNestedInput
   stockMovements?: Prisma.StockMovementUpdateManyWithoutPerformedByNestedInput
   stockReservations?: Prisma.StockReservationUpdateManyWithoutPerformedByNestedInput
+  customerOrders?: Prisma.OrderUpdateManyWithoutCustomerNestedInput
+  createdOrders?: Prisma.OrderUpdateManyWithoutCreatedByNestedInput
+  updatedOrders?: Prisma.OrderUpdateManyWithoutUpdatedByNestedInput
+  orderStatusHistory?: Prisma.OrderStatusHistoryUpdateManyWithoutPerformedByNestedInput
 }
 
 export type UserUncheckedUpdateWithoutCreatedByInput = {
@@ -1658,6 +2370,10 @@ export type UserUncheckedUpdateWithoutCreatedByInput = {
   loginAudits?: Prisma.LoginAuditUncheckedUpdateManyWithoutUserNestedInput
   stockMovements?: Prisma.StockMovementUncheckedUpdateManyWithoutPerformedByNestedInput
   stockReservations?: Prisma.StockReservationUncheckedUpdateManyWithoutPerformedByNestedInput
+  customerOrders?: Prisma.OrderUncheckedUpdateManyWithoutCustomerNestedInput
+  createdOrders?: Prisma.OrderUncheckedUpdateManyWithoutCreatedByNestedInput
+  updatedOrders?: Prisma.OrderUncheckedUpdateManyWithoutUpdatedByNestedInput
+  orderStatusHistory?: Prisma.OrderStatusHistoryUncheckedUpdateManyWithoutPerformedByNestedInput
 }
 
 export type UserUncheckedUpdateManyWithoutCreatedByInput = {
@@ -1689,6 +2405,10 @@ export type UserCountOutputType = {
   loginAudits: number
   stockMovements: number
   stockReservations: number
+  customerOrders: number
+  createdOrders: number
+  updatedOrders: number
+  orderStatusHistory: number
 }
 
 export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1699,6 +2419,10 @@ export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.I
   loginAudits?: boolean | UserCountOutputTypeCountLoginAuditsArgs
   stockMovements?: boolean | UserCountOutputTypeCountStockMovementsArgs
   stockReservations?: boolean | UserCountOutputTypeCountStockReservationsArgs
+  customerOrders?: boolean | UserCountOutputTypeCountCustomerOrdersArgs
+  createdOrders?: boolean | UserCountOutputTypeCountCreatedOrdersArgs
+  updatedOrders?: boolean | UserCountOutputTypeCountUpdatedOrdersArgs
+  orderStatusHistory?: boolean | UserCountOutputTypeCountOrderStatusHistoryArgs
 }
 
 /**
@@ -1760,6 +2484,34 @@ export type UserCountOutputTypeCountStockReservationsArgs<ExtArgs extends runtim
   where?: Prisma.StockReservationWhereInput
 }
 
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountCustomerOrdersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.OrderWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountCreatedOrdersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.OrderWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountUpdatedOrdersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.OrderWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountOrderStatusHistoryArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.OrderStatusHistoryWhereInput
+}
+
 
 export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -1784,6 +2536,10 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   loginAudits?: boolean | Prisma.User$loginAuditsArgs<ExtArgs>
   stockMovements?: boolean | Prisma.User$stockMovementsArgs<ExtArgs>
   stockReservations?: boolean | Prisma.User$stockReservationsArgs<ExtArgs>
+  customerOrders?: boolean | Prisma.User$customerOrdersArgs<ExtArgs>
+  createdOrders?: boolean | Prisma.User$createdOrdersArgs<ExtArgs>
+  updatedOrders?: boolean | Prisma.User$updatedOrdersArgs<ExtArgs>
+  orderStatusHistory?: boolean | Prisma.User$orderStatusHistoryArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
@@ -1850,6 +2606,10 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   loginAudits?: boolean | Prisma.User$loginAuditsArgs<ExtArgs>
   stockMovements?: boolean | Prisma.User$stockMovementsArgs<ExtArgs>
   stockReservations?: boolean | Prisma.User$stockReservationsArgs<ExtArgs>
+  customerOrders?: boolean | Prisma.User$customerOrdersArgs<ExtArgs>
+  createdOrders?: boolean | Prisma.User$createdOrdersArgs<ExtArgs>
+  updatedOrders?: boolean | Prisma.User$updatedOrdersArgs<ExtArgs>
+  orderStatusHistory?: boolean | Prisma.User$orderStatusHistoryArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type UserIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1870,6 +2630,10 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     loginAudits: Prisma.$LoginAuditPayload<ExtArgs>[]
     stockMovements: Prisma.$StockMovementPayload<ExtArgs>[]
     stockReservations: Prisma.$StockReservationPayload<ExtArgs>[]
+    customerOrders: Prisma.$OrderPayload<ExtArgs>[]
+    createdOrders: Prisma.$OrderPayload<ExtArgs>[]
+    updatedOrders: Prisma.$OrderPayload<ExtArgs>[]
+    orderStatusHistory: Prisma.$OrderStatusHistoryPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -2288,6 +3052,10 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   loginAudits<T extends Prisma.User$loginAuditsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$loginAuditsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LoginAuditPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   stockMovements<T extends Prisma.User$stockMovementsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$stockMovementsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$StockMovementPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   stockReservations<T extends Prisma.User$stockReservationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$stockReservationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$StockReservationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  customerOrders<T extends Prisma.User$customerOrdersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$customerOrdersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$OrderPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  createdOrders<T extends Prisma.User$createdOrdersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$createdOrdersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$OrderPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  updatedOrders<T extends Prisma.User$updatedOrdersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$updatedOrdersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$OrderPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  orderStatusHistory<T extends Prisma.User$orderStatusHistoryArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$orderStatusHistoryArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$OrderStatusHistoryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2916,6 +3684,102 @@ export type User$stockReservationsArgs<ExtArgs extends runtime.Types.Extensions.
   take?: number
   skip?: number
   distinct?: Prisma.StockReservationScalarFieldEnum | Prisma.StockReservationScalarFieldEnum[]
+}
+
+/**
+ * User.customerOrders
+ */
+export type User$customerOrdersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Order
+   */
+  select?: Prisma.OrderSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Order
+   */
+  omit?: Prisma.OrderOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.OrderInclude<ExtArgs> | null
+  where?: Prisma.OrderWhereInput
+  orderBy?: Prisma.OrderOrderByWithRelationInput | Prisma.OrderOrderByWithRelationInput[]
+  cursor?: Prisma.OrderWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.OrderScalarFieldEnum | Prisma.OrderScalarFieldEnum[]
+}
+
+/**
+ * User.createdOrders
+ */
+export type User$createdOrdersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Order
+   */
+  select?: Prisma.OrderSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Order
+   */
+  omit?: Prisma.OrderOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.OrderInclude<ExtArgs> | null
+  where?: Prisma.OrderWhereInput
+  orderBy?: Prisma.OrderOrderByWithRelationInput | Prisma.OrderOrderByWithRelationInput[]
+  cursor?: Prisma.OrderWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.OrderScalarFieldEnum | Prisma.OrderScalarFieldEnum[]
+}
+
+/**
+ * User.updatedOrders
+ */
+export type User$updatedOrdersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Order
+   */
+  select?: Prisma.OrderSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Order
+   */
+  omit?: Prisma.OrderOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.OrderInclude<ExtArgs> | null
+  where?: Prisma.OrderWhereInput
+  orderBy?: Prisma.OrderOrderByWithRelationInput | Prisma.OrderOrderByWithRelationInput[]
+  cursor?: Prisma.OrderWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.OrderScalarFieldEnum | Prisma.OrderScalarFieldEnum[]
+}
+
+/**
+ * User.orderStatusHistory
+ */
+export type User$orderStatusHistoryArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the OrderStatusHistory
+   */
+  select?: Prisma.OrderStatusHistorySelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the OrderStatusHistory
+   */
+  omit?: Prisma.OrderStatusHistoryOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.OrderStatusHistoryInclude<ExtArgs> | null
+  where?: Prisma.OrderStatusHistoryWhereInput
+  orderBy?: Prisma.OrderStatusHistoryOrderByWithRelationInput | Prisma.OrderStatusHistoryOrderByWithRelationInput[]
+  cursor?: Prisma.OrderStatusHistoryWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.OrderStatusHistoryScalarFieldEnum | Prisma.OrderStatusHistoryScalarFieldEnum[]
 }
 
 /**

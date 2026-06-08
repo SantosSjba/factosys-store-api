@@ -4,6 +4,7 @@ import { OrderItemsModule } from './order-items/order-items.module';
 import { OrdersModule } from './orders/orders.module';
 
 @Module({
-  imports: [CartsModule, OrdersModule, OrderItemsModule],
+  imports: [OrdersModule, CartsModule, OrderItemsModule],
+  exports: [OrdersModule],
 })
 export class SalesModule {}

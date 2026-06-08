@@ -38,6 +38,7 @@ export type StockReservationMinAggregateOutputType = {
   id: string | null
   warehouseId: string | null
   variantId: string | null
+  orderId: string | null
   quantity: number | null
   reference: string | null
   note: string | null
@@ -51,6 +52,7 @@ export type StockReservationMaxAggregateOutputType = {
   id: string | null
   warehouseId: string | null
   variantId: string | null
+  orderId: string | null
   quantity: number | null
   reference: string | null
   note: string | null
@@ -64,6 +66,7 @@ export type StockReservationCountAggregateOutputType = {
   id: number
   warehouseId: number
   variantId: number
+  orderId: number
   quantity: number
   reference: number
   note: number
@@ -87,6 +90,7 @@ export type StockReservationMinAggregateInputType = {
   id?: true
   warehouseId?: true
   variantId?: true
+  orderId?: true
   quantity?: true
   reference?: true
   note?: true
@@ -100,6 +104,7 @@ export type StockReservationMaxAggregateInputType = {
   id?: true
   warehouseId?: true
   variantId?: true
+  orderId?: true
   quantity?: true
   reference?: true
   note?: true
@@ -113,6 +118,7 @@ export type StockReservationCountAggregateInputType = {
   id?: true
   warehouseId?: true
   variantId?: true
+  orderId?: true
   quantity?: true
   reference?: true
   note?: true
@@ -213,6 +219,7 @@ export type StockReservationGroupByOutputType = {
   id: string
   warehouseId: string
   variantId: string
+  orderId: string | null
   quantity: number
   reference: string | null
   note: string | null
@@ -249,6 +256,7 @@ export type StockReservationWhereInput = {
   id?: Prisma.StringFilter<"StockReservation"> | string
   warehouseId?: Prisma.StringFilter<"StockReservation"> | string
   variantId?: Prisma.StringFilter<"StockReservation"> | string
+  orderId?: Prisma.StringNullableFilter<"StockReservation"> | string | null
   quantity?: Prisma.IntFilter<"StockReservation"> | number
   reference?: Prisma.StringNullableFilter<"StockReservation"> | string | null
   note?: Prisma.StringNullableFilter<"StockReservation"> | string | null
@@ -258,6 +266,7 @@ export type StockReservationWhereInput = {
   releasedAt?: Prisma.DateTimeNullableFilter<"StockReservation"> | Date | string | null
   warehouse?: Prisma.XOR<Prisma.WarehouseScalarRelationFilter, Prisma.WarehouseWhereInput>
   variant?: Prisma.XOR<Prisma.ProductVariantScalarRelationFilter, Prisma.ProductVariantWhereInput>
+  order?: Prisma.XOR<Prisma.OrderNullableScalarRelationFilter, Prisma.OrderWhereInput> | null
   performedBy?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
 }
 
@@ -265,6 +274,7 @@ export type StockReservationOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   warehouseId?: Prisma.SortOrder
   variantId?: Prisma.SortOrder
+  orderId?: Prisma.SortOrderInput | Prisma.SortOrder
   quantity?: Prisma.SortOrder
   reference?: Prisma.SortOrderInput | Prisma.SortOrder
   note?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -274,6 +284,7 @@ export type StockReservationOrderByWithRelationInput = {
   releasedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   warehouse?: Prisma.WarehouseOrderByWithRelationInput
   variant?: Prisma.ProductVariantOrderByWithRelationInput
+  order?: Prisma.OrderOrderByWithRelationInput
   performedBy?: Prisma.UserOrderByWithRelationInput
 }
 
@@ -284,6 +295,7 @@ export type StockReservationWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.StockReservationWhereInput | Prisma.StockReservationWhereInput[]
   warehouseId?: Prisma.StringFilter<"StockReservation"> | string
   variantId?: Prisma.StringFilter<"StockReservation"> | string
+  orderId?: Prisma.StringNullableFilter<"StockReservation"> | string | null
   quantity?: Prisma.IntFilter<"StockReservation"> | number
   reference?: Prisma.StringNullableFilter<"StockReservation"> | string | null
   note?: Prisma.StringNullableFilter<"StockReservation"> | string | null
@@ -293,6 +305,7 @@ export type StockReservationWhereUniqueInput = Prisma.AtLeast<{
   releasedAt?: Prisma.DateTimeNullableFilter<"StockReservation"> | Date | string | null
   warehouse?: Prisma.XOR<Prisma.WarehouseScalarRelationFilter, Prisma.WarehouseWhereInput>
   variant?: Prisma.XOR<Prisma.ProductVariantScalarRelationFilter, Prisma.ProductVariantWhereInput>
+  order?: Prisma.XOR<Prisma.OrderNullableScalarRelationFilter, Prisma.OrderWhereInput> | null
   performedBy?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
 }, "id">
 
@@ -300,6 +313,7 @@ export type StockReservationOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   warehouseId?: Prisma.SortOrder
   variantId?: Prisma.SortOrder
+  orderId?: Prisma.SortOrderInput | Prisma.SortOrder
   quantity?: Prisma.SortOrder
   reference?: Prisma.SortOrderInput | Prisma.SortOrder
   note?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -321,6 +335,7 @@ export type StockReservationScalarWhereWithAggregatesInput = {
   id?: Prisma.StringWithAggregatesFilter<"StockReservation"> | string
   warehouseId?: Prisma.StringWithAggregatesFilter<"StockReservation"> | string
   variantId?: Prisma.StringWithAggregatesFilter<"StockReservation"> | string
+  orderId?: Prisma.StringNullableWithAggregatesFilter<"StockReservation"> | string | null
   quantity?: Prisma.IntWithAggregatesFilter<"StockReservation"> | number
   reference?: Prisma.StringNullableWithAggregatesFilter<"StockReservation"> | string | null
   note?: Prisma.StringNullableWithAggregatesFilter<"StockReservation"> | string | null
@@ -340,6 +355,7 @@ export type StockReservationCreateInput = {
   releasedAt?: Date | string | null
   warehouse: Prisma.WarehouseCreateNestedOneWithoutStockReservationsInput
   variant: Prisma.ProductVariantCreateNestedOneWithoutStockReservationsInput
+  order?: Prisma.OrderCreateNestedOneWithoutStockReservationsInput
   performedBy?: Prisma.UserCreateNestedOneWithoutStockReservationsInput
 }
 
@@ -347,6 +363,7 @@ export type StockReservationUncheckedCreateInput = {
   id?: string
   warehouseId: string
   variantId: string
+  orderId?: string | null
   quantity: number
   reference?: string | null
   note?: string | null
@@ -366,6 +383,7 @@ export type StockReservationUpdateInput = {
   releasedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   warehouse?: Prisma.WarehouseUpdateOneRequiredWithoutStockReservationsNestedInput
   variant?: Prisma.ProductVariantUpdateOneRequiredWithoutStockReservationsNestedInput
+  order?: Prisma.OrderUpdateOneWithoutStockReservationsNestedInput
   performedBy?: Prisma.UserUpdateOneWithoutStockReservationsNestedInput
 }
 
@@ -373,6 +391,7 @@ export type StockReservationUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   warehouseId?: Prisma.StringFieldUpdateOperationsInput | string
   variantId?: Prisma.StringFieldUpdateOperationsInput | string
+  orderId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
   reference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -386,6 +405,7 @@ export type StockReservationCreateManyInput = {
   id?: string
   warehouseId: string
   variantId: string
+  orderId?: string | null
   quantity: number
   reference?: string | null
   note?: string | null
@@ -409,6 +429,7 @@ export type StockReservationUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   warehouseId?: Prisma.StringFieldUpdateOperationsInput | string
   variantId?: Prisma.StringFieldUpdateOperationsInput | string
+  orderId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
   reference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -432,6 +453,7 @@ export type StockReservationCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   warehouseId?: Prisma.SortOrder
   variantId?: Prisma.SortOrder
+  orderId?: Prisma.SortOrder
   quantity?: Prisma.SortOrder
   reference?: Prisma.SortOrder
   note?: Prisma.SortOrder
@@ -449,6 +471,7 @@ export type StockReservationMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   warehouseId?: Prisma.SortOrder
   variantId?: Prisma.SortOrder
+  orderId?: Prisma.SortOrder
   quantity?: Prisma.SortOrder
   reference?: Prisma.SortOrder
   note?: Prisma.SortOrder
@@ -462,6 +485,7 @@ export type StockReservationMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   warehouseId?: Prisma.SortOrder
   variantId?: Prisma.SortOrder
+  orderId?: Prisma.SortOrder
   quantity?: Prisma.SortOrder
   reference?: Prisma.SortOrder
   note?: Prisma.SortOrder
@@ -605,6 +629,48 @@ export type EnumStockReservationStatusFieldUpdateOperationsInput = {
   set?: $Enums.StockReservationStatus
 }
 
+export type StockReservationCreateNestedManyWithoutOrderInput = {
+  create?: Prisma.XOR<Prisma.StockReservationCreateWithoutOrderInput, Prisma.StockReservationUncheckedCreateWithoutOrderInput> | Prisma.StockReservationCreateWithoutOrderInput[] | Prisma.StockReservationUncheckedCreateWithoutOrderInput[]
+  connectOrCreate?: Prisma.StockReservationCreateOrConnectWithoutOrderInput | Prisma.StockReservationCreateOrConnectWithoutOrderInput[]
+  createMany?: Prisma.StockReservationCreateManyOrderInputEnvelope
+  connect?: Prisma.StockReservationWhereUniqueInput | Prisma.StockReservationWhereUniqueInput[]
+}
+
+export type StockReservationUncheckedCreateNestedManyWithoutOrderInput = {
+  create?: Prisma.XOR<Prisma.StockReservationCreateWithoutOrderInput, Prisma.StockReservationUncheckedCreateWithoutOrderInput> | Prisma.StockReservationCreateWithoutOrderInput[] | Prisma.StockReservationUncheckedCreateWithoutOrderInput[]
+  connectOrCreate?: Prisma.StockReservationCreateOrConnectWithoutOrderInput | Prisma.StockReservationCreateOrConnectWithoutOrderInput[]
+  createMany?: Prisma.StockReservationCreateManyOrderInputEnvelope
+  connect?: Prisma.StockReservationWhereUniqueInput | Prisma.StockReservationWhereUniqueInput[]
+}
+
+export type StockReservationUpdateManyWithoutOrderNestedInput = {
+  create?: Prisma.XOR<Prisma.StockReservationCreateWithoutOrderInput, Prisma.StockReservationUncheckedCreateWithoutOrderInput> | Prisma.StockReservationCreateWithoutOrderInput[] | Prisma.StockReservationUncheckedCreateWithoutOrderInput[]
+  connectOrCreate?: Prisma.StockReservationCreateOrConnectWithoutOrderInput | Prisma.StockReservationCreateOrConnectWithoutOrderInput[]
+  upsert?: Prisma.StockReservationUpsertWithWhereUniqueWithoutOrderInput | Prisma.StockReservationUpsertWithWhereUniqueWithoutOrderInput[]
+  createMany?: Prisma.StockReservationCreateManyOrderInputEnvelope
+  set?: Prisma.StockReservationWhereUniqueInput | Prisma.StockReservationWhereUniqueInput[]
+  disconnect?: Prisma.StockReservationWhereUniqueInput | Prisma.StockReservationWhereUniqueInput[]
+  delete?: Prisma.StockReservationWhereUniqueInput | Prisma.StockReservationWhereUniqueInput[]
+  connect?: Prisma.StockReservationWhereUniqueInput | Prisma.StockReservationWhereUniqueInput[]
+  update?: Prisma.StockReservationUpdateWithWhereUniqueWithoutOrderInput | Prisma.StockReservationUpdateWithWhereUniqueWithoutOrderInput[]
+  updateMany?: Prisma.StockReservationUpdateManyWithWhereWithoutOrderInput | Prisma.StockReservationUpdateManyWithWhereWithoutOrderInput[]
+  deleteMany?: Prisma.StockReservationScalarWhereInput | Prisma.StockReservationScalarWhereInput[]
+}
+
+export type StockReservationUncheckedUpdateManyWithoutOrderNestedInput = {
+  create?: Prisma.XOR<Prisma.StockReservationCreateWithoutOrderInput, Prisma.StockReservationUncheckedCreateWithoutOrderInput> | Prisma.StockReservationCreateWithoutOrderInput[] | Prisma.StockReservationUncheckedCreateWithoutOrderInput[]
+  connectOrCreate?: Prisma.StockReservationCreateOrConnectWithoutOrderInput | Prisma.StockReservationCreateOrConnectWithoutOrderInput[]
+  upsert?: Prisma.StockReservationUpsertWithWhereUniqueWithoutOrderInput | Prisma.StockReservationUpsertWithWhereUniqueWithoutOrderInput[]
+  createMany?: Prisma.StockReservationCreateManyOrderInputEnvelope
+  set?: Prisma.StockReservationWhereUniqueInput | Prisma.StockReservationWhereUniqueInput[]
+  disconnect?: Prisma.StockReservationWhereUniqueInput | Prisma.StockReservationWhereUniqueInput[]
+  delete?: Prisma.StockReservationWhereUniqueInput | Prisma.StockReservationWhereUniqueInput[]
+  connect?: Prisma.StockReservationWhereUniqueInput | Prisma.StockReservationWhereUniqueInput[]
+  update?: Prisma.StockReservationUpdateWithWhereUniqueWithoutOrderInput | Prisma.StockReservationUpdateWithWhereUniqueWithoutOrderInput[]
+  updateMany?: Prisma.StockReservationUpdateManyWithWhereWithoutOrderInput | Prisma.StockReservationUpdateManyWithWhereWithoutOrderInput[]
+  deleteMany?: Prisma.StockReservationScalarWhereInput | Prisma.StockReservationScalarWhereInput[]
+}
+
 export type StockReservationCreateWithoutPerformedByInput = {
   id?: string
   quantity: number
@@ -615,12 +681,14 @@ export type StockReservationCreateWithoutPerformedByInput = {
   releasedAt?: Date | string | null
   warehouse: Prisma.WarehouseCreateNestedOneWithoutStockReservationsInput
   variant: Prisma.ProductVariantCreateNestedOneWithoutStockReservationsInput
+  order?: Prisma.OrderCreateNestedOneWithoutStockReservationsInput
 }
 
 export type StockReservationUncheckedCreateWithoutPerformedByInput = {
   id?: string
   warehouseId: string
   variantId: string
+  orderId?: string | null
   quantity: number
   reference?: string | null
   note?: string | null
@@ -662,6 +730,7 @@ export type StockReservationScalarWhereInput = {
   id?: Prisma.StringFilter<"StockReservation"> | string
   warehouseId?: Prisma.StringFilter<"StockReservation"> | string
   variantId?: Prisma.StringFilter<"StockReservation"> | string
+  orderId?: Prisma.StringNullableFilter<"StockReservation"> | string | null
   quantity?: Prisma.IntFilter<"StockReservation"> | number
   reference?: Prisma.StringNullableFilter<"StockReservation"> | string | null
   note?: Prisma.StringNullableFilter<"StockReservation"> | string | null
@@ -680,12 +749,14 @@ export type StockReservationCreateWithoutVariantInput = {
   createdAt?: Date | string
   releasedAt?: Date | string | null
   warehouse: Prisma.WarehouseCreateNestedOneWithoutStockReservationsInput
+  order?: Prisma.OrderCreateNestedOneWithoutStockReservationsInput
   performedBy?: Prisma.UserCreateNestedOneWithoutStockReservationsInput
 }
 
 export type StockReservationUncheckedCreateWithoutVariantInput = {
   id?: string
   warehouseId: string
+  orderId?: string | null
   quantity: number
   reference?: string | null
   note?: string | null
@@ -730,12 +801,14 @@ export type StockReservationCreateWithoutWarehouseInput = {
   createdAt?: Date | string
   releasedAt?: Date | string | null
   variant: Prisma.ProductVariantCreateNestedOneWithoutStockReservationsInput
+  order?: Prisma.OrderCreateNestedOneWithoutStockReservationsInput
   performedBy?: Prisma.UserCreateNestedOneWithoutStockReservationsInput
 }
 
 export type StockReservationUncheckedCreateWithoutWarehouseInput = {
   id?: string
   variantId: string
+  orderId?: string | null
   quantity: number
   reference?: string | null
   note?: string | null
@@ -771,10 +844,63 @@ export type StockReservationUpdateManyWithWhereWithoutWarehouseInput = {
   data: Prisma.XOR<Prisma.StockReservationUpdateManyMutationInput, Prisma.StockReservationUncheckedUpdateManyWithoutWarehouseInput>
 }
 
+export type StockReservationCreateWithoutOrderInput = {
+  id?: string
+  quantity: number
+  reference?: string | null
+  note?: string | null
+  status?: $Enums.StockReservationStatus
+  createdAt?: Date | string
+  releasedAt?: Date | string | null
+  warehouse: Prisma.WarehouseCreateNestedOneWithoutStockReservationsInput
+  variant: Prisma.ProductVariantCreateNestedOneWithoutStockReservationsInput
+  performedBy?: Prisma.UserCreateNestedOneWithoutStockReservationsInput
+}
+
+export type StockReservationUncheckedCreateWithoutOrderInput = {
+  id?: string
+  warehouseId: string
+  variantId: string
+  quantity: number
+  reference?: string | null
+  note?: string | null
+  status?: $Enums.StockReservationStatus
+  performedById?: string | null
+  createdAt?: Date | string
+  releasedAt?: Date | string | null
+}
+
+export type StockReservationCreateOrConnectWithoutOrderInput = {
+  where: Prisma.StockReservationWhereUniqueInput
+  create: Prisma.XOR<Prisma.StockReservationCreateWithoutOrderInput, Prisma.StockReservationUncheckedCreateWithoutOrderInput>
+}
+
+export type StockReservationCreateManyOrderInputEnvelope = {
+  data: Prisma.StockReservationCreateManyOrderInput | Prisma.StockReservationCreateManyOrderInput[]
+  skipDuplicates?: boolean
+}
+
+export type StockReservationUpsertWithWhereUniqueWithoutOrderInput = {
+  where: Prisma.StockReservationWhereUniqueInput
+  update: Prisma.XOR<Prisma.StockReservationUpdateWithoutOrderInput, Prisma.StockReservationUncheckedUpdateWithoutOrderInput>
+  create: Prisma.XOR<Prisma.StockReservationCreateWithoutOrderInput, Prisma.StockReservationUncheckedCreateWithoutOrderInput>
+}
+
+export type StockReservationUpdateWithWhereUniqueWithoutOrderInput = {
+  where: Prisma.StockReservationWhereUniqueInput
+  data: Prisma.XOR<Prisma.StockReservationUpdateWithoutOrderInput, Prisma.StockReservationUncheckedUpdateWithoutOrderInput>
+}
+
+export type StockReservationUpdateManyWithWhereWithoutOrderInput = {
+  where: Prisma.StockReservationScalarWhereInput
+  data: Prisma.XOR<Prisma.StockReservationUpdateManyMutationInput, Prisma.StockReservationUncheckedUpdateManyWithoutOrderInput>
+}
+
 export type StockReservationCreateManyPerformedByInput = {
   id?: string
   warehouseId: string
   variantId: string
+  orderId?: string | null
   quantity: number
   reference?: string | null
   note?: string | null
@@ -793,12 +919,14 @@ export type StockReservationUpdateWithoutPerformedByInput = {
   releasedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   warehouse?: Prisma.WarehouseUpdateOneRequiredWithoutStockReservationsNestedInput
   variant?: Prisma.ProductVariantUpdateOneRequiredWithoutStockReservationsNestedInput
+  order?: Prisma.OrderUpdateOneWithoutStockReservationsNestedInput
 }
 
 export type StockReservationUncheckedUpdateWithoutPerformedByInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   warehouseId?: Prisma.StringFieldUpdateOperationsInput | string
   variantId?: Prisma.StringFieldUpdateOperationsInput | string
+  orderId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
   reference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -811,6 +939,7 @@ export type StockReservationUncheckedUpdateManyWithoutPerformedByInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   warehouseId?: Prisma.StringFieldUpdateOperationsInput | string
   variantId?: Prisma.StringFieldUpdateOperationsInput | string
+  orderId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
   reference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -822,6 +951,7 @@ export type StockReservationUncheckedUpdateManyWithoutPerformedByInput = {
 export type StockReservationCreateManyVariantInput = {
   id?: string
   warehouseId: string
+  orderId?: string | null
   quantity: number
   reference?: string | null
   note?: string | null
@@ -840,12 +970,14 @@ export type StockReservationUpdateWithoutVariantInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   releasedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   warehouse?: Prisma.WarehouseUpdateOneRequiredWithoutStockReservationsNestedInput
+  order?: Prisma.OrderUpdateOneWithoutStockReservationsNestedInput
   performedBy?: Prisma.UserUpdateOneWithoutStockReservationsNestedInput
 }
 
 export type StockReservationUncheckedUpdateWithoutVariantInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   warehouseId?: Prisma.StringFieldUpdateOperationsInput | string
+  orderId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
   reference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -858,6 +990,7 @@ export type StockReservationUncheckedUpdateWithoutVariantInput = {
 export type StockReservationUncheckedUpdateManyWithoutVariantInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   warehouseId?: Prisma.StringFieldUpdateOperationsInput | string
+  orderId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
   reference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -870,6 +1003,7 @@ export type StockReservationUncheckedUpdateManyWithoutVariantInput = {
 export type StockReservationCreateManyWarehouseInput = {
   id?: string
   variantId: string
+  orderId?: string | null
   quantity: number
   reference?: string | null
   note?: string | null
@@ -888,12 +1022,14 @@ export type StockReservationUpdateWithoutWarehouseInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   releasedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   variant?: Prisma.ProductVariantUpdateOneRequiredWithoutStockReservationsNestedInput
+  order?: Prisma.OrderUpdateOneWithoutStockReservationsNestedInput
   performedBy?: Prisma.UserUpdateOneWithoutStockReservationsNestedInput
 }
 
 export type StockReservationUncheckedUpdateWithoutWarehouseInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   variantId?: Prisma.StringFieldUpdateOperationsInput | string
+  orderId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
   reference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -905,6 +1041,59 @@ export type StockReservationUncheckedUpdateWithoutWarehouseInput = {
 
 export type StockReservationUncheckedUpdateManyWithoutWarehouseInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  variantId?: Prisma.StringFieldUpdateOperationsInput | string
+  orderId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  quantity?: Prisma.IntFieldUpdateOperationsInput | number
+  reference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumStockReservationStatusFieldUpdateOperationsInput | $Enums.StockReservationStatus
+  performedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  releasedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+}
+
+export type StockReservationCreateManyOrderInput = {
+  id?: string
+  warehouseId: string
+  variantId: string
+  quantity: number
+  reference?: string | null
+  note?: string | null
+  status?: $Enums.StockReservationStatus
+  performedById?: string | null
+  createdAt?: Date | string
+  releasedAt?: Date | string | null
+}
+
+export type StockReservationUpdateWithoutOrderInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  quantity?: Prisma.IntFieldUpdateOperationsInput | number
+  reference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumStockReservationStatusFieldUpdateOperationsInput | $Enums.StockReservationStatus
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  releasedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  warehouse?: Prisma.WarehouseUpdateOneRequiredWithoutStockReservationsNestedInput
+  variant?: Prisma.ProductVariantUpdateOneRequiredWithoutStockReservationsNestedInput
+  performedBy?: Prisma.UserUpdateOneWithoutStockReservationsNestedInput
+}
+
+export type StockReservationUncheckedUpdateWithoutOrderInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  warehouseId?: Prisma.StringFieldUpdateOperationsInput | string
+  variantId?: Prisma.StringFieldUpdateOperationsInput | string
+  quantity?: Prisma.IntFieldUpdateOperationsInput | number
+  reference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumStockReservationStatusFieldUpdateOperationsInput | $Enums.StockReservationStatus
+  performedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  releasedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+}
+
+export type StockReservationUncheckedUpdateManyWithoutOrderInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  warehouseId?: Prisma.StringFieldUpdateOperationsInput | string
   variantId?: Prisma.StringFieldUpdateOperationsInput | string
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
   reference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -921,6 +1110,7 @@ export type StockReservationSelect<ExtArgs extends runtime.Types.Extensions.Inte
   id?: boolean
   warehouseId?: boolean
   variantId?: boolean
+  orderId?: boolean
   quantity?: boolean
   reference?: boolean
   note?: boolean
@@ -930,6 +1120,7 @@ export type StockReservationSelect<ExtArgs extends runtime.Types.Extensions.Inte
   releasedAt?: boolean
   warehouse?: boolean | Prisma.WarehouseDefaultArgs<ExtArgs>
   variant?: boolean | Prisma.ProductVariantDefaultArgs<ExtArgs>
+  order?: boolean | Prisma.StockReservation$orderArgs<ExtArgs>
   performedBy?: boolean | Prisma.StockReservation$performedByArgs<ExtArgs>
 }, ExtArgs["result"]["stockReservation"]>
 
@@ -937,6 +1128,7 @@ export type StockReservationSelectCreateManyAndReturn<ExtArgs extends runtime.Ty
   id?: boolean
   warehouseId?: boolean
   variantId?: boolean
+  orderId?: boolean
   quantity?: boolean
   reference?: boolean
   note?: boolean
@@ -946,6 +1138,7 @@ export type StockReservationSelectCreateManyAndReturn<ExtArgs extends runtime.Ty
   releasedAt?: boolean
   warehouse?: boolean | Prisma.WarehouseDefaultArgs<ExtArgs>
   variant?: boolean | Prisma.ProductVariantDefaultArgs<ExtArgs>
+  order?: boolean | Prisma.StockReservation$orderArgs<ExtArgs>
   performedBy?: boolean | Prisma.StockReservation$performedByArgs<ExtArgs>
 }, ExtArgs["result"]["stockReservation"]>
 
@@ -953,6 +1146,7 @@ export type StockReservationSelectUpdateManyAndReturn<ExtArgs extends runtime.Ty
   id?: boolean
   warehouseId?: boolean
   variantId?: boolean
+  orderId?: boolean
   quantity?: boolean
   reference?: boolean
   note?: boolean
@@ -962,6 +1156,7 @@ export type StockReservationSelectUpdateManyAndReturn<ExtArgs extends runtime.Ty
   releasedAt?: boolean
   warehouse?: boolean | Prisma.WarehouseDefaultArgs<ExtArgs>
   variant?: boolean | Prisma.ProductVariantDefaultArgs<ExtArgs>
+  order?: boolean | Prisma.StockReservation$orderArgs<ExtArgs>
   performedBy?: boolean | Prisma.StockReservation$performedByArgs<ExtArgs>
 }, ExtArgs["result"]["stockReservation"]>
 
@@ -969,6 +1164,7 @@ export type StockReservationSelectScalar = {
   id?: boolean
   warehouseId?: boolean
   variantId?: boolean
+  orderId?: boolean
   quantity?: boolean
   reference?: boolean
   note?: boolean
@@ -978,20 +1174,23 @@ export type StockReservationSelectScalar = {
   releasedAt?: boolean
 }
 
-export type StockReservationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "warehouseId" | "variantId" | "quantity" | "reference" | "note" | "status" | "performedById" | "createdAt" | "releasedAt", ExtArgs["result"]["stockReservation"]>
+export type StockReservationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "warehouseId" | "variantId" | "orderId" | "quantity" | "reference" | "note" | "status" | "performedById" | "createdAt" | "releasedAt", ExtArgs["result"]["stockReservation"]>
 export type StockReservationInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   warehouse?: boolean | Prisma.WarehouseDefaultArgs<ExtArgs>
   variant?: boolean | Prisma.ProductVariantDefaultArgs<ExtArgs>
+  order?: boolean | Prisma.StockReservation$orderArgs<ExtArgs>
   performedBy?: boolean | Prisma.StockReservation$performedByArgs<ExtArgs>
 }
 export type StockReservationIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   warehouse?: boolean | Prisma.WarehouseDefaultArgs<ExtArgs>
   variant?: boolean | Prisma.ProductVariantDefaultArgs<ExtArgs>
+  order?: boolean | Prisma.StockReservation$orderArgs<ExtArgs>
   performedBy?: boolean | Prisma.StockReservation$performedByArgs<ExtArgs>
 }
 export type StockReservationIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   warehouse?: boolean | Prisma.WarehouseDefaultArgs<ExtArgs>
   variant?: boolean | Prisma.ProductVariantDefaultArgs<ExtArgs>
+  order?: boolean | Prisma.StockReservation$orderArgs<ExtArgs>
   performedBy?: boolean | Prisma.StockReservation$performedByArgs<ExtArgs>
 }
 
@@ -1000,12 +1199,14 @@ export type $StockReservationPayload<ExtArgs extends runtime.Types.Extensions.In
   objects: {
     warehouse: Prisma.$WarehousePayload<ExtArgs>
     variant: Prisma.$ProductVariantPayload<ExtArgs>
+    order: Prisma.$OrderPayload<ExtArgs> | null
     performedBy: Prisma.$UserPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     warehouseId: string
     variantId: string
+    orderId: string | null
     quantity: number
     reference: string | null
     note: string | null
@@ -1409,6 +1610,7 @@ export interface Prisma__StockReservationClient<T, Null = never, ExtArgs extends
   readonly [Symbol.toStringTag]: "PrismaPromise"
   warehouse<T extends Prisma.WarehouseDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.WarehouseDefaultArgs<ExtArgs>>): Prisma.Prisma__WarehouseClient<runtime.Types.Result.GetResult<Prisma.$WarehousePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   variant<T extends Prisma.ProductVariantDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProductVariantDefaultArgs<ExtArgs>>): Prisma.Prisma__ProductVariantClient<runtime.Types.Result.GetResult<Prisma.$ProductVariantPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  order<T extends Prisma.StockReservation$orderArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.StockReservation$orderArgs<ExtArgs>>): Prisma.Prisma__OrderClient<runtime.Types.Result.GetResult<Prisma.$OrderPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   performedBy<T extends Prisma.StockReservation$performedByArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.StockReservation$performedByArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -1442,6 +1644,7 @@ export interface StockReservationFieldRefs {
   readonly id: Prisma.FieldRef<"StockReservation", 'String'>
   readonly warehouseId: Prisma.FieldRef<"StockReservation", 'String'>
   readonly variantId: Prisma.FieldRef<"StockReservation", 'String'>
+  readonly orderId: Prisma.FieldRef<"StockReservation", 'String'>
   readonly quantity: Prisma.FieldRef<"StockReservation", 'Int'>
   readonly reference: Prisma.FieldRef<"StockReservation", 'String'>
   readonly note: Prisma.FieldRef<"StockReservation", 'String'>
@@ -1847,6 +2050,25 @@ export type StockReservationDeleteManyArgs<ExtArgs extends runtime.Types.Extensi
    * Limit how many StockReservations to delete.
    */
   limit?: number
+}
+
+/**
+ * StockReservation.order
+ */
+export type StockReservation$orderArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Order
+   */
+  select?: Prisma.OrderSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Order
+   */
+  omit?: Prisma.OrderOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.OrderInclude<ExtArgs> | null
+  where?: Prisma.OrderWhereInput
 }
 
 /**

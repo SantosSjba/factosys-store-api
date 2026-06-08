@@ -103,3 +103,53 @@ export const StockReservationStatus = {
 } as const
 
 export type StockReservationStatus = (typeof StockReservationStatus)[keyof typeof StockReservationStatus]
+
+
+export const OrderStatus = {
+  PENDING_PAYMENT: 'PENDING_PAYMENT',
+  CONFIRMED: 'CONFIRMED',
+  PROCESSING: 'PROCESSING',
+  SHIPPED: 'SHIPPED',
+  DELIVERED: 'DELIVERED',
+  CANCELLED: 'CANCELLED',
+  REFUNDED: 'REFUNDED'
+} as const
+
+export type OrderStatus = (typeof OrderStatus)[keyof typeof OrderStatus]
+
+
+export const OrderPaymentStatus = {
+  PENDING: 'PENDING',
+  PAID: 'PAID',
+  FAILED: 'FAILED',
+  REFUNDED: 'REFUNDED',
+  PARTIALLY_REFUNDED: 'PARTIALLY_REFUNDED'
+} as const
+
+export type OrderPaymentStatus = (typeof OrderPaymentStatus)[keyof typeof OrderPaymentStatus]
+
+
+export const OrderFulfillmentStatus = {
+  UNFULFILLED: 'UNFULFILLED',
+  PARTIAL: 'PARTIAL',
+  FULFILLED: 'FULFILLED'
+} as const
+
+export type OrderFulfillmentStatus = (typeof OrderFulfillmentStatus)[keyof typeof OrderFulfillmentStatus]
+
+
+export const OrderAddressType = {
+  SHIPPING: 'SHIPPING',
+  BILLING: 'BILLING'
+} as const
+
+export type OrderAddressType = (typeof OrderAddressType)[keyof typeof OrderAddressType]
+
+
+export const OrderSource = {
+  ADMIN: 'ADMIN',
+  WEB: 'WEB',
+  PHONE: 'PHONE'
+} as const
+
+export type OrderSource = (typeof OrderSource)[keyof typeof OrderSource]

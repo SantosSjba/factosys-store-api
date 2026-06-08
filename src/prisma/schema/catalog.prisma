@@ -158,6 +158,7 @@ model ProductVariant {
   stockLevels       StockLevel[]
   stockMovements    StockMovement[]
   stockReservations StockReservation[]
+  orderItems        OrderItem[]
 
   @@index([productId, sortOrder])
   @@index([isActive])

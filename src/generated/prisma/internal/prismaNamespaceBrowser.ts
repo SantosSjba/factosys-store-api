@@ -73,6 +73,10 @@ export const ModelName = {
   StockLevel: 'StockLevel',
   StockMovement: 'StockMovement',
   StockReservation: 'StockReservation',
+  Order: 'Order',
+  OrderItem: 'OrderItem',
+  OrderAddress: 'OrderAddress',
+  OrderStatusHistory: 'OrderStatusHistory',
   CompanyProfile: 'CompanyProfile',
   StoreSettings: 'StoreSettings',
   Currency: 'Currency',
@@ -395,6 +399,7 @@ export const StockReservationScalarFieldEnum = {
   id: 'id',
   warehouseId: 'warehouseId',
   variantId: 'variantId',
+  orderId: 'orderId',
   quantity: 'quantity',
   reference: 'reference',
   note: 'note',
@@ -405,6 +410,104 @@ export const StockReservationScalarFieldEnum = {
 } as const
 
 export type StockReservationScalarFieldEnum = (typeof StockReservationScalarFieldEnum)[keyof typeof StockReservationScalarFieldEnum]
+
+
+export const OrderScalarFieldEnum = {
+  id: 'id',
+  orderNumber: 'orderNumber',
+  status: 'status',
+  paymentStatus: 'paymentStatus',
+  fulfillmentStatus: 'fulfillmentStatus',
+  source: 'source',
+  customerId: 'customerId',
+  guestEmail: 'guestEmail',
+  guestFirstName: 'guestFirstName',
+  guestLastName: 'guestLastName',
+  guestPhone: 'guestPhone',
+  warehouseId: 'warehouseId',
+  currencyCode: 'currencyCode',
+  subtotal: 'subtotal',
+  taxAmount: 'taxAmount',
+  shippingAmount: 'shippingAmount',
+  discountAmount: 'discountAmount',
+  total: 'total',
+  taxRateId: 'taxRateId',
+  taxRateName: 'taxRateName',
+  taxRatePercent: 'taxRatePercent',
+  pricesIncludeTax: 'pricesIncludeTax',
+  internalNotes: 'internalNotes',
+  customerNotes: 'customerNotes',
+  confirmedAt: 'confirmedAt',
+  shippedAt: 'shippedAt',
+  deliveredAt: 'deliveredAt',
+  cancelledAt: 'cancelledAt',
+  paidAt: 'paidAt',
+  cancelReason: 'cancelReason',
+  createdById: 'createdById',
+  updatedById: 'updatedById',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type OrderScalarFieldEnum = (typeof OrderScalarFieldEnum)[keyof typeof OrderScalarFieldEnum]
+
+
+export const OrderItemScalarFieldEnum = {
+  id: 'id',
+  orderId: 'orderId',
+  variantId: 'variantId',
+  productId: 'productId',
+  sku: 'sku',
+  productName: 'productName',
+  variantName: 'variantName',
+  quantity: 'quantity',
+  unitPrice: 'unitPrice',
+  compareAtPrice: 'compareAtPrice',
+  taxAmount: 'taxAmount',
+  lineSubtotal: 'lineSubtotal',
+  lineTotal: 'lineTotal',
+  sortOrder: 'sortOrder'
+} as const
+
+export type OrderItemScalarFieldEnum = (typeof OrderItemScalarFieldEnum)[keyof typeof OrderItemScalarFieldEnum]
+
+
+export const OrderAddressScalarFieldEnum = {
+  id: 'id',
+  orderId: 'orderId',
+  type: 'type',
+  label: 'label',
+  firstName: 'firstName',
+  lastName: 'lastName',
+  company: 'company',
+  phone: 'phone',
+  email: 'email',
+  addressLine1: 'addressLine1',
+  addressLine2: 'addressLine2',
+  city: 'city',
+  district: 'district',
+  province: 'province',
+  department: 'department',
+  country: 'country',
+  postalCode: 'postalCode'
+} as const
+
+export type OrderAddressScalarFieldEnum = (typeof OrderAddressScalarFieldEnum)[keyof typeof OrderAddressScalarFieldEnum]
+
+
+export const OrderStatusHistoryScalarFieldEnum = {
+  id: 'id',
+  orderId: 'orderId',
+  fromStatus: 'fromStatus',
+  toStatus: 'toStatus',
+  fromPaymentStatus: 'fromPaymentStatus',
+  toPaymentStatus: 'toPaymentStatus',
+  note: 'note',
+  performedById: 'performedById',
+  createdAt: 'createdAt'
+} as const
+
+export type OrderStatusHistoryScalarFieldEnum = (typeof OrderStatusHistoryScalarFieldEnum)[keyof typeof OrderStatusHistoryScalarFieldEnum]
 
 
 export const CompanyProfileScalarFieldEnum = {
@@ -451,6 +554,7 @@ export const StoreSettingsScalarFieldEnum = {
   guestCheckoutEnabled: 'guestCheckoutEnabled',
   minOrderAmount: 'minOrderAmount',
   orderNumberPrefix: 'orderNumberPrefix',
+  lastOrderNumber: 'lastOrderNumber',
   defaultWarehouseId: 'defaultWarehouseId',
   lowStockGlobalThreshold: 'lowStockGlobalThreshold',
   freeShippingMinAmount: 'freeShippingMinAmount',

@@ -27,6 +27,7 @@ model Warehouse {
   incomingTransfers   StockMovement[] @relation("MovementTargetWarehouse")
   stockReservations   StockReservation[]
   storeSettings       StoreSettings[]
+  orders              Order[]
 
   @@index([isActive, sortOrder])
 }
@@ -73,6 +74,7 @@ model StockReservation {
   id            String                 @id @default(uuid())
   warehouseId   String
   variantId     String
+  orderId       String?
   quantity      Int
   reference     String?
   note          String?
@@ -83,8 +85,10 @@ model StockReservation {
 
   warehouse   Warehouse      @relation(fields: [warehouseId], references: [id], onDelete: Restrict)
   variant     ProductVariant @relation(fields: [variantId], references: [id], onDelete: Restrict)
+  order       Order?         @relation(fields: [orderId], references: [id], onDelete: SetNull)
   performedBy User?          @relation(fields: [performedById], references: [id], onDelete: SetNull)
 
   @@index([warehouseId, status])
   @@index([variantId, status])
+  @@index([orderId, status])
 }

@@ -128,6 +128,26 @@ export type StockMovement = Prisma.StockMovementModel
  */
 export type StockReservation = Prisma.StockReservationModel
 /**
+ * Model Order
+ * 
+ */
+export type Order = Prisma.OrderModel
+/**
+ * Model OrderItem
+ * 
+ */
+export type OrderItem = Prisma.OrderItemModel
+/**
+ * Model OrderAddress
+ * 
+ */
+export type OrderAddress = Prisma.OrderAddressModel
+/**
+ * Model OrderStatusHistory
+ * 
+ */
+export type OrderStatusHistory = Prisma.OrderStatusHistoryModel
+/**
  * Model CompanyProfile
  * 
  */

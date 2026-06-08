@@ -21,6 +21,10 @@ model User {
   loginAudits        LoginAudit[]
   stockMovements     StockMovement[]
   stockReservations  StockReservation[]
+  customerOrders     Order[]              @relation("CustomerOrders")
+  createdOrders      Order[]              @relation("StaffCreatedOrders")
+  updatedOrders      Order[]              @relation("StaffUpdatedOrders")
+  orderStatusHistory OrderStatusHistory[] @relation("OrderStatusHistoryPerformedBy")
 
   @@index([userType, status])
   @@index([email])

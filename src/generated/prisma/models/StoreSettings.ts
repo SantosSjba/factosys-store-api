@@ -28,6 +28,7 @@ export type AggregateStoreSettings = {
 
 export type StoreSettingsAvgAggregateOutputType = {
   minOrderAmount: runtime.Decimal | null
+  lastOrderNumber: number | null
   lowStockGlobalThreshold: number | null
   freeShippingMinAmount: runtime.Decimal | null
   handlingDaysMin: number | null
@@ -36,6 +37,7 @@ export type StoreSettingsAvgAggregateOutputType = {
 
 export type StoreSettingsSumAggregateOutputType = {
   minOrderAmount: runtime.Decimal | null
+  lastOrderNumber: number | null
   lowStockGlobalThreshold: number | null
   freeShippingMinAmount: runtime.Decimal | null
   handlingDaysMin: number | null
@@ -62,6 +64,7 @@ export type StoreSettingsMinAggregateOutputType = {
   guestCheckoutEnabled: boolean | null
   minOrderAmount: runtime.Decimal | null
   orderNumberPrefix: string | null
+  lastOrderNumber: number | null
   defaultWarehouseId: string | null
   lowStockGlobalThreshold: number | null
   freeShippingMinAmount: runtime.Decimal | null
@@ -99,6 +102,7 @@ export type StoreSettingsMaxAggregateOutputType = {
   guestCheckoutEnabled: boolean | null
   minOrderAmount: runtime.Decimal | null
   orderNumberPrefix: string | null
+  lastOrderNumber: number | null
   defaultWarehouseId: string | null
   lowStockGlobalThreshold: number | null
   freeShippingMinAmount: runtime.Decimal | null
@@ -136,6 +140,7 @@ export type StoreSettingsCountAggregateOutputType = {
   guestCheckoutEnabled: number
   minOrderAmount: number
   orderNumberPrefix: number
+  lastOrderNumber: number
   defaultWarehouseId: number
   lowStockGlobalThreshold: number
   freeShippingMinAmount: number
@@ -157,6 +162,7 @@ export type StoreSettingsCountAggregateOutputType = {
 
 export type StoreSettingsAvgAggregateInputType = {
   minOrderAmount?: true
+  lastOrderNumber?: true
   lowStockGlobalThreshold?: true
   freeShippingMinAmount?: true
   handlingDaysMin?: true
@@ -165,6 +171,7 @@ export type StoreSettingsAvgAggregateInputType = {
 
 export type StoreSettingsSumAggregateInputType = {
   minOrderAmount?: true
+  lastOrderNumber?: true
   lowStockGlobalThreshold?: true
   freeShippingMinAmount?: true
   handlingDaysMin?: true
@@ -191,6 +198,7 @@ export type StoreSettingsMinAggregateInputType = {
   guestCheckoutEnabled?: true
   minOrderAmount?: true
   orderNumberPrefix?: true
+  lastOrderNumber?: true
   defaultWarehouseId?: true
   lowStockGlobalThreshold?: true
   freeShippingMinAmount?: true
@@ -228,6 +236,7 @@ export type StoreSettingsMaxAggregateInputType = {
   guestCheckoutEnabled?: true
   minOrderAmount?: true
   orderNumberPrefix?: true
+  lastOrderNumber?: true
   defaultWarehouseId?: true
   lowStockGlobalThreshold?: true
   freeShippingMinAmount?: true
@@ -265,6 +274,7 @@ export type StoreSettingsCountAggregateInputType = {
   guestCheckoutEnabled?: true
   minOrderAmount?: true
   orderNumberPrefix?: true
+  lastOrderNumber?: true
   defaultWarehouseId?: true
   lowStockGlobalThreshold?: true
   freeShippingMinAmount?: true
@@ -389,6 +399,7 @@ export type StoreSettingsGroupByOutputType = {
   guestCheckoutEnabled: boolean
   minOrderAmount: runtime.Decimal | null
   orderNumberPrefix: string
+  lastOrderNumber: number
   defaultWarehouseId: string | null
   lowStockGlobalThreshold: number | null
   freeShippingMinAmount: runtime.Decimal | null
@@ -449,6 +460,7 @@ export type StoreSettingsWhereInput = {
   guestCheckoutEnabled?: Prisma.BoolFilter<"StoreSettings"> | boolean
   minOrderAmount?: Prisma.DecimalNullableFilter<"StoreSettings"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   orderNumberPrefix?: Prisma.StringFilter<"StoreSettings"> | string
+  lastOrderNumber?: Prisma.IntFilter<"StoreSettings"> | number
   defaultWarehouseId?: Prisma.StringNullableFilter<"StoreSettings"> | string | null
   lowStockGlobalThreshold?: Prisma.IntNullableFilter<"StoreSettings"> | number | null
   freeShippingMinAmount?: Prisma.DecimalNullableFilter<"StoreSettings"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -488,6 +500,7 @@ export type StoreSettingsOrderByWithRelationInput = {
   guestCheckoutEnabled?: Prisma.SortOrder
   minOrderAmount?: Prisma.SortOrderInput | Prisma.SortOrder
   orderNumberPrefix?: Prisma.SortOrder
+  lastOrderNumber?: Prisma.SortOrder
   defaultWarehouseId?: Prisma.SortOrderInput | Prisma.SortOrder
   lowStockGlobalThreshold?: Prisma.SortOrderInput | Prisma.SortOrder
   freeShippingMinAmount?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -530,6 +543,7 @@ export type StoreSettingsWhereUniqueInput = Prisma.AtLeast<{
   guestCheckoutEnabled?: Prisma.BoolFilter<"StoreSettings"> | boolean
   minOrderAmount?: Prisma.DecimalNullableFilter<"StoreSettings"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   orderNumberPrefix?: Prisma.StringFilter<"StoreSettings"> | string
+  lastOrderNumber?: Prisma.IntFilter<"StoreSettings"> | number
   defaultWarehouseId?: Prisma.StringNullableFilter<"StoreSettings"> | string | null
   lowStockGlobalThreshold?: Prisma.IntNullableFilter<"StoreSettings"> | number | null
   freeShippingMinAmount?: Prisma.DecimalNullableFilter<"StoreSettings"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -569,6 +583,7 @@ export type StoreSettingsOrderByWithAggregationInput = {
   guestCheckoutEnabled?: Prisma.SortOrder
   minOrderAmount?: Prisma.SortOrderInput | Prisma.SortOrder
   orderNumberPrefix?: Prisma.SortOrder
+  lastOrderNumber?: Prisma.SortOrder
   defaultWarehouseId?: Prisma.SortOrderInput | Prisma.SortOrder
   lowStockGlobalThreshold?: Prisma.SortOrderInput | Prisma.SortOrder
   freeShippingMinAmount?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -614,6 +629,7 @@ export type StoreSettingsScalarWhereWithAggregatesInput = {
   guestCheckoutEnabled?: Prisma.BoolWithAggregatesFilter<"StoreSettings"> | boolean
   minOrderAmount?: Prisma.DecimalNullableWithAggregatesFilter<"StoreSettings"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   orderNumberPrefix?: Prisma.StringWithAggregatesFilter<"StoreSettings"> | string
+  lastOrderNumber?: Prisma.IntWithAggregatesFilter<"StoreSettings"> | number
   defaultWarehouseId?: Prisma.StringNullableWithAggregatesFilter<"StoreSettings"> | string | null
   lowStockGlobalThreshold?: Prisma.IntNullableWithAggregatesFilter<"StoreSettings"> | number | null
   freeShippingMinAmount?: Prisma.DecimalNullableWithAggregatesFilter<"StoreSettings"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -650,6 +666,7 @@ export type StoreSettingsCreateInput = {
   guestCheckoutEnabled?: boolean
   minOrderAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   orderNumberPrefix?: string
+  lastOrderNumber?: number
   lowStockGlobalThreshold?: number | null
   freeShippingMinAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   handlingDaysMin?: number | null
@@ -688,6 +705,7 @@ export type StoreSettingsUncheckedCreateInput = {
   guestCheckoutEnabled?: boolean
   minOrderAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   orderNumberPrefix?: string
+  lastOrderNumber?: number
   defaultWarehouseId?: string | null
   lowStockGlobalThreshold?: number | null
   freeShippingMinAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -724,6 +742,7 @@ export type StoreSettingsUpdateInput = {
   guestCheckoutEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   minOrderAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   orderNumberPrefix?: Prisma.StringFieldUpdateOperationsInput | string
+  lastOrderNumber?: Prisma.IntFieldUpdateOperationsInput | number
   lowStockGlobalThreshold?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   freeShippingMinAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   handlingDaysMin?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -762,6 +781,7 @@ export type StoreSettingsUncheckedUpdateInput = {
   guestCheckoutEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   minOrderAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   orderNumberPrefix?: Prisma.StringFieldUpdateOperationsInput | string
+  lastOrderNumber?: Prisma.IntFieldUpdateOperationsInput | number
   defaultWarehouseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lowStockGlobalThreshold?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   freeShippingMinAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -799,6 +819,7 @@ export type StoreSettingsCreateManyInput = {
   guestCheckoutEnabled?: boolean
   minOrderAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   orderNumberPrefix?: string
+  lastOrderNumber?: number
   defaultWarehouseId?: string | null
   lowStockGlobalThreshold?: number | null
   freeShippingMinAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -835,6 +856,7 @@ export type StoreSettingsUpdateManyMutationInput = {
   guestCheckoutEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   minOrderAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   orderNumberPrefix?: Prisma.StringFieldUpdateOperationsInput | string
+  lastOrderNumber?: Prisma.IntFieldUpdateOperationsInput | number
   lowStockGlobalThreshold?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   freeShippingMinAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   handlingDaysMin?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -871,6 +893,7 @@ export type StoreSettingsUncheckedUpdateManyInput = {
   guestCheckoutEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   minOrderAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   orderNumberPrefix?: Prisma.StringFieldUpdateOperationsInput | string
+  lastOrderNumber?: Prisma.IntFieldUpdateOperationsInput | number
   defaultWarehouseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lowStockGlobalThreshold?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   freeShippingMinAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -918,6 +941,7 @@ export type StoreSettingsCountOrderByAggregateInput = {
   guestCheckoutEnabled?: Prisma.SortOrder
   minOrderAmount?: Prisma.SortOrder
   orderNumberPrefix?: Prisma.SortOrder
+  lastOrderNumber?: Prisma.SortOrder
   defaultWarehouseId?: Prisma.SortOrder
   lowStockGlobalThreshold?: Prisma.SortOrder
   freeShippingMinAmount?: Prisma.SortOrder
@@ -937,6 +961,7 @@ export type StoreSettingsCountOrderByAggregateInput = {
 
 export type StoreSettingsAvgOrderByAggregateInput = {
   minOrderAmount?: Prisma.SortOrder
+  lastOrderNumber?: Prisma.SortOrder
   lowStockGlobalThreshold?: Prisma.SortOrder
   freeShippingMinAmount?: Prisma.SortOrder
   handlingDaysMin?: Prisma.SortOrder
@@ -963,6 +988,7 @@ export type StoreSettingsMaxOrderByAggregateInput = {
   guestCheckoutEnabled?: Prisma.SortOrder
   minOrderAmount?: Prisma.SortOrder
   orderNumberPrefix?: Prisma.SortOrder
+  lastOrderNumber?: Prisma.SortOrder
   defaultWarehouseId?: Prisma.SortOrder
   lowStockGlobalThreshold?: Prisma.SortOrder
   freeShippingMinAmount?: Prisma.SortOrder
@@ -1000,6 +1026,7 @@ export type StoreSettingsMinOrderByAggregateInput = {
   guestCheckoutEnabled?: Prisma.SortOrder
   minOrderAmount?: Prisma.SortOrder
   orderNumberPrefix?: Prisma.SortOrder
+  lastOrderNumber?: Prisma.SortOrder
   defaultWarehouseId?: Prisma.SortOrder
   lowStockGlobalThreshold?: Prisma.SortOrder
   freeShippingMinAmount?: Prisma.SortOrder
@@ -1019,6 +1046,7 @@ export type StoreSettingsMinOrderByAggregateInput = {
 
 export type StoreSettingsSumOrderByAggregateInput = {
   minOrderAmount?: Prisma.SortOrder
+  lastOrderNumber?: Prisma.SortOrder
   lowStockGlobalThreshold?: Prisma.SortOrder
   freeShippingMinAmount?: Prisma.SortOrder
   handlingDaysMin?: Prisma.SortOrder
@@ -1128,6 +1156,7 @@ export type StoreSettingsCreateWithoutDefaultWarehouseInput = {
   guestCheckoutEnabled?: boolean
   minOrderAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   orderNumberPrefix?: string
+  lastOrderNumber?: number
   lowStockGlobalThreshold?: number | null
   freeShippingMinAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   handlingDaysMin?: number | null
@@ -1165,6 +1194,7 @@ export type StoreSettingsUncheckedCreateWithoutDefaultWarehouseInput = {
   guestCheckoutEnabled?: boolean
   minOrderAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   orderNumberPrefix?: string
+  lastOrderNumber?: number
   lowStockGlobalThreshold?: number | null
   freeShippingMinAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   handlingDaysMin?: number | null
@@ -1230,6 +1260,7 @@ export type StoreSettingsScalarWhereInput = {
   guestCheckoutEnabled?: Prisma.BoolFilter<"StoreSettings"> | boolean
   minOrderAmount?: Prisma.DecimalNullableFilter<"StoreSettings"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   orderNumberPrefix?: Prisma.StringFilter<"StoreSettings"> | string
+  lastOrderNumber?: Prisma.IntFilter<"StoreSettings"> | number
   defaultWarehouseId?: Prisma.StringNullableFilter<"StoreSettings"> | string | null
   lowStockGlobalThreshold?: Prisma.IntNullableFilter<"StoreSettings"> | number | null
   freeShippingMinAmount?: Prisma.DecimalNullableFilter<"StoreSettings"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1266,6 +1297,7 @@ export type StoreSettingsCreateWithoutDefaultTaxRateInput = {
   guestCheckoutEnabled?: boolean
   minOrderAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   orderNumberPrefix?: string
+  lastOrderNumber?: number
   lowStockGlobalThreshold?: number | null
   freeShippingMinAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   handlingDaysMin?: number | null
@@ -1302,6 +1334,7 @@ export type StoreSettingsUncheckedCreateWithoutDefaultTaxRateInput = {
   guestCheckoutEnabled?: boolean
   minOrderAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   orderNumberPrefix?: string
+  lastOrderNumber?: number
   defaultWarehouseId?: string | null
   lowStockGlobalThreshold?: number | null
   freeShippingMinAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1365,6 +1398,7 @@ export type StoreSettingsCreateManyDefaultWarehouseInput = {
   guestCheckoutEnabled?: boolean
   minOrderAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   orderNumberPrefix?: string
+  lastOrderNumber?: number
   lowStockGlobalThreshold?: number | null
   freeShippingMinAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   handlingDaysMin?: number | null
@@ -1400,6 +1434,7 @@ export type StoreSettingsUpdateWithoutDefaultWarehouseInput = {
   guestCheckoutEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   minOrderAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   orderNumberPrefix?: Prisma.StringFieldUpdateOperationsInput | string
+  lastOrderNumber?: Prisma.IntFieldUpdateOperationsInput | number
   lowStockGlobalThreshold?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   freeShippingMinAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   handlingDaysMin?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1437,6 +1472,7 @@ export type StoreSettingsUncheckedUpdateWithoutDefaultWarehouseInput = {
   guestCheckoutEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   minOrderAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   orderNumberPrefix?: Prisma.StringFieldUpdateOperationsInput | string
+  lastOrderNumber?: Prisma.IntFieldUpdateOperationsInput | number
   lowStockGlobalThreshold?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   freeShippingMinAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   handlingDaysMin?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1473,6 +1509,7 @@ export type StoreSettingsUncheckedUpdateManyWithoutDefaultWarehouseInput = {
   guestCheckoutEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   minOrderAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   orderNumberPrefix?: Prisma.StringFieldUpdateOperationsInput | string
+  lastOrderNumber?: Prisma.IntFieldUpdateOperationsInput | number
   lowStockGlobalThreshold?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   freeShippingMinAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   handlingDaysMin?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1508,6 +1545,7 @@ export type StoreSettingsCreateManyDefaultTaxRateInput = {
   guestCheckoutEnabled?: boolean
   minOrderAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   orderNumberPrefix?: string
+  lastOrderNumber?: number
   defaultWarehouseId?: string | null
   lowStockGlobalThreshold?: number | null
   freeShippingMinAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1544,6 +1582,7 @@ export type StoreSettingsUpdateWithoutDefaultTaxRateInput = {
   guestCheckoutEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   minOrderAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   orderNumberPrefix?: Prisma.StringFieldUpdateOperationsInput | string
+  lastOrderNumber?: Prisma.IntFieldUpdateOperationsInput | number
   lowStockGlobalThreshold?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   freeShippingMinAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   handlingDaysMin?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1580,6 +1619,7 @@ export type StoreSettingsUncheckedUpdateWithoutDefaultTaxRateInput = {
   guestCheckoutEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   minOrderAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   orderNumberPrefix?: Prisma.StringFieldUpdateOperationsInput | string
+  lastOrderNumber?: Prisma.IntFieldUpdateOperationsInput | number
   defaultWarehouseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lowStockGlobalThreshold?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   freeShippingMinAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1616,6 +1656,7 @@ export type StoreSettingsUncheckedUpdateManyWithoutDefaultTaxRateInput = {
   guestCheckoutEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   minOrderAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   orderNumberPrefix?: Prisma.StringFieldUpdateOperationsInput | string
+  lastOrderNumber?: Prisma.IntFieldUpdateOperationsInput | number
   defaultWarehouseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lowStockGlobalThreshold?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   freeShippingMinAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1655,6 +1696,7 @@ export type StoreSettingsSelect<ExtArgs extends runtime.Types.Extensions.Interna
   guestCheckoutEnabled?: boolean
   minOrderAmount?: boolean
   orderNumberPrefix?: boolean
+  lastOrderNumber?: boolean
   defaultWarehouseId?: boolean
   lowStockGlobalThreshold?: boolean
   freeShippingMinAmount?: boolean
@@ -1694,6 +1736,7 @@ export type StoreSettingsSelectCreateManyAndReturn<ExtArgs extends runtime.Types
   guestCheckoutEnabled?: boolean
   minOrderAmount?: boolean
   orderNumberPrefix?: boolean
+  lastOrderNumber?: boolean
   defaultWarehouseId?: boolean
   lowStockGlobalThreshold?: boolean
   freeShippingMinAmount?: boolean
@@ -1733,6 +1776,7 @@ export type StoreSettingsSelectUpdateManyAndReturn<ExtArgs extends runtime.Types
   guestCheckoutEnabled?: boolean
   minOrderAmount?: boolean
   orderNumberPrefix?: boolean
+  lastOrderNumber?: boolean
   defaultWarehouseId?: boolean
   lowStockGlobalThreshold?: boolean
   freeShippingMinAmount?: boolean
@@ -1772,6 +1816,7 @@ export type StoreSettingsSelectScalar = {
   guestCheckoutEnabled?: boolean
   minOrderAmount?: boolean
   orderNumberPrefix?: boolean
+  lastOrderNumber?: boolean
   defaultWarehouseId?: boolean
   lowStockGlobalThreshold?: boolean
   freeShippingMinAmount?: boolean
@@ -1789,7 +1834,7 @@ export type StoreSettingsSelectScalar = {
   updatedAt?: boolean
 }
 
-export type StoreSettingsOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "storeName" | "storeTagline" | "logoUrl" | "logoKey" | "faviconUrl" | "faviconKey" | "defaultLocale" | "timezone" | "defaultCurrencyCode" | "defaultTaxRateId" | "pricesIncludeTax" | "metaTitleDefault" | "metaDescriptionDefault" | "maintenanceMode" | "maintenanceMessage" | "guestCheckoutEnabled" | "minOrderAmount" | "orderNumberPrefix" | "defaultWarehouseId" | "lowStockGlobalThreshold" | "freeShippingMinAmount" | "handlingDaysMin" | "handlingDaysMax" | "warrantyPolicyUrl" | "returnsPolicyUrl" | "privacyPolicyUrl" | "termsUrl" | "complaintsBookUrl" | "serialNumberRequired" | "orderConfirmationEmailEnabled" | "mailFromName" | "createdAt" | "updatedAt", ExtArgs["result"]["storeSettings"]>
+export type StoreSettingsOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "storeName" | "storeTagline" | "logoUrl" | "logoKey" | "faviconUrl" | "faviconKey" | "defaultLocale" | "timezone" | "defaultCurrencyCode" | "defaultTaxRateId" | "pricesIncludeTax" | "metaTitleDefault" | "metaDescriptionDefault" | "maintenanceMode" | "maintenanceMessage" | "guestCheckoutEnabled" | "minOrderAmount" | "orderNumberPrefix" | "lastOrderNumber" | "defaultWarehouseId" | "lowStockGlobalThreshold" | "freeShippingMinAmount" | "handlingDaysMin" | "handlingDaysMax" | "warrantyPolicyUrl" | "returnsPolicyUrl" | "privacyPolicyUrl" | "termsUrl" | "complaintsBookUrl" | "serialNumberRequired" | "orderConfirmationEmailEnabled" | "mailFromName" | "createdAt" | "updatedAt", ExtArgs["result"]["storeSettings"]>
 export type StoreSettingsInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   defaultTaxRate?: boolean | Prisma.StoreSettings$defaultTaxRateArgs<ExtArgs>
   defaultWarehouse?: boolean | Prisma.StoreSettings$defaultWarehouseArgs<ExtArgs>
@@ -1829,6 +1874,7 @@ export type $StoreSettingsPayload<ExtArgs extends runtime.Types.Extensions.Inter
     guestCheckoutEnabled: boolean
     minOrderAmount: runtime.Decimal | null
     orderNumberPrefix: string
+    lastOrderNumber: number
     defaultWarehouseId: string | null
     lowStockGlobalThreshold: number | null
     freeShippingMinAmount: runtime.Decimal | null
@@ -2288,6 +2334,7 @@ export interface StoreSettingsFieldRefs {
   readonly guestCheckoutEnabled: Prisma.FieldRef<"StoreSettings", 'Boolean'>
   readonly minOrderAmount: Prisma.FieldRef<"StoreSettings", 'Decimal'>
   readonly orderNumberPrefix: Prisma.FieldRef<"StoreSettings", 'String'>
+  readonly lastOrderNumber: Prisma.FieldRef<"StoreSettings", 'Int'>
   readonly defaultWarehouseId: Prisma.FieldRef<"StoreSettings", 'String'>
   readonly lowStockGlobalThreshold: Prisma.FieldRef<"StoreSettings", 'Int'>
   readonly freeShippingMinAmount: Prisma.FieldRef<"StoreSettings", 'Decimal'>
