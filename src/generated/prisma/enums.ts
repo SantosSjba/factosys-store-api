@@ -153,3 +153,11 @@ export const OrderSource = {
 } as const
 
 export type OrderSource = (typeof OrderSource)[keyof typeof OrderSource]
+
+
+export const OrderDeliveryMethod = {
+  SHIPPING: 'SHIPPING',
+  PICKUP: 'PICKUP'
+} as const
+
+export type OrderDeliveryMethod = (typeof OrderDeliveryMethod)[keyof typeof OrderDeliveryMethod]

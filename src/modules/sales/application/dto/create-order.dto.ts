@@ -16,6 +16,7 @@ import {
 } from 'class-validator';
 import {
   OrderAddressType,
+  OrderDeliveryMethod,
   OrderPaymentStatus,
   OrderSource,
 } from '../../../../generated/prisma/client';
@@ -188,6 +189,11 @@ export class CreateOrderDto {
   @IsOptional()
   @IsEnum(OrderSource)
   source?: OrderSource;
+
+  @ApiPropertyOptional({ enum: OrderDeliveryMethod })
+  @IsOptional()
+  @IsEnum(OrderDeliveryMethod)
+  deliveryMethod?: OrderDeliveryMethod;
 
   @ApiPropertyOptional()
   @IsOptional()

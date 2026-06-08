@@ -33,6 +33,11 @@ enum OrderSource {
   PHONE
 }
 
+enum OrderDeliveryMethod {
+  SHIPPING
+  PICKUP
+}
+
 model Order {
   id                String                 @id @default(uuid())
   orderNumber       String                 @unique
@@ -40,6 +45,7 @@ model Order {
   paymentStatus     OrderPaymentStatus     @default(PENDING)
   fulfillmentStatus OrderFulfillmentStatus @default(UNFULFILLED)
   source            OrderSource            @default(ADMIN)
+  deliveryMethod    OrderDeliveryMethod    @default(SHIPPING)
 
   customerId String?
   customer   User?   @relation("CustomerOrders", fields: [customerId], references: [id], onDelete: SetNull)

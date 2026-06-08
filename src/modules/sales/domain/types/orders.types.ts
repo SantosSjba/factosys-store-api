@@ -52,6 +52,7 @@ export type OrderSummaryRecord = {
   paymentStatus: string;
   fulfillmentStatus: string;
   source: string;
+  deliveryMethod: string;
   customerId: string | null;
   customerName: string | null;
   customerEmail: string | null;

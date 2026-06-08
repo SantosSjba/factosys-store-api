@@ -6,6 +6,7 @@ import {
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import type { Prisma } from '../../../../generated/prisma/client';
 import {
+  OrderDeliveryMethod,
   OrderFulfillmentStatus,
   OrderPaymentStatus,
   OrderSource,
@@ -96,7 +97,11 @@ export class OrdersService {
 
     const subtotal = this.sumDecimals(lines.map((line) => line.lineSubtotal));
     const taxAmount = this.sumDecimals(lines.map((line) => line.taxAmount));
-    const shippingAmount = dto.shippingAmount ?? 0;
+    const deliveryMethod = dto.deliveryMethod ?? OrderDeliveryMethod.SHIPPING;
+    const shippingAmount =
+      deliveryMethod === OrderDeliveryMethod.PICKUP
+        ? 0
+        : (dto.shippingAmount ?? 0);
     const discountAmount = dto.discountAmount ?? 0;
     const total = subtotal + taxAmount + shippingAmount - discountAmount;
 
@@ -120,6 +125,7 @@ export class OrdersService {
         paymentStatus,
         fulfillmentStatus: OrderFulfillmentStatus.UNFULFILLED,
         source: dto.source ?? OrderSource.ADMIN,
+        deliveryMethod,
         customer: dto.customerId ? { connect: { id: dto.customerId } } : undefined,
         guestEmail: dto.guestEmail?.trim() ?? null,
         guestFirstName: dto.guestFirstName?.trim() ?? null,
@@ -157,8 +163,9 @@ export class OrdersService {
             sortOrder: index,
           })),
         },
-        addresses: dto.addresses?.length
-          ? {
+        addresses:
+          deliveryMethod === OrderDeliveryMethod.SHIPPING && dto.addresses?.length
+            ? {
               create: dto.addresses.map((address) => ({
                 type: address.type,
                 label: address.label?.trim() ?? null,
@@ -177,7 +184,7 @@ export class OrdersService {
                 postalCode: address.postalCode?.trim() ?? null,
               })),
             }
-          : undefined,
+            : undefined,
         statusHistory: {
           create: {
             toStatus: initialStatus,
@@ -660,6 +667,7 @@ export class OrdersService {
     paymentStatus: OrderPaymentStatus;
     fulfillmentStatus: OrderFulfillmentStatus;
     source: OrderSource;
+    deliveryMethod: OrderDeliveryMethod;
     customerId: string | null;
     guestEmail: string | null;
     guestFirstName: string | null;
@@ -683,6 +691,7 @@ export class OrdersService {
       paymentStatus: order.paymentStatus,
       fulfillmentStatus: order.fulfillmentStatus,
       source: order.source,
+      deliveryMethod: order.deliveryMethod,
       customerId: order.customerId,
       customerName: this.resolveCustomerName(order),
       customerEmail: order.customer?.email ?? order.guestEmail,
