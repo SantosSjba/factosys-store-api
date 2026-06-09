@@ -12,8 +12,10 @@ import { AdminCurrenciesController } from './presentation/controllers/admin-curr
 import { AdminStoreSettingsController } from './presentation/controllers/admin-store-settings.controller';
 import { AdminTaxesController } from './presentation/controllers/admin-taxes.controller';
 import { StoreSettingsController } from './presentation/controllers/store-settings.controller';
+import { ShippingZonesModule } from './shipping-zones/shipping-zones.module';
 
 @Module({
+  imports: [ShippingZonesModule],
   controllers: [
     AdminCompanyController,
     AdminStoreSettingsController,
@@ -36,6 +38,7 @@ import { StoreSettingsController } from './presentation/controllers/store-settin
     StoreSettingsService,
     CurrenciesService,
     TaxesService,
+    ShippingZonesModule,
   ],
 })
 export class SettingsModule {}

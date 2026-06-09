@@ -69,6 +69,19 @@ export type OrderSummaryRecord = {
   updatedAt: Date;
 };
 
+export type OrderPaymentEvidenceRecord = {
+  id: string;
+  paymentMethod: string;
+  amount: string | null;
+  note: string | null;
+  fileName: string | null;
+  fileUrl: string | null;
+  mimeType: string | null;
+  sizeBytes: number | null;
+  uploadedByName: string | null;
+  createdAt: Date;
+};
+
 export type OrderDetailRecord = OrderSummaryRecord & {
   guestEmail: string | null;
   guestFirstName: string | null;
@@ -85,6 +98,11 @@ export type OrderDetailRecord = OrderSummaryRecord & {
   pricesIncludeTax: boolean;
   internalNotes: string | null;
   customerNotes: string | null;
+  paymentMethod: string | null;
+  trackingNumber: string | null;
+  carrier: string | null;
+  trackingUrl: string | null;
+  shippingNotes: string | null;
   confirmedAt: Date | null;
   shippedAt: Date | null;
   deliveredAt: Date | null;
@@ -96,4 +114,5 @@ export type OrderDetailRecord = OrderSummaryRecord & {
   items: OrderItemRecord[];
   addresses: OrderAddressRecord[];
   statusHistory: OrderStatusHistoryRecord[];
+  paymentEvidences: OrderPaymentEvidenceRecord[];
 };

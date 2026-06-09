@@ -10,7 +10,11 @@ export class PrismaBannerRepository {
     return this.prisma.banner.findUnique({ where: { id } });
   }
 
-  async listPaginated(params: { page: number; limit: number; search?: string }) {
+  async listPaginated(params: {
+    page: number;
+    limit: number;
+    search?: string;
+  }) {
     const where: Prisma.BannerWhereInput = params.search
       ? {
           OR: [

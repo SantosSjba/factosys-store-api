@@ -668,6 +668,59 @@ export class PrismaUserRepository {
     });
   }
 
+  async createStaffRole(params: {
+    name: string;
+    slug: string;
+    description: string | null;
+    permissionIds: string[];
+  }) {
+    const role = await this.prisma.role.create({
+      data: {
+        name: params.name,
+        slug: params.slug,
+        description: params.description,
+        userType: UserType.STAFF,
+        isSystem: false,
+        permissions: {
+          create: params.permissionIds.map((permissionId) => ({
+            permissionId,
+          })),
+        },
+      },
+      include: {
+        permissions: { include: { permission: true } },
+      },
+    });
+    return role;
+  }
+
+  async updateStaffRole(
+    roleId: string,
+    data: { name?: string; description?: string },
+  ) {
+    return this.prisma.role.update({
+      where: { id: roleId },
+      data: {
+        name: data.name,
+        description: data.description,
+      },
+      include: {
+        permissions: { include: { permission: true } },
+      },
+    });
+  }
+
+  async deleteStaffRole(roleId: string) {
+    await this.prisma.$transaction([
+      this.prisma.rolePermission.deleteMany({ where: { roleId } }),
+      this.prisma.role.delete({ where: { id: roleId } }),
+    ]);
+  }
+
+  async countUsersWithRole(roleId: string) {
+    return this.prisma.userRole.count({ where: { roleId } });
+  }
+
   private mapUser(
     user: Prisma.UserGetPayload<{ include: typeof userWithAccessInclude }>,
   ): UserWithAccess {

@@ -4,6 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { ROLE_SLUGS } from '../../../../shared/constants/roles.constants';
+import { CreateRoleDto, UpdateRoleDto } from '../dto/create-role.dto';
 import { UpdateRolePermissionsDto } from '../dto/update-role-permissions.dto';
 import { PrismaUserRepository } from '../../infrastructure/repositories/prisma-user.repository';
 
@@ -27,6 +28,92 @@ export class RolesService {
       module: permission.module,
       description: permission.description,
     }));
+  }
+
+  async createRole(dto: CreateRoleDto) {
+    const existing = await this.userRepository.findStaffRoleBySlug(dto.slug);
+    if (existing) {
+      throw new BadRequestException({
+        code: 'ROLE_SLUG_EXISTS',
+        message: 'Ya existe un rol con ese slug.',
+      });
+    }
+
+    const permissionIds = await this.userRepository.resolvePermissionIds(
+      dto.permissionSlugs,
+    );
+    if (permissionIds.length !== dto.permissionSlugs.length) {
+      throw new BadRequestException({
+        code: 'INVALID_PERMISSIONS',
+        message: 'Uno o más permisos no existen.',
+      });
+    }
+
+    const role = await this.userRepository.createStaffRole({
+      name: dto.name.trim(),
+      slug: dto.slug.trim(),
+      description: dto.description?.trim() || null,
+      permissionIds,
+    });
+
+    return this.mapRoleResponse(role);
+  }
+
+  async updateRole(slug: string, dto: UpdateRoleDto) {
+    const role = await this.userRepository.findStaffRoleBySlug(slug);
+    if (!role) {
+      throw new NotFoundException({
+        code: 'ROLE_NOT_FOUND',
+        message: 'Rol no encontrado.',
+      });
+    }
+    if (role.isSystem) {
+      throw new BadRequestException({
+        code: 'SYSTEM_ROLE_LOCKED',
+        message: 'Los roles del sistema solo permiten editar permisos.',
+      });
+    }
+
+    const updated = await this.userRepository.updateStaffRole(role.id, {
+      name: dto.name?.trim(),
+      description: dto.description?.trim(),
+    });
+
+    return this.mapRoleResponse(updated);
+  }
+
+  async deleteRole(slug: string) {
+    if (slug === ROLE_SLUGS.ADMIN) {
+      throw new BadRequestException({
+        code: 'ADMIN_ROLE_LOCKED',
+        message: 'No se puede eliminar el rol administrador.',
+      });
+    }
+
+    const role = await this.userRepository.findStaffRoleBySlug(slug);
+    if (!role) {
+      throw new NotFoundException({
+        code: 'ROLE_NOT_FOUND',
+        message: 'Rol no encontrado.',
+      });
+    }
+    if (role.isSystem) {
+      throw new BadRequestException({
+        code: 'SYSTEM_ROLE_LOCKED',
+        message: 'No se pueden eliminar roles del sistema.',
+      });
+    }
+
+    const usersCount = await this.userRepository.countUsersWithRole(role.id);
+    if (usersCount > 0) {
+      throw new BadRequestException({
+        code: 'ROLE_IN_USE',
+        message: 'El rol tiene usuarios asignados.',
+      });
+    }
+
+    await this.userRepository.deleteStaffRole(role.id);
+    return { deleted: true };
   }
 
   async updateRolePermissions(slug: string, dto: UpdateRolePermissionsDto) {

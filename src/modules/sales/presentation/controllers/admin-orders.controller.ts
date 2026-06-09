@@ -7,7 +7,11 @@ import {
   Patch,
   Post,
   Query,
+  UploadedFile,
+  UseInterceptors,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { memoryStorage } from 'multer';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { CurrentUser } from '../../../../shared/decorators/current-user.decorator';
 import { RequirePermissions } from '../../../../shared/decorators/permissions.decorator';
@@ -22,7 +26,18 @@ import {
   UpdateOrderPaymentDto,
   UpdateOrderStatusDto,
 } from '../../application/dto/update-order.dto';
+import {
+  UpdateOrderNotesDto,
+  UpdateOrderShipmentDto,
+  UploadOrderPaymentEvidenceDto,
+} from '../../application/dto/order-pro.dto';
 import { OrdersService } from '../../application/services/orders.service';
+import type { UploadedImageFile } from '../../../../shared/types/uploaded-file.type';
+
+const evidenceUpload = FileInterceptor('file', {
+  storage: memoryStorage(),
+  limits: { fileSize: 5 * 1024 * 1024 },
+});
 
 @ApiTags('Admin Orders')
 @ApiBearerAuth()
@@ -106,5 +121,40 @@ export class AdminOrdersController {
     @CurrentUser() user: AuthenticatedUser,
   ) {
     return this.ordersService.refundOrder(id, dto, user.id);
+  }
+
+  @Patch(':id/shipment')
+  @RequirePermissions(PERMISSIONS.ORDERS_WRITE)
+  @ApiOperation({ summary: 'Actualizar datos de envío/tracking' })
+  updateShipment(
+    @Param('id') id: string,
+    @Body() dto: UpdateOrderShipmentDto,
+    @CurrentUser() user: AuthenticatedUser,
+  ) {
+    return this.ordersService.updateShipment(id, dto, user.id);
+  }
+
+  @Patch(':id/notes')
+  @RequirePermissions(PERMISSIONS.ORDERS_WRITE)
+  @ApiOperation({ summary: 'Actualizar notas del pedido' })
+  updateNotes(
+    @Param('id') id: string,
+    @Body() dto: UpdateOrderNotesDto,
+    @CurrentUser() user: AuthenticatedUser,
+  ) {
+    return this.ordersService.updateNotes(id, dto, user.id);
+  }
+
+  @Post(':id/payment-evidence')
+  @RequirePermissions(PERMISSIONS.ORDERS_WRITE)
+  @UseInterceptors(evidenceUpload)
+  @ApiOperation({ summary: 'Registrar comprobante de pago' })
+  uploadPaymentEvidence(
+    @Param('id') id: string,
+    @Body() dto: UploadOrderPaymentEvidenceDto,
+    @UploadedFile() file: UploadedImageFile,
+    @CurrentUser() user: AuthenticatedUser,
+  ) {
+    return this.ordersService.uploadPaymentEvidence(id, dto, file, user.id);
   }
 }

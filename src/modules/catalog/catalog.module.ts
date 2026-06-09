@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { AttributesService } from './application/services/attributes.service';
 import { BrandsService } from './application/services/brands.service';
 import { CategoriesService } from './application/services/categories.service';
+import { ProductsImportExportService } from './application/services/products-import-export.service';
 import { ProductsService } from './application/services/products.service';
 import { PrismaAttributeRepository } from './infrastructure/repositories/prisma-attribute.repository';
 import { PrismaBrandRepository } from './infrastructure/repositories/prisma-brand.repository';
@@ -30,6 +31,7 @@ import { StoreCatalogController } from './presentation/controllers/store-catalog
     BrandsService,
     AttributesService,
     ProductsService,
+    ProductsImportExportService,
   ],
   exports: [
     ProductsService,

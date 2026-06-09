@@ -20,7 +20,11 @@ export class PrismaCampaignRepository {
     return this.prisma.campaign.findUnique({ where: { slug } });
   }
 
-  async listPaginated(params: { page: number; limit: number; search?: string }) {
+  async listPaginated(params: {
+    page: number;
+    limit: number;
+    search?: string;
+  }) {
     const where: Prisma.CampaignWhereInput = params.search
       ? {
           OR: [

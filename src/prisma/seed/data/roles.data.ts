@@ -41,6 +41,11 @@ export const ROLE_SEED_DEFINITIONS: RoleSeedDefinition[] = [
       PERMISSIONS.COUPONS_WRITE,
       PERMISSIONS.MARKETING_READ,
       PERMISSIONS.MARKETING_WRITE,
+      PERMISSIONS.AUDIT_READ,
+      PERMISSIONS.MEDIA_READ,
+      PERMISSIONS.MEDIA_WRITE,
+      PERMISSIONS.RETURNS_READ,
+      PERMISSIONS.RETURNS_WRITE,
     ],
   },
   {
@@ -48,7 +53,12 @@ export const ROLE_SEED_DEFINITIONS: RoleSeedDefinition[] = [
     name: 'Soporte',
     userType: UserType.STAFF,
     description: 'Atención al cliente y consulta de pedidos',
-    permissions: [PERMISSIONS.ORDERS_READ, PERMISSIONS.USERS_READ],
+    permissions: [
+      PERMISSIONS.ORDERS_READ,
+      PERMISSIONS.USERS_READ,
+      PERMISSIONS.RETURNS_READ,
+      PERMISSIONS.RETURNS_WRITE,
+    ],
   },
   {
     slug: ROLE_SLUGS.WAREHOUSE,
@@ -59,6 +69,7 @@ export const ROLE_SEED_DEFINITIONS: RoleSeedDefinition[] = [
       PERMISSIONS.INVENTORY_READ,
       PERMISSIONS.INVENTORY_WRITE,
       PERMISSIONS.ORDERS_READ,
+      PERMISSIONS.RETURNS_READ,
     ],
   },
 ];

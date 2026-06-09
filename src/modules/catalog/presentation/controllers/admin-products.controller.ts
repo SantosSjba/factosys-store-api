@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  Header,
   Param,
   Patch,
   Post,
@@ -10,6 +11,8 @@ import {
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
+import { CurrentUser } from '../../../../shared/decorators/current-user.decorator';
+import type { AuthenticatedUser } from '../../../../shared/interfaces/jwt-payload.interface';
 import { FileInterceptor } from '@nestjs/platform-express';
 import {
   ApiBearerAuth,
@@ -30,6 +33,7 @@ import {
 } from '../../application/dto/product-payload.dto';
 import { ReorderProductImagesDto } from '../../application/dto/reorder-product-images.dto';
 import { SetProductImagePrimaryDto } from '../../application/dto/set-product-image-primary.dto';
+import { ProductsImportExportService } from '../../application/services/products-import-export.service';
 import { ProductsService } from '../../application/services/products.service';
 
 const imageUploadInterceptor = FileInterceptor('file', {
@@ -42,13 +46,38 @@ const imageUploadInterceptor = FileInterceptor('file', {
 @Controller('admin/catalog/products')
 @UserTypes('STAFF')
 export class AdminProductsController {
-  constructor(private readonly productsService: ProductsService) {}
+  constructor(
+    private readonly productsService: ProductsService,
+    private readonly importExportService: ProductsImportExportService,
+  ) {}
 
   @Get()
   @RequirePermissions(PERMISSIONS.PRODUCTS_READ)
   @ApiOperation({ summary: 'Listar productos (paginado)' })
   list(@Query() query: ListProductsQueryDto) {
     return this.productsService.listAdminProducts(query);
+  }
+
+  @Get('export')
+  @RequirePermissions(PERMISSIONS.PRODUCTS_READ)
+  @Header('Content-Type', 'text/csv; charset=utf-8')
+  @Header(
+    'Content-Disposition',
+    'attachment; filename="catalogo-productos.csv"',
+  )
+  @ApiOperation({ summary: 'Exportar catálogo CSV' })
+  exportCatalog() {
+    return this.importExportService.exportProductsCsv();
+  }
+
+  @Post('import')
+  @RequirePermissions(PERMISSIONS.PRODUCTS_WRITE)
+  @ApiOperation({ summary: 'Importar catálogo CSV' })
+  importCatalog(
+    @Body('csv') csv: string,
+    @CurrentUser() user: AuthenticatedUser,
+  ) {
+    return this.importExportService.importProductsCsv(csv, user.id);
   }
 
   @Post()

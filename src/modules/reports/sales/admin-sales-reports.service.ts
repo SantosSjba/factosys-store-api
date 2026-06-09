@@ -31,7 +31,13 @@ export class AdminSalesReportsService {
             paymentStatus: OrderPaymentStatus.PAID,
             status: { notIn: [OrderStatus.CANCELLED, OrderStatus.REFUNDED] },
           },
-          _sum: { total: true, subtotal: true, taxAmount: true, shippingAmount: true, discountAmount: true },
+          _sum: {
+            total: true,
+            subtotal: true,
+            taxAmount: true,
+            shippingAmount: true,
+            discountAmount: true,
+          },
           _avg: { total: true },
         }),
         this.prisma.order.groupBy({
@@ -76,7 +82,9 @@ export class AdminSalesReportsService {
     };
   }
 
-  async getTopProducts(query: DashboardStatsQueryDto & { limit?: number } = {}) {
+  async getTopProducts(
+    query: DashboardStatsQueryDto & { limit?: number } = {},
+  ) {
     const range = this.resolveRange(query);
     const limit = query.limit ?? 10;
 
@@ -121,7 +129,138 @@ export class AdminSalesReportsService {
     return this.toCsv([headers, ...rows]);
   }
 
-  async exportTopProductsCsv(query: DashboardStatsQueryDto & { limit?: number } = {}) {
+  async getMarginReport(query: DashboardStatsQueryDto = {}) {
+    const range = this.resolveRange(query);
+    const items = await this.prisma.orderItem.findMany({
+      where: {
+        order: {
+          createdAt: { gte: range.start, lte: range.end },
+          paymentStatus: OrderPaymentStatus.PAID,
+          status: { notIn: [OrderStatus.CANCELLED, OrderStatus.REFUNDED] },
+        },
+      },
+      include: {
+        variant: { select: { cost: true } },
+      },
+    });
+
+    let revenue = 0;
+    let cost = 0;
+    for (const item of items) {
+      revenue += Number(item.lineTotal);
+      const unitCost = item.variant?.cost ? Number(item.variant.cost) : 0;
+      cost += unitCost * item.quantity;
+    }
+
+    const margin = revenue - cost;
+    const marginPercent = revenue > 0 ? (margin / revenue) * 100 : 0;
+
+    return {
+      range: { from: range.start.toISOString(), to: range.end.toISOString() },
+      revenue: revenue.toFixed(2),
+      cost: cost.toFixed(2),
+      margin: margin.toFixed(2),
+      marginPercent: marginPercent.toFixed(2),
+      itemsAnalyzed: items.length,
+    };
+  }
+
+  async getInventoryValuationReport() {
+    const settings = await this.prisma.storeSettings.findFirst();
+    const currencyCode = settings?.defaultCurrencyCode ?? 'PEN';
+
+    const levels = await this.prisma.stockLevel.findMany({
+      include: {
+        variant: {
+          select: {
+            sku: true,
+            name: true,
+            price: true,
+            cost: true,
+            product: { select: { name: true } },
+          },
+        },
+        warehouse: { select: { name: true } },
+      },
+    });
+
+    let totalUnits = 0;
+    let totalRetailValue = 0;
+    let totalCostValue = 0;
+    let lowStockCount = 0;
+
+    const rows = levels.map((level) => {
+      const qty = level.quantityOnHand;
+      const price = Number(level.variant.price);
+      const unitCost = level.variant.cost ? Number(level.variant.cost) : 0;
+      const retail = qty * price;
+      const costVal = qty * unitCost;
+      totalUnits += qty;
+      totalRetailValue += retail;
+      totalCostValue += costVal;
+      if (qty <= (level.lowStockThreshold ?? 0)) lowStockCount++;
+
+      return {
+        sku: level.variant.sku,
+        productName: level.variant.product.name,
+        variantName: level.variant.name,
+        warehouseName: level.warehouse.name,
+        quantity: qty,
+        lowStockThreshold: level.lowStockThreshold,
+        retailValue: retail.toFixed(2),
+        costValue: costVal.toFixed(2),
+      };
+    });
+
+    return {
+      currencyCode,
+      totalUnits,
+      totalRetailValue: totalRetailValue.toFixed(2),
+      totalCostValue: totalCostValue.toFixed(2),
+      lowStockCount,
+      items: rows.sort((a, b) => a.quantity - b.quantity).slice(0, 200),
+    };
+  }
+
+  async exportMarginCsv(query: DashboardStatsQueryDto = {}) {
+    const report = await this.getMarginReport(query);
+    return this.toCsv([
+      ['Métrica', 'Valor'],
+      ['Ingresos', report.revenue],
+      ['Costo', report.cost],
+      ['Margen', report.margin],
+      ['Margen %', report.marginPercent],
+    ]);
+  }
+
+  async exportInventoryCsv() {
+    const report = await this.getInventoryValuationReport();
+    const headers = [
+      'SKU',
+      'Producto',
+      'Variante',
+      'Almacén',
+      'Stock',
+      'Umbral bajo',
+      'Valor venta',
+      'Valor costo',
+    ];
+    const rows = report.items.map((item) => [
+      item.sku,
+      item.productName,
+      item.variantName ?? '',
+      item.warehouseName,
+      String(item.quantity),
+      String(item.lowStockThreshold ?? 0),
+      item.retailValue,
+      item.costValue,
+    ]);
+    return this.toCsv([headers, ...rows]);
+  }
+
+  async exportTopProductsCsv(
+    query: DashboardStatsQueryDto & { limit?: number } = {},
+  ) {
     const report = await this.getTopProducts(query);
     const headers = ['Ranking', 'Producto', 'SKU', 'Unidades', 'Ventas'];
     const rows = report.items.map((item) => [

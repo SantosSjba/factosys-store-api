@@ -85,7 +85,9 @@ export class CampaignsService {
       name: dto.name?.trim(),
       slug: dto.slug ? this.resolveSlug(dto.slug) : undefined,
       description:
-        dto.description === undefined ? undefined : dto.description?.trim() ?? null,
+        dto.description === undefined
+          ? undefined
+          : (dto.description?.trim() ?? null),
       coupon:
         dto.couponId === undefined
           ? undefined
@@ -93,9 +95,17 @@ export class CampaignsService {
             ? { connect: { id: dto.couponId } }
             : { disconnect: true },
       startsAt:
-        dto.startsAt === undefined ? undefined : dto.startsAt ? new Date(dto.startsAt) : null,
+        dto.startsAt === undefined
+          ? undefined
+          : dto.startsAt
+            ? new Date(dto.startsAt)
+            : null,
       expiresAt:
-        dto.expiresAt === undefined ? undefined : dto.expiresAt ? new Date(dto.expiresAt) : null,
+        dto.expiresAt === undefined
+          ? undefined
+          : dto.expiresAt
+            ? new Date(dto.expiresAt)
+            : null,
       isActive: dto.isActive,
     });
 

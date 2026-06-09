@@ -21,6 +21,10 @@ const orderDetailInclude = {
   createdBy: true,
   items: { orderBy: { sortOrder: 'asc' as const } },
   addresses: true,
+  paymentEvidences: {
+    orderBy: { createdAt: 'desc' as const },
+    include: { uploadedBy: true },
+  },
   statusHistory: {
     orderBy: { createdAt: 'desc' as const },
     include: { performedBy: true },
@@ -157,6 +161,14 @@ export class PrismaOrderRepository {
     data: Prisma.OrderUpdateInput,
   ) {
     return tx.order.update({
+      where: { id },
+      data,
+      include: orderDetailInclude,
+    });
+  }
+
+  update(id: string, data: Prisma.OrderUpdateInput) {
+    return this.prisma.order.update({
       where: { id },
       data,
       include: orderDetailInclude,

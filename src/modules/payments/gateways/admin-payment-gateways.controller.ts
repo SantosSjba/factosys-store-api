@@ -1,0 +1,64 @@
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Query,
+} from '@nestjs/common';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { PaymentGatewayProvider } from '../../../generated/prisma/client';
+import { PERMISSIONS } from '../../../shared/constants/permissions.constants';
+import { Public } from '../../../shared/decorators/public.decorator';
+import { RequirePermissions } from '../../../shared/decorators/permissions.decorator';
+import { UserTypes } from '../../../shared/decorators/user-types.decorator';
+import { UpdatePaymentGatewayDto } from './payment-gateway.dto';
+import { PaymentGatewaysService } from './payment-gateways.service';
+
+@ApiTags('Admin Payment Gateways')
+@Controller()
+export class AdminPaymentGatewaysController {
+  constructor(private readonly service: PaymentGatewaysService) {}
+
+  @Get('admin/payment-gateways')
+  @ApiBearerAuth()
+  @UserTypes('STAFF')
+  @RequirePermissions(PERMISSIONS.SETTINGS_READ)
+  @ApiOperation({ summary: 'Listar pasarelas de pago' })
+  listGateways() {
+    return this.service.listGateways();
+  }
+
+  @Patch('admin/payment-gateways/:provider')
+  @ApiBearerAuth()
+  @UserTypes('STAFF')
+  @RequirePermissions(PERMISSIONS.SETTINGS_WRITE)
+  @ApiOperation({ summary: 'Actualizar pasarela de pago' })
+  updateGateway(
+    @Param('provider') provider: PaymentGatewayProvider,
+    @Body() dto: UpdatePaymentGatewayDto,
+  ) {
+    return this.service.updateGateway(provider, dto);
+  }
+
+  @Get('admin/payment-transactions')
+  @ApiBearerAuth()
+  @UserTypes('STAFF')
+  @RequirePermissions(PERMISSIONS.ORDERS_READ)
+  @ApiOperation({ summary: 'Listar transacciones de pago' })
+  listTransactions(@Query('orderId') orderId?: string) {
+    return this.service.listTransactions(orderId);
+  }
+
+  @Public()
+  @Post('webhooks/payments/:provider')
+  @ApiOperation({ summary: 'Webhook de pasarela de pago' })
+  webhook(
+    @Param('provider') provider: PaymentGatewayProvider,
+    @Body() payload: Record<string, unknown>,
+    @Query('signature') signature?: string,
+  ) {
+    return this.service.handleWebhook(provider, payload, signature);
+  }
+}

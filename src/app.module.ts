@@ -18,7 +18,9 @@ import {
 } from './config';
 import { envValidationSchema } from './config/env.validation';
 import { InfrastructureModule } from './infrastructure/infrastructure.module';
+import { AuditModule } from './modules/audit/audit.module';
 import { AuthModule } from './modules/auth/auth.module';
+import { MediaModule } from './modules/media/media.module';
 import { CatalogModule } from './modules/catalog/catalog.module';
 import { InventoryModule } from './modules/inventory/inventory.module';
 import { MarketingModule } from './modules/marketing/marketing.module';
@@ -33,6 +35,7 @@ import { JwtAuthGuard } from './shared/guards/jwt-auth.guard';
 import { PermissionsGuard } from './shared/guards/permissions.guard';
 import { RolesGuard } from './shared/guards/roles.guard';
 import { UserTypeGuard } from './shared/guards/user-type.guard';
+import { AdminAuditInterceptor } from './shared/interceptors/admin-audit.interceptor';
 import { HttpLoggingInterceptor } from './shared/interceptors/http-logging.interceptor';
 
 @Module({
@@ -59,6 +62,8 @@ import { HttpLoggingInterceptor } from './shared/interceptors/http-logging.inter
     EventEmitterModule.forRoot(),
     ScheduleModule.forRoot(),
     InfrastructureModule,
+    AuditModule,
+    MediaModule,
     AuthModule,
     UsersModule,
     CatalogModule,
@@ -94,6 +99,10 @@ import { HttpLoggingInterceptor } from './shared/interceptors/http-logging.inter
     {
       provide: APP_INTERCEPTOR,
       useClass: HttpLoggingInterceptor,
+    },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: AdminAuditInterceptor,
     },
   ],
 })

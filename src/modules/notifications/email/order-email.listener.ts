@@ -52,11 +52,20 @@ export class OrderEmailListener {
     const order = await this.loadOrder(event.orderId);
     if (!order?.recipientEmail) return;
 
+    const trackingParts = [
+      order.trackingNumber ? `Guía: ${order.trackingNumber}` : null,
+      order.carrier ? `Transportista: ${order.carrier}` : null,
+      order.trackingUrl ? `Seguimiento: ${order.trackingUrl}` : null,
+    ].filter(Boolean);
+
     await this.mailService.sendOrderEmail({
       to: order.recipientEmail,
       subject: `Pedido enviado ${order.orderNumber}`,
       heading: 'Tu pedido fue enviado',
-      body: `Tu pedido ${order.orderNumber} ya fue despachado. Pronto lo recibirás.`,
+      body:
+        trackingParts.length > 0
+          ? `Tu pedido ${order.orderNumber} ya fue despachado.\n\n${trackingParts.join('\n')}`
+          : `Tu pedido ${order.orderNumber} ya fue despachado. Pronto lo recibirás.`,
       orderNumber: order.orderNumber,
       total: order.total,
       currencyCode: order.currencyCode,
@@ -84,6 +93,9 @@ export class OrderEmailListener {
       recipientEmail,
       total: order.total.toString(),
       currencyCode: order.currencyCode,
+      trackingNumber: order.trackingNumber,
+      carrier: order.carrier,
+      trackingUrl: order.trackingUrl,
     };
   }
 }

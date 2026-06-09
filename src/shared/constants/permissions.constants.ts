@@ -18,6 +18,12 @@ export const PERMISSIONS = {
   COUPONS_WRITE: 'coupons.write',
   MARKETING_READ: 'marketing.read',
   MARKETING_WRITE: 'marketing.write',
+  AUDIT_READ: 'audit.read',
+  MEDIA_READ: 'media.read',
+  MEDIA_WRITE: 'media.write',
+  RETURNS_READ: 'returns.read',
+  RETURNS_WRITE: 'returns.write',
+  ROLES_WRITE: 'roles.write',
 } as const;
 
 export type PermissionSlug = (typeof PERMISSIONS)[keyof typeof PERMISSIONS];

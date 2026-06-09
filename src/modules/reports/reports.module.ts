@@ -5,6 +5,11 @@ import { PdfReportsModule } from './pdf/pdf.module';
 import { SalesReportsModule } from './sales/sales-reports.module';
 
 @Module({
-  imports: [DashboardModule, SalesReportsModule, ExcelReportsModule, PdfReportsModule],
+  imports: [
+    DashboardModule,
+    SalesReportsModule,
+    ExcelReportsModule,
+    PdfReportsModule,
+  ],
 })
 export class ReportsModule {}

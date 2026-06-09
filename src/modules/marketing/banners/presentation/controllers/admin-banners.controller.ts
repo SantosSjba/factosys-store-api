@@ -11,7 +11,13 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { ApiBearerAuth, ApiBody, ApiConsumes, ApiOperation, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiConsumes,
+  ApiOperation,
+  ApiTags,
+} from '@nestjs/swagger';
 import { RequirePermissions } from '../../../../../shared/decorators/permissions.decorator';
 import { UserTypes } from '../../../../../shared/decorators/user-types.decorator';
 import { PERMISSIONS } from '../../../../../shared/constants/permissions.constants';
@@ -71,7 +77,10 @@ export class AdminBannersController {
     },
   })
   @ApiOperation({ summary: 'Subir imagen de banner' })
-  uploadImage(@Param('id') id: string, @UploadedFile() file: UploadedImageFile) {
+  uploadImage(
+    @Param('id') id: string,
+    @UploadedFile() file: UploadedImageFile,
+  ) {
     return this.bannersService.uploadBannerImage(id, file);
   }
 

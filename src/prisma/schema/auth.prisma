@@ -24,7 +24,12 @@ model User {
   customerOrders     Order[]              @relation("CustomerOrders")
   createdOrders      Order[]              @relation("StaffCreatedOrders")
   updatedOrders      Order[]              @relation("StaffUpdatedOrders")
-  orderStatusHistory OrderStatusHistory[] @relation("OrderStatusHistoryPerformedBy")
+  orderStatusHistory      OrderStatusHistory[]     @relation("OrderStatusHistoryPerformedBy")
+  adminAuditLogs          AdminAuditLog[]          @relation("AdminAuditLogs")
+  orderPaymentEvidences   OrderPaymentEvidence[]   @relation("OrderPaymentEvidenceUploadedBy")
+  mediaAssets             MediaAsset[]             @relation("MediaAssetsUploadedBy")
+  returnRequestsCreated   ReturnRequest[]          @relation("ReturnRequestsCreatedBy")
+  returnRequestsHandled   ReturnRequest[]          @relation("ReturnRequestsHandledBy")
 
   @@index([userType, status])
   @@index([email])

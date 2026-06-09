@@ -60,4 +60,44 @@ export class AdminSalesReportsController {
     );
     res.send(`\uFEFF${csv}`);
   }
+
+  @Get('margin')
+  @RequirePermissions(PERMISSIONS.REPORTS_READ)
+  @ApiOperation({ summary: 'Reporte de margen' })
+  getMargin(@Query() query: DashboardStatsQueryDto) {
+    return this.salesReportsService.getMarginReport(query);
+  }
+
+  @Get('inventory-valuation')
+  @RequirePermissions(PERMISSIONS.REPORTS_READ)
+  @ApiOperation({ summary: 'Inventario valorizado' })
+  getInventoryValuation() {
+    return this.salesReportsService.getInventoryValuationReport();
+  }
+
+  @Get('margin/export')
+  @RequirePermissions(PERMISSIONS.REPORTS_READ)
+  @ApiOperation({ summary: 'Exportar margen CSV' })
+  async exportMargin(
+    @Query() query: DashboardStatsQueryDto,
+    @Res() res: Response,
+  ) {
+    const csv = await this.salesReportsService.exportMarginCsv(query);
+    res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+    res.setHeader('Content-Disposition', 'attachment; filename="margen.csv"');
+    res.send(`\uFEFF${csv}`);
+  }
+
+  @Get('inventory-valuation/export')
+  @RequirePermissions(PERMISSIONS.REPORTS_READ)
+  @ApiOperation({ summary: 'Exportar inventario valorizado CSV' })
+  async exportInventory(@Res() res: Response) {
+    const csv = await this.salesReportsService.exportInventoryCsv();
+    res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+    res.setHeader(
+      'Content-Disposition',
+      'attachment; filename="inventario-valorizado.csv"',
+    );
+    res.send(`\uFEFF${csv}`);
+  }
 }

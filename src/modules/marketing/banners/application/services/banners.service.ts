@@ -66,14 +66,24 @@ export class BannersService {
 
     const banner = await this.bannerRepository.update(id, {
       title: dto.title?.trim(),
-      subtitle: dto.subtitle === undefined ? undefined : dto.subtitle?.trim() ?? null,
-      linkUrl: dto.linkUrl === undefined ? undefined : dto.linkUrl?.trim() ?? null,
+      subtitle:
+        dto.subtitle === undefined ? undefined : (dto.subtitle?.trim() ?? null),
+      linkUrl:
+        dto.linkUrl === undefined ? undefined : (dto.linkUrl?.trim() ?? null),
       placement: dto.placement,
       sortOrder: dto.sortOrder,
       startsAt:
-        dto.startsAt === undefined ? undefined : dto.startsAt ? new Date(dto.startsAt) : null,
+        dto.startsAt === undefined
+          ? undefined
+          : dto.startsAt
+            ? new Date(dto.startsAt)
+            : null,
       expiresAt:
-        dto.expiresAt === undefined ? undefined : dto.expiresAt ? new Date(dto.expiresAt) : null,
+        dto.expiresAt === undefined
+          ? undefined
+          : dto.expiresAt
+            ? new Date(dto.expiresAt)
+            : null,
       isActive: dto.isActive,
     });
 

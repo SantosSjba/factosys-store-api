@@ -1,0 +1,194 @@
+enum OrderPaymentMethod {
+  CASH
+  BANK_TRANSFER
+  YAPE
+  PLIN
+  CARD
+  GATEWAY
+}
+
+enum AdminAuditAction {
+  CREATE
+  UPDATE
+  DELETE
+  STATUS_CHANGE
+  UPLOAD
+  IMPORT
+  EXPORT
+}
+
+enum ReturnRequestStatus {
+  REQUESTED
+  APPROVED
+  REJECTED
+  RECEIVED
+  REFUNDED
+  CANCELLED
+}
+
+enum ReturnRequestReason {
+  DEFECTIVE
+  WRONG_ITEM
+  NOT_AS_DESCRIBED
+  CHANGED_MIND
+  OTHER
+}
+
+enum PaymentGatewayProvider {
+  CULQI
+  MERCADO_PAGO
+  STRIPE
+}
+
+enum PaymentTransactionStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  REFUNDED
+  CANCELLED
+}
+
+model AdminAuditLog {
+  id          String           @id @default(uuid())
+  userId      String?
+  action      AdminAuditAction
+  module      String
+  entityType  String?
+  entityId    String?
+  description String
+  metadata    Json?
+  ipAddress   String?
+  createdAt   DateTime         @default(now())
+
+  user User? @relation("AdminAuditLogs", fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([module, createdAt])
+  @@index([userId, createdAt])
+  @@index([entityType, entityId])
+}
+
+model ShippingZone {
+  id                    String   @id @default(uuid())
+  name                  String
+  department            String?
+  province              String?
+  flatFee               Decimal  @db.Decimal(12, 2)
+  freeShippingMinAmount Decimal? @db.Decimal(12, 2)
+  isActive              Boolean  @default(true)
+  sortOrder             Int      @default(0)
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  @@index([isActive, sortOrder])
+  @@index([department, province])
+}
+
+model OrderPaymentEvidence {
+  id            String             @id @default(uuid())
+  orderId       String
+  paymentMethod OrderPaymentMethod
+  amount        Decimal?           @db.Decimal(12, 2)
+  note          String?
+  fileName      String?
+  storageKey    String?
+  fileUrl       String?
+  mimeType      String?
+  sizeBytes     Int?
+  uploadedById  String?
+  createdAt     DateTime           @default(now())
+
+  order      Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  uploadedBy User? @relation("OrderPaymentEvidenceUploadedBy", fields: [uploadedById], references: [id], onDelete: SetNull)
+
+  @@index([orderId, createdAt])
+}
+
+model MediaAsset {
+  id           String   @id @default(uuid())
+  fileName     String
+  storageKey   String   @unique
+  url          String
+  mimeType     String
+  sizeBytes    Int
+  folder       String?
+  alt          String?
+  uploadedById String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  uploadedBy User? @relation("MediaAssetsUploadedBy", fields: [uploadedById], references: [id], onDelete: SetNull)
+
+  @@index([folder, createdAt])
+  @@index([createdAt])
+}
+
+model ReturnRequest {
+  id             String              @id @default(uuid())
+  returnNumber   String              @unique
+  orderId        String
+  status         ReturnRequestStatus @default(REQUESTED)
+  reason         ReturnRequestReason
+  reasonNote     String?
+  restockItems   Boolean             @default(true)
+  refundAmount   Decimal?            @db.Decimal(12, 2)
+  internalNotes  String?
+  requestedAt    DateTime            @default(now())
+  approvedAt     DateTime?
+  receivedAt     DateTime?
+  refundedAt     DateTime?
+  rejectedAt     DateTime?
+  createdById    String?
+  handledById    String?
+
+  order     Order               @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  createdBy User?               @relation("ReturnRequestsCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  handledBy User?               @relation("ReturnRequestsHandledBy", fields: [handledById], references: [id], onDelete: SetNull)
+  items     ReturnRequestItem[]
+
+  @@index([orderId])
+  @@index([status, requestedAt])
+}
+
+model ReturnRequestItem {
+  id              String @id @default(uuid())
+  returnRequestId String
+  orderItemId     String
+  quantity        Int
+
+  returnRequest ReturnRequest @relation(fields: [returnRequestId], references: [id], onDelete: Cascade)
+  orderItem     OrderItem     @relation(fields: [orderItemId], references: [id], onDelete: Cascade)
+
+  @@index([returnRequestId])
+}
+
+model PaymentGatewayConfig {
+  id            String                 @id @default(uuid())
+  provider      PaymentGatewayProvider @unique
+  displayName   String
+  isEnabled     Boolean                @default(false)
+  isTestMode    Boolean                @default(true)
+  publicKey     String?
+  secretKey     String?
+  webhookSecret String?
+  config        Json?
+  createdAt     DateTime               @default(now())
+  updatedAt     DateTime               @updatedAt
+}
+
+model PaymentTransaction {
+  id           String                   @id @default(uuid())
+  orderId      String
+  provider     PaymentGatewayProvider
+  externalId   String?
+  amount       Decimal                  @db.Decimal(12, 2)
+  currencyCode String                   @default("PEN")
+  status       PaymentTransactionStatus @default(PENDING)
+  metadata     Json?
+  createdAt    DateTime                 @default(now())
+  updatedAt    DateTime                 @updatedAt
+
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@index([orderId, createdAt])
+  @@index([provider, externalId])
+}

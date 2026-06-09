@@ -16,8 +16,10 @@ import {
 import { OrderCreatedEvent } from '../../../../events/order-created.event';
 import { OrderPaidEvent } from '../../../../events/order-paid.event';
 import { OrderShippedEvent } from '../../../../events/order-shipped.event';
+import { StorageService } from '../../../../infrastructure/storage/storage.service';
 import { CouponsService } from '../../../marketing/coupons/application/services/coupons.service';
 import { PrismaService } from '../../../../prisma/prisma.service';
+import type { UploadedImageFile } from '../../../../shared/types/uploaded-file.type';
 import { buildPaginationMeta } from '../../../../shared/helpers/pagination.helper';
 import type {
   CustomerSavedAddressRecord,
@@ -27,6 +29,11 @@ import type {
 import { PrismaOrderRepository } from '../../infrastructure/repositories/prisma-order.repository';
 import { CreateOrderDto } from '../dto/create-order.dto';
 import { ListOrdersQueryDto } from '../dto/list-orders-query.dto';
+import {
+  UpdateOrderNotesDto,
+  UpdateOrderShipmentDto,
+  UploadOrderPaymentEvidenceDto,
+} from '../dto/order-pro.dto';
 import {
   CancelOrderDto,
   RefundOrderDto,
@@ -66,6 +73,7 @@ export class OrdersService {
     private readonly prisma: PrismaService,
     private readonly eventEmitter: EventEmitter2,
     private readonly couponsService: CouponsService,
+    private readonly storage: StorageService,
   ) {}
 
   async listOrders(query: ListOrdersQueryDto) {
@@ -114,11 +122,14 @@ export class OrdersService {
       'Total',
       'Moneda',
       'Items',
+      'Tracking',
+      'Transportista',
       'Fecha',
     ];
 
     const rows = items.map((order) => {
       const summary = this.mapOrderSummary(order);
+      const detail = order;
       return [
         summary.orderNumber,
         summary.status,
@@ -129,6 +140,8 @@ export class OrdersService {
         summary.total,
         summary.currencyCode,
         String(summary.itemCount),
+        detail.trackingNumber ?? '',
+        detail.carrier ?? '',
         summary.createdAt.toISOString(),
       ];
     });
@@ -365,11 +378,24 @@ export class OrdersService {
 
     const order = await this.orderRepository.runTransaction(async (tx) => {
       const timestamps = this.resolveStatusTimestamps(existing, dto.status);
+      const shipmentFields =
+        dto.status === OrderStatus.SHIPPED
+          ? {
+              trackingNumber:
+                dto.trackingNumber?.trim() || existing.trackingNumber,
+              carrier: dto.carrier?.trim() || existing.carrier,
+              trackingUrl: dto.trackingUrl?.trim() || existing.trackingUrl,
+              shippingNotes:
+                dto.shippingNotes?.trim() || existing.shippingNotes,
+            }
+          : {};
+
       const updated = await this.orderRepository.updateInTransaction(tx, id, {
         status: dto.status,
         fulfillmentStatus: this.resolveFulfillmentStatus(dto.status),
         updatedBy: staffUserId ? { connect: { id: staffUserId } } : undefined,
         ...timestamps,
+        ...shipmentFields,
         cancelReason:
           dto.status === OrderStatus.CANCELLED
             ? (dto.note?.trim() ?? existing.cancelReason)
@@ -420,6 +446,93 @@ export class OrdersService {
     }
 
     return this.mapOrderDetail(order);
+  }
+
+  async updateShipment(
+    id: string,
+    dto: UpdateOrderShipmentDto,
+    staffUserId?: string,
+  ) {
+    await this.requireOrder(id);
+    await this.orderRepository.update(id, {
+      trackingNumber: dto.trackingNumber?.trim() || null,
+      carrier: dto.carrier?.trim() || null,
+      trackingUrl: dto.trackingUrl?.trim() || null,
+      shippingNotes: dto.shippingNotes?.trim() || null,
+      updatedBy: staffUserId ? { connect: { id: staffUserId } } : undefined,
+    });
+    const order = await this.requireOrder(id);
+    return this.mapOrderDetail(order);
+  }
+
+  async updateNotes(
+    id: string,
+    dto: UpdateOrderNotesDto,
+    staffUserId?: string,
+  ) {
+    await this.requireOrder(id);
+    await this.orderRepository.update(id, {
+      internalNotes: dto.internalNotes?.trim() ?? undefined,
+      customerNotes: dto.customerNotes?.trim() ?? undefined,
+      updatedBy: staffUserId ? { connect: { id: staffUserId } } : undefined,
+    });
+    const order = await this.requireOrder(id);
+    return this.mapOrderDetail(order);
+  }
+
+  async uploadPaymentEvidence(
+    id: string,
+    dto: UploadOrderPaymentEvidenceDto,
+    file: UploadedImageFile | undefined,
+    staffUserId?: string,
+  ) {
+    const order = await this.requireOrder(id);
+    let fileMeta: {
+      fileName: string;
+      storageKey: string;
+      fileUrl: string;
+      mimeType: string;
+      sizeBytes: number;
+    } | null = null;
+
+    if (file?.buffer?.length) {
+      const uploaded = await this.storage.uploadObject({
+        folder: `orders/${id}/payments`,
+        originalName: file.originalname,
+        buffer: file.buffer,
+        mimeType: file.mimetype,
+      });
+      fileMeta = {
+        fileName: file.originalname,
+        storageKey: uploaded.storageKey,
+        fileUrl: uploaded.url,
+        mimeType: file.mimetype,
+        sizeBytes: file.size,
+      };
+    }
+
+    await this.prisma.orderPaymentEvidence.create({
+      data: {
+        orderId: id,
+        paymentMethod: dto.paymentMethod,
+        amount: dto.amount ?? null,
+        note: dto.note?.trim() || null,
+        fileName: fileMeta?.fileName,
+        storageKey: fileMeta?.storageKey,
+        fileUrl: fileMeta?.fileUrl,
+        mimeType: fileMeta?.mimeType,
+        sizeBytes: fileMeta?.sizeBytes,
+        uploadedById: staffUserId,
+      },
+    });
+
+    await this.orderRepository.update(id, {
+      paymentMethod: dto.paymentMethod,
+      updatedBy: staffUserId ? { connect: { id: staffUserId } } : undefined,
+    });
+
+    const refreshed = await this.requireOrder(id);
+    return this.mapOrderDetail(refreshed);
   }
 
   async updateOrderPayment(
@@ -1113,6 +1226,11 @@ export class OrdersService {
       pricesIncludeTax: order.pricesIncludeTax,
       internalNotes: order.internalNotes,
       customerNotes: order.customerNotes,
+      paymentMethod: order.paymentMethod,
+      trackingNumber: order.trackingNumber,
+      carrier: order.carrier,
+      trackingUrl: order.trackingUrl,
+      shippingNotes: order.shippingNotes,
       confirmedAt: order.confirmedAt,
       shippedAt: order.shippedAt,
       deliveredAt: order.deliveredAt,
@@ -1164,6 +1282,18 @@ export class OrdersService {
         performedById: entry.performedById,
         performedByName: this.resolveUserName(entry.performedBy),
         createdAt: entry.createdAt,
+      })),
+      paymentEvidences: (order.paymentEvidences ?? []).map((evidence) => ({
+        id: evidence.id,
+        paymentMethod: evidence.paymentMethod,
+        amount: evidence.amount?.toString() ?? null,
+        note: evidence.note,
+        fileName: evidence.fileName,
+        fileUrl: evidence.fileUrl,
+        mimeType: evidence.mimeType,
+        sizeBytes: evidence.sizeBytes,
+        uploadedByName: this.resolveUserName(evidence.uploadedBy),
+        createdAt: evidence.createdAt,
       })),
     } satisfies OrderDetailRecord;
   }

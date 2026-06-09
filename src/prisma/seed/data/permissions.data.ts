@@ -70,4 +70,18 @@ export const PERMISSION_SEED_DEFINITIONS: PermissionSeedDefinition[] = [
     name: 'Gestionar marketing',
     module: 'marketing',
   },
+  { slug: PERMISSIONS.AUDIT_READ, name: 'Ver auditoría', module: 'audit' },
+  { slug: PERMISSIONS.MEDIA_READ, name: 'Ver medios', module: 'media' },
+  { slug: PERMISSIONS.MEDIA_WRITE, name: 'Gestionar medios', module: 'media' },
+  {
+    slug: PERMISSIONS.RETURNS_READ,
+    name: 'Ver devoluciones',
+    module: 'returns',
+  },
+  {
+    slug: PERMISSIONS.RETURNS_WRITE,
+    name: 'Gestionar devoluciones',
+    module: 'returns',
+  },
+  { slug: PERMISSIONS.ROLES_WRITE, name: 'Crear roles', module: 'roles' },
 ];
