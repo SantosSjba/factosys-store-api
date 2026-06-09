@@ -1,5 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import type { Prisma, StockReservationStatus } from '../../../../generated/prisma/client';
+import type {
+  Prisma,
+  StockReservationStatus,
+} from '../../../../generated/prisma/client';
 import { PrismaService } from '../../../../prisma/prisma.service';
 
 const reservationInclude = {
@@ -36,10 +39,16 @@ export class PrismaReservationRepository {
             OR: [
               { reference: { contains: params.search, mode: 'insensitive' } },
               { note: { contains: params.search, mode: 'insensitive' } },
-              { variant: { sku: { contains: params.search, mode: 'insensitive' } } },
               {
                 variant: {
-                  product: { name: { contains: params.search, mode: 'insensitive' } },
+                  sku: { contains: params.search, mode: 'insensitive' },
+                },
+              },
+              {
+                variant: {
+                  product: {
+                    name: { contains: params.search, mode: 'insensitive' },
+                  },
                 },
               },
             ],
@@ -61,7 +70,9 @@ export class PrismaReservationRepository {
     return { items, total };
   }
 
-  runTransaction<T>(handler: (tx: Prisma.TransactionClient) => Promise<T>): Promise<T> {
+  runTransaction<T>(
+    handler: (tx: Prisma.TransactionClient) => Promise<T>,
+  ): Promise<T> {
     return this.prisma.$transaction(handler);
   }
 

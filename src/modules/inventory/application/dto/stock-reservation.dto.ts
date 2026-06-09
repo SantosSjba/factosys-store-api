@@ -1,6 +1,13 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { StockReservationStatus } from '../../../../generated/prisma/client';
-import { IsEnum, IsInt, IsOptional, IsString, IsUUID, Min } from 'class-validator';
+import {
+  IsEnum,
+  IsInt,
+  IsOptional,
+  IsString,
+  IsUUID,
+  Min,
+} from 'class-validator';
 import { PaginationQueryDto } from '../../../../shared/dto/pagination-query.dto';
 
 export class CreateStockReservationDto {
@@ -17,7 +24,9 @@ export class CreateStockReservationDto {
   @Min(1)
   quantity!: number;
 
-  @ApiPropertyOptional({ description: 'Referencia externa (ej. pedido, cotización)' })
+  @ApiPropertyOptional({
+    description: 'Referencia externa (ej. pedido, cotización)',
+  })
   @IsOptional()
   @IsString()
   reference?: string;

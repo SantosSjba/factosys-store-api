@@ -1,5 +1,8 @@
 import { Logger } from 'winston';
-import { getBootstrapErrorMessage, getUnknownErrorMessage } from './error-message.helper';
+import {
+  getBootstrapErrorMessage,
+  getUnknownErrorMessage,
+} from './error-message.helper';
 
 export function registerProcessErrorHandlers(logger?: Logger): void {
   process.on('unhandledRejection', (reason: unknown) => {

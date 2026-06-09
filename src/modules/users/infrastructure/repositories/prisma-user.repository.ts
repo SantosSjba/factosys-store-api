@@ -172,7 +172,8 @@ export class PrismaUserRepository {
     }
 
     const isAlreadyVerified =
-      existing.status === UserStatus.ACTIVE && existing.emailVerifiedAt !== null;
+      existing.status === UserStatus.ACTIVE &&
+      existing.emailVerifiedAt !== null;
 
     const user = await this.prisma.user.update({
       where: { id: data.userId },
@@ -228,7 +229,8 @@ export class PrismaUserRepository {
     if (data.lastName !== undefined) userData.lastName = data.lastName;
     if (data.phone !== undefined) userData.phone = data.phone;
     if (data.status !== undefined) userData.status = data.status;
-    if (data.passwordHash !== undefined) userData.passwordHash = data.passwordHash;
+    if (data.passwordHash !== undefined)
+      userData.passwordHash = data.passwordHash;
 
     if (data.roleSlugs) {
       const roleIds = await this.resolveRoleIds(data.roleSlugs, UserType.STAFF);
@@ -386,7 +388,8 @@ export class PrismaUserRepository {
     if (data.lastName !== undefined) userData.lastName = data.lastName;
     if (data.phone !== undefined) userData.phone = data.phone;
     if (data.status !== undefined) userData.status = data.status;
-    if (data.passwordHash !== undefined) userData.passwordHash = data.passwordHash;
+    if (data.passwordHash !== undefined)
+      userData.passwordHash = data.passwordHash;
 
     const shouldClearVerification = data.clearEmailVerification === true;
 

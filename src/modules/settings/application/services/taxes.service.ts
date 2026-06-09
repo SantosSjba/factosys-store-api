@@ -81,7 +81,7 @@ export class TaxesService {
 
     const tax = await this.taxRepository.update(id, {
       name: dto.name?.trim(),
-      code: dto.code !== undefined ? dto.code?.trim() ?? null : undefined,
+      code: dto.code !== undefined ? (dto.code?.trim() ?? null) : undefined,
       rate: dto.rate,
       isDefault: dto.isDefault,
       isActive: dto.isActive,

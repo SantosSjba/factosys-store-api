@@ -3,9 +3,8 @@ import { ConfigService } from '@nestjs/config';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 // Misma resolución que @nestjs/swagger: assets locales, sin CDN.
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const swaggerUiDistPath: string =
-  require('swagger-ui-dist/absolute-path.js')();
+
+const swaggerUiDistPath: string = require('swagger-ui-dist/absolute-path.js')();
 
 export function setupSwagger(
   app: INestApplication,

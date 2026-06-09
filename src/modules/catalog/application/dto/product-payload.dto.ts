@@ -28,7 +28,9 @@ export class AttributeValueDto {
 }
 
 export class CreateProductVariantDto {
-  @ApiPropertyOptional({ description: 'ID de variante existente (solo en actualización)' })
+  @ApiPropertyOptional({
+    description: 'ID de variante existente (solo en actualización)',
+  })
   @IsOptional()
   @IsUUID()
   id?: string;

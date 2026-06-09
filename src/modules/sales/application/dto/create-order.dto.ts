@@ -206,4 +206,12 @@ export class CreateOrderDto {
   @IsNumber()
   @Min(0)
   discountAmount?: number;
+
+  @ApiPropertyOptional({
+    description: 'Código de cupón (reemplaza discountAmount manual)',
+  })
+  @IsOptional()
+  @IsString()
+  @MaxLength(40)
+  couponCode?: string;
 }

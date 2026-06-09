@@ -18,6 +18,7 @@ import { CreateOrderDto } from '../../application/dto/create-order.dto';
 import { ListOrdersQueryDto } from '../../application/dto/list-orders-query.dto';
 import {
   CancelOrderDto,
+  RefundOrderDto,
   UpdateOrderPaymentDto,
   UpdateOrderStatusDto,
 } from '../../application/dto/update-order.dto';
@@ -94,5 +95,16 @@ export class AdminOrdersController {
     @CurrentUser() user: AuthenticatedUser,
   ) {
     return this.ordersService.cancelOrder(id, dto, user.id);
+  }
+
+  @Post(':id/refund')
+  @RequirePermissions(PERMISSIONS.ORDERS_WRITE)
+  @ApiOperation({ summary: 'Registrar reembolso total o parcial' })
+  refundOrder(
+    @Param('id') id: string,
+    @Body() dto: RefundOrderDto,
+    @CurrentUser() user: AuthenticatedUser,
+  ) {
+    return this.ordersService.refundOrder(id, dto, user.id);
   }
 }

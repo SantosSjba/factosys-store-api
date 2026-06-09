@@ -5,5 +5,6 @@ import { CouponsModule } from './coupons/coupons.module';
 
 @Module({
   imports: [CouponsModule, BannersModule, CampaignsModule],
+  exports: [CouponsModule],
 })
 export class MarketingModule {}

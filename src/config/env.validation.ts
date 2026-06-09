@@ -18,7 +18,10 @@ export const envValidationSchema = Joi.object({
   REDIS_PORT: Joi.number().default(6379),
   REDIS_USER: Joi.string().optional().allow(''),
   REDIS_PASSWORD: Joi.string().optional().allow(''),
-  REDIS_URL: Joi.string().uri({ scheme: ['redis', 'rediss'] }).optional().allow(''),
+  REDIS_URL: Joi.string()
+    .uri({ scheme: ['redis', 'rediss'] })
+    .optional()
+    .allow(''),
   ELASTICSEARCH_NODE: Joi.string().required(),
   AWS_ACCESS_KEY_ID: Joi.string().required(),
   AWS_SECRET_ACCESS_KEY: Joi.string().required(),

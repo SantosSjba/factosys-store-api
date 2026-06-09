@@ -70,19 +70,27 @@ export class StoreSettingsService {
 
     const data: Prisma.StoreSettingsUpdateInput = {
       storeName: dto.storeName?.trim(),
-      storeTagline: dto.storeTagline !== undefined ? dto.storeTagline?.trim() ?? null : undefined,
+      storeTagline:
+        dto.storeTagline !== undefined
+          ? (dto.storeTagline?.trim() ?? null)
+          : undefined,
       defaultLocale: dto.defaultLocale?.trim(),
       timezone: dto.timezone?.trim(),
       defaultCurrencyCode: dto.defaultCurrencyCode?.trim().toUpperCase(),
       pricesIncludeTax: dto.pricesIncludeTax,
-      metaTitleDefault: dto.metaTitleDefault !== undefined ? dto.metaTitleDefault?.trim() ?? null : undefined,
+      metaTitleDefault:
+        dto.metaTitleDefault !== undefined
+          ? (dto.metaTitleDefault?.trim() ?? null)
+          : undefined,
       metaDescriptionDefault:
         dto.metaDescriptionDefault !== undefined
-          ? dto.metaDescriptionDefault?.trim() ?? null
+          ? (dto.metaDescriptionDefault?.trim() ?? null)
           : undefined,
       maintenanceMode: dto.maintenanceMode,
       maintenanceMessage:
-        dto.maintenanceMessage !== undefined ? dto.maintenanceMessage?.trim() ?? null : undefined,
+        dto.maintenanceMessage !== undefined
+          ? (dto.maintenanceMessage?.trim() ?? null)
+          : undefined,
       guestCheckoutEnabled: dto.guestCheckoutEnabled,
       minOrderAmount: dto.minOrderAmount,
       orderNumberPrefix: dto.orderNumberPrefix?.trim(),
@@ -92,40 +100,73 @@ export class StoreSettingsService {
       handlingDaysMin: dto.handlingDaysMin,
       handlingDaysMax: dto.handlingDaysMax,
       pickupPointName:
-        dto.pickupPointName !== undefined ? dto.pickupPointName?.trim() ?? null : undefined,
+        dto.pickupPointName !== undefined
+          ? (dto.pickupPointName?.trim() ?? null)
+          : undefined,
       pickupPointAddress:
-        dto.pickupPointAddress !== undefined ? dto.pickupPointAddress?.trim() ?? null : undefined,
+        dto.pickupPointAddress !== undefined
+          ? (dto.pickupPointAddress?.trim() ?? null)
+          : undefined,
       pickupPointDistrict:
-        dto.pickupPointDistrict !== undefined ? dto.pickupPointDistrict?.trim() ?? null : undefined,
+        dto.pickupPointDistrict !== undefined
+          ? (dto.pickupPointDistrict?.trim() ?? null)
+          : undefined,
       pickupPointProvince:
-        dto.pickupPointProvince !== undefined ? dto.pickupPointProvince?.trim() ?? null : undefined,
+        dto.pickupPointProvince !== undefined
+          ? (dto.pickupPointProvince?.trim() ?? null)
+          : undefined,
       pickupPointDepartment:
         dto.pickupPointDepartment !== undefined
-          ? dto.pickupPointDepartment?.trim() ?? null
+          ? (dto.pickupPointDepartment?.trim() ?? null)
           : undefined,
       pickupPointHours:
-        dto.pickupPointHours !== undefined ? dto.pickupPointHours?.trim() ?? null : undefined,
+        dto.pickupPointHours !== undefined
+          ? (dto.pickupPointHours?.trim() ?? null)
+          : undefined,
       pickupPointPhone:
-        dto.pickupPointPhone !== undefined ? dto.pickupPointPhone?.trim() ?? null : undefined,
+        dto.pickupPointPhone !== undefined
+          ? (dto.pickupPointPhone?.trim() ?? null)
+          : undefined,
       paymentCashEnabled: dto.paymentCashEnabled,
       paymentBankTransferEnabled: dto.paymentBankTransferEnabled,
       paymentYapeEnabled: dto.paymentYapeEnabled,
       paymentPlinEnabled: dto.paymentPlinEnabled,
       bankTransferInstructions:
         dto.bankTransferInstructions !== undefined
-          ? dto.bankTransferInstructions?.trim() ?? null
+          ? (dto.bankTransferInstructions?.trim() ?? null)
           : undefined,
-      yapeNumber: dto.yapeNumber !== undefined ? dto.yapeNumber?.trim() ?? null : undefined,
-      plinNumber: dto.plinNumber !== undefined ? dto.plinNumber?.trim() ?? null : undefined,
-      warrantyPolicyUrl: dto.warrantyPolicyUrl !== undefined ? dto.warrantyPolicyUrl?.trim() ?? null : undefined,
-      returnsPolicyUrl: dto.returnsPolicyUrl !== undefined ? dto.returnsPolicyUrl?.trim() ?? null : undefined,
-      privacyPolicyUrl: dto.privacyPolicyUrl !== undefined ? dto.privacyPolicyUrl?.trim() ?? null : undefined,
-      termsUrl: dto.termsUrl !== undefined ? dto.termsUrl?.trim() ?? null : undefined,
+      yapeNumber:
+        dto.yapeNumber !== undefined
+          ? (dto.yapeNumber?.trim() ?? null)
+          : undefined,
+      plinNumber:
+        dto.plinNumber !== undefined
+          ? (dto.plinNumber?.trim() ?? null)
+          : undefined,
+      warrantyPolicyUrl:
+        dto.warrantyPolicyUrl !== undefined
+          ? (dto.warrantyPolicyUrl?.trim() ?? null)
+          : undefined,
+      returnsPolicyUrl:
+        dto.returnsPolicyUrl !== undefined
+          ? (dto.returnsPolicyUrl?.trim() ?? null)
+          : undefined,
+      privacyPolicyUrl:
+        dto.privacyPolicyUrl !== undefined
+          ? (dto.privacyPolicyUrl?.trim() ?? null)
+          : undefined,
+      termsUrl:
+        dto.termsUrl !== undefined ? (dto.termsUrl?.trim() ?? null) : undefined,
       complaintsBookUrl:
-        dto.complaintsBookUrl !== undefined ? dto.complaintsBookUrl?.trim() ?? null : undefined,
+        dto.complaintsBookUrl !== undefined
+          ? (dto.complaintsBookUrl?.trim() ?? null)
+          : undefined,
       serialNumberRequired: dto.serialNumberRequired,
       orderConfirmationEmailEnabled: dto.orderConfirmationEmailEnabled,
-      mailFromName: dto.mailFromName !== undefined ? dto.mailFromName?.trim() ?? null : undefined,
+      mailFromName:
+        dto.mailFromName !== undefined
+          ? (dto.mailFromName?.trim() ?? null)
+          : undefined,
     };
 
     if (dto.defaultTaxRateId !== undefined) {
@@ -168,8 +209,9 @@ export class StoreSettingsService {
     ]);
 
     const currency =
-      (await this.currencyRepository.findByCode(settings.defaultCurrencyCode)) ??
-      (await this.currencyRepository.findDefault());
+      (await this.currencyRepository.findByCode(
+        settings.defaultCurrencyCode,
+      )) ?? (await this.currencyRepository.findDefault());
 
     const tax = settings.defaultTaxRateId
       ? await this.taxRepository.findById(settings.defaultTaxRateId)
@@ -202,7 +244,9 @@ export class StoreSettingsService {
       maintenanceMessage: settings.maintenanceMessage,
       guestCheckoutEnabled: settings.guestCheckoutEnabled,
       minOrderAmount: this.decimalToString(settings.minOrderAmount),
-      freeShippingMinAmount: this.decimalToString(settings.freeShippingMinAmount),
+      freeShippingMinAmount: this.decimalToString(
+        settings.freeShippingMinAmount,
+      ),
       handlingDaysMin: settings.handlingDaysMin,
       handlingDaysMax: settings.handlingDaysMax,
       warrantyPolicyUrl: settings.warrantyPolicyUrl,
@@ -262,7 +306,7 @@ export class StoreSettingsService {
     const urlField = field === 'logo' ? 'logoUrl' : 'faviconUrl';
 
     if (existing[keyField]) {
-      await this.storageService.deleteObject(existing[keyField]!);
+      await this.storageService.deleteObject(existing[keyField]);
     }
 
     const settings = await this.storeSettingsRepository.update({
@@ -354,7 +398,9 @@ export class StoreSettingsService {
       defaultWarehouseId: settings.defaultWarehouseId,
       defaultWarehouseName: settings.defaultWarehouse?.name ?? null,
       lowStockGlobalThreshold: settings.lowStockGlobalThreshold,
-      freeShippingMinAmount: this.decimalToString(settings.freeShippingMinAmount),
+      freeShippingMinAmount: this.decimalToString(
+        settings.freeShippingMinAmount,
+      ),
       flatShippingFee: this.decimalToString(settings.flatShippingFee),
       handlingDaysMin: settings.handlingDaysMin,
       handlingDaysMax: settings.handlingDaysMax,

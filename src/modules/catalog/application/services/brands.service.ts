@@ -100,7 +100,9 @@ export class BrandsService {
       name: dto.name?.trim(),
       slug,
       description:
-        dto.description !== undefined ? dto.description?.trim() ?? null : undefined,
+        dto.description !== undefined
+          ? (dto.description?.trim() ?? null)
+          : undefined,
       website: dto.website,
       isActive: dto.isActive,
     });

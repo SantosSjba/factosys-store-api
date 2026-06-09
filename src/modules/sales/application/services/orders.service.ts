@@ -15,9 +15,12 @@ import {
 } from '../../../../generated/prisma/client';
 import { OrderCreatedEvent } from '../../../../events/order-created.event';
 import { OrderPaidEvent } from '../../../../events/order-paid.event';
+import { OrderShippedEvent } from '../../../../events/order-shipped.event';
+import { CouponsService } from '../../../marketing/coupons/application/services/coupons.service';
 import { PrismaService } from '../../../../prisma/prisma.service';
 import { buildPaginationMeta } from '../../../../shared/helpers/pagination.helper';
 import type {
+  CustomerSavedAddressRecord,
   OrderDetailRecord,
   OrderSummaryRecord,
 } from '../../domain/types/orders.types';
@@ -26,6 +29,8 @@ import { CreateOrderDto } from '../dto/create-order.dto';
 import { ListOrdersQueryDto } from '../dto/list-orders-query.dto';
 import {
   CancelOrderDto,
+  RefundOrderDto,
+  RefundType,
   UpdateOrderPaymentDto,
   UpdateOrderStatusDto,
 } from '../dto/update-order.dto';
@@ -44,7 +49,10 @@ const ALLOWED_STATUS_TRANSITIONS: Record<OrderStatus, OrderStatus[]> = {
     OrderStatus.READY_FOR_PICKUP,
     OrderStatus.CANCELLED,
   ],
-  [OrderStatus.READY_FOR_PICKUP]: [OrderStatus.DELIVERED, OrderStatus.CANCELLED],
+  [OrderStatus.READY_FOR_PICKUP]: [
+    OrderStatus.DELIVERED,
+    OrderStatus.CANCELLED,
+  ],
   [OrderStatus.SHIPPED]: [OrderStatus.DELIVERED, OrderStatus.CANCELLED],
   [OrderStatus.DELIVERED]: [OrderStatus.REFUNDED],
   [OrderStatus.CANCELLED]: [],
@@ -57,6 +65,7 @@ export class OrdersService {
     private readonly orderRepository: PrismaOrderRepository,
     private readonly prisma: PrismaService,
     private readonly eventEmitter: EventEmitter2,
+    private readonly couponsService: CouponsService,
   ) {}
 
   async listOrders(query: ListOrdersQueryDto) {
@@ -125,8 +134,57 @@ export class OrdersService {
     });
 
     return [headers, ...rows]
-      .map((row) => row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(','))
+      .map((row) =>
+        row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(','),
+      )
       .join('\n');
+  }
+
+  async listCustomerAddresses(customerId: string) {
+    const customer = await this.prisma.user.findFirst({
+      where: { id: customerId, userType: UserType.CUSTOMER },
+    });
+
+    if (!customer) {
+      throw new NotFoundException({
+        code: 'CUSTOMER_NOT_FOUND',
+        message: 'Cliente no encontrado.',
+      });
+    }
+
+    const rows =
+      await this.orderRepository.findAddressesByCustomerId(customerId);
+    const seen = new Set<string>();
+    const addresses: CustomerSavedAddressRecord[] = [];
+
+    for (const row of rows) {
+      const key = this.buildAddressDedupKey(row);
+      if (seen.has(key)) continue;
+      seen.add(key);
+
+      addresses.push({
+        id: row.id,
+        type: row.type,
+        label: row.label,
+        firstName: row.firstName,
+        lastName: row.lastName,
+        company: row.company,
+        phone: row.phone,
+        email: row.email,
+        addressLine1: row.addressLine1,
+        addressLine2: row.addressLine2,
+        city: row.city,
+        district: row.district,
+        province: row.province,
+        department: row.department,
+        country: row.country,
+        postalCode: row.postalCode,
+        lastOrderNumber: row.order.orderNumber,
+        lastUsedAt: row.order.createdAt,
+      });
+    }
+
+    return addresses;
   }
 
   async getOrder(id: string) {
@@ -145,8 +203,15 @@ export class OrdersService {
     const context = await this.resolveStoreContext(dto.warehouseId);
     await this.validateCustomer(dto);
 
-    const variants = await this.loadVariants(dto.items.map((item) => item.variantId));
-    const lines = this.buildOrderLines(dto.items, variants, context.taxRatePercent, context.pricesIncludeTax);
+    const variants = await this.loadVariants(
+      dto.items.map((item) => item.variantId),
+    );
+    const lines = this.buildOrderLines(
+      dto.items,
+      variants,
+      context.taxRatePercent,
+      context.pricesIncludeTax,
+    );
 
     const subtotal = this.sumDecimals(lines.map((line) => line.lineSubtotal));
     const taxAmount = this.sumDecimals(lines.map((line) => line.taxAmount));
@@ -155,7 +220,18 @@ export class OrdersService {
       deliveryMethod === OrderDeliveryMethod.PICKUP
         ? 0
         : (dto.shippingAmount ?? 0);
-    const discountAmount = dto.discountAmount ?? 0;
+    let discountAmount = dto.discountAmount ?? 0;
+    let couponId: string | undefined;
+
+    if (dto.couponCode?.trim()) {
+      const resolved = await this.couponsService.resolveDiscount(
+        dto.couponCode.trim(),
+        subtotal,
+      );
+      discountAmount = resolved.discountAmount;
+      couponId = resolved.couponId;
+    }
+
     const total = subtotal + taxAmount + shippingAmount - discountAmount;
 
     if (context.minOrderAmount != null && total < context.minOrderAmount) {
@@ -179,7 +255,9 @@ export class OrdersService {
         fulfillmentStatus: OrderFulfillmentStatus.UNFULFILLED,
         source: dto.source ?? OrderSource.ADMIN,
         deliveryMethod,
-        customer: dto.customerId ? { connect: { id: dto.customerId } } : undefined,
+        customer: dto.customerId
+          ? { connect: { id: dto.customerId } }
+          : undefined,
         guestEmail: dto.guestEmail?.trim() ?? null,
         guestFirstName: dto.guestFirstName?.trim() ?? null,
         guestLastName: dto.guestLastName?.trim() ?? null,
@@ -197,7 +275,8 @@ export class OrdersService {
         pricesIncludeTax: context.pricesIncludeTax,
         internalNotes: dto.internalNotes?.trim() ?? null,
         customerNotes: dto.customerNotes?.trim() ?? null,
-        confirmedAt: initialStatus === OrderStatus.CONFIRMED ? new Date() : null,
+        confirmedAt:
+          initialStatus === OrderStatus.CONFIRMED ? new Date() : null,
         paidAt: paymentStatus === OrderPaymentStatus.PAID ? new Date() : null,
         createdBy: staffUserId ? { connect: { id: staffUserId } } : undefined,
         items: {
@@ -217,26 +296,27 @@ export class OrdersService {
           })),
         },
         addresses:
-          deliveryMethod === OrderDeliveryMethod.SHIPPING && dto.addresses?.length
+          deliveryMethod === OrderDeliveryMethod.SHIPPING &&
+          dto.addresses?.length
             ? {
-              create: dto.addresses.map((address) => ({
-                type: address.type,
-                label: address.label?.trim() ?? null,
-                firstName: address.firstName?.trim() ?? null,
-                lastName: address.lastName?.trim() ?? null,
-                company: address.company?.trim() ?? null,
-                phone: address.phone?.trim() ?? null,
-                email: address.email?.trim() ?? null,
-                addressLine1: address.addressLine1.trim(),
-                addressLine2: address.addressLine2?.trim() ?? null,
-                city: address.city?.trim() ?? null,
-                district: address.district?.trim() ?? null,
-                province: address.province?.trim() ?? null,
-                department: address.department?.trim() ?? null,
-                country: address.country?.trim().toUpperCase() ?? 'PE',
-                postalCode: address.postalCode?.trim() ?? null,
-              })),
-            }
+                create: dto.addresses.map((address) => ({
+                  type: address.type,
+                  label: address.label?.trim() ?? null,
+                  firstName: address.firstName?.trim() ?? null,
+                  lastName: address.lastName?.trim() ?? null,
+                  company: address.company?.trim() ?? null,
+                  phone: address.phone?.trim() ?? null,
+                  email: address.email?.trim() ?? null,
+                  addressLine1: address.addressLine1.trim(),
+                  addressLine2: address.addressLine2?.trim() ?? null,
+                  city: address.city?.trim() ?? null,
+                  district: address.district?.trim() ?? null,
+                  province: address.province?.trim() ?? null,
+                  department: address.department?.trim() ?? null,
+                  country: address.country?.trim().toUpperCase() ?? 'PE',
+                  postalCode: address.postalCode?.trim() ?? null,
+                })),
+              }
             : undefined,
         statusHistory: {
           create: {
@@ -255,6 +335,10 @@ export class OrdersService {
       return created;
     });
 
+    if (couponId) {
+      await this.couponsService.consumeCoupon(couponId);
+    }
+
     this.eventEmitter.emit('order.created', new OrderCreatedEvent(order.id));
     if (order.paymentStatus === OrderPaymentStatus.PAID) {
       this.eventEmitter.emit('order.paid', new OrderPaidEvent(order.id));
@@ -263,8 +347,20 @@ export class OrdersService {
     return this.mapOrderDetail(order);
   }
 
-  async updateOrderStatus(id: string, dto: UpdateOrderStatusDto, staffUserId?: string) {
+  async updateOrderStatus(
+    id: string,
+    dto: UpdateOrderStatusDto,
+    staffUserId?: string,
+  ) {
     const existing = await this.requireOrder(id);
+
+    if (dto.status === OrderStatus.REFUNDED) {
+      throw new BadRequestException({
+        code: 'USE_REFUND_ENDPOINT',
+        message: 'Usa el endpoint de reembolso para registrar devoluciones.',
+      });
+    }
+
     this.assertStatusTransition(existing.status, dto.status);
 
     const order = await this.orderRepository.runTransaction(async (tx) => {
@@ -276,7 +372,7 @@ export class OrdersService {
         ...timestamps,
         cancelReason:
           dto.status === OrderStatus.CANCELLED
-            ? dto.note?.trim() ?? existing.cancelReason
+            ? (dto.note?.trim() ?? existing.cancelReason)
             : existing.cancelReason,
       });
 
@@ -290,7 +386,10 @@ export class OrdersService {
         performedById: staffUserId ?? null,
       });
 
-      if (dto.status === OrderStatus.CONFIRMED && existing.status === OrderStatus.PENDING_PAYMENT) {
+      if (
+        dto.status === OrderStatus.CONFIRMED &&
+        existing.status === OrderStatus.PENDING_PAYMENT
+      ) {
         await this.reserveStockForOrder(tx, updated, staffUserId);
       }
 
@@ -313,11 +412,32 @@ export class OrdersService {
       return updated;
     });
 
+    if (
+      dto.status === OrderStatus.SHIPPED &&
+      existing.status !== OrderStatus.SHIPPED
+    ) {
+      this.eventEmitter.emit('order.shipped', new OrderShippedEvent(order.id));
+    }
+
     return this.mapOrderDetail(order);
   }
 
-  async updateOrderPayment(id: string, dto: UpdateOrderPaymentDto, staffUserId?: string) {
+  async updateOrderPayment(
+    id: string,
+    dto: UpdateOrderPaymentDto,
+    staffUserId?: string,
+  ) {
     const existing = await this.requireOrder(id);
+
+    if (
+      dto.paymentStatus === OrderPaymentStatus.REFUNDED ||
+      dto.paymentStatus === OrderPaymentStatus.PARTIALLY_REFUNDED
+    ) {
+      throw new BadRequestException({
+        code: 'USE_REFUND_ENDPOINT',
+        message: 'Usa el endpoint de reembolso para registrar devoluciones.',
+      });
+    }
 
     const order = await this.orderRepository.runTransaction(async (tx) => {
       const nextStatus =
@@ -331,11 +451,11 @@ export class OrdersService {
         status: nextStatus,
         paidAt:
           dto.paymentStatus === OrderPaymentStatus.PAID
-            ? existing.paidAt ?? new Date()
+            ? (existing.paidAt ?? new Date())
             : existing.paidAt,
         confirmedAt:
           nextStatus === OrderStatus.CONFIRMED
-            ? existing.confirmedAt ?? new Date()
+            ? (existing.confirmedAt ?? new Date())
             : existing.confirmedAt,
         updatedBy: staffUserId ? { connect: { id: staffUserId } } : undefined,
       });
@@ -402,6 +522,60 @@ export class OrdersService {
     return this.mapOrderDetail(order);
   }
 
+  async refundOrder(id: string, dto: RefundOrderDto, staffUserId?: string) {
+    const existing = await this.requireOrder(id);
+    this.assertRefundable(existing, dto);
+
+    const orderTotal = Number(existing.total);
+    const refundAmount =
+      dto.type === RefundType.FULL ? orderTotal : (dto.amount as number);
+    const shouldRestock =
+      dto.restockItems ??
+      (dto.type === RefundType.FULL &&
+        existing.fulfillmentStatus === OrderFulfillmentStatus.FULFILLED);
+    const historyNote = this.buildRefundNote(
+      dto,
+      refundAmount,
+      existing.currencyCode,
+    );
+
+    const order = await this.orderRepository.runTransaction(async (tx) => {
+      const isFullRefund = dto.type === RefundType.FULL;
+      const nextStatus = isFullRefund ? OrderStatus.REFUNDED : existing.status;
+      const nextPaymentStatus = isFullRefund
+        ? OrderPaymentStatus.REFUNDED
+        : OrderPaymentStatus.PARTIALLY_REFUNDED;
+      const nextFulfillmentStatus = isFullRefund
+        ? OrderFulfillmentStatus.UNFULFILLED
+        : existing.fulfillmentStatus;
+
+      const updated = await this.orderRepository.updateInTransaction(tx, id, {
+        status: nextStatus,
+        paymentStatus: nextPaymentStatus,
+        fulfillmentStatus: nextFulfillmentStatus,
+        updatedBy: staffUserId ? { connect: { id: staffUserId } } : undefined,
+      });
+
+      await this.orderRepository.createStatusHistoryInTransaction(tx, {
+        orderId: id,
+        fromStatus: existing.status,
+        toStatus: nextStatus,
+        fromPaymentStatus: existing.paymentStatus,
+        toPaymentStatus: nextPaymentStatus,
+        note: historyNote,
+        performedById: staffUserId ?? null,
+      });
+
+      if (shouldRestock && this.wasStockFulfilled(existing)) {
+        await this.restockForOrder(tx, updated, staffUserId);
+      }
+
+      return updated;
+    });
+
+    return this.mapOrderDetail(order);
+  }
+
   private async requireOrder(id: string) {
     const order = await this.orderRepository.findById(id);
     if (!order) {
@@ -436,9 +610,93 @@ export class OrdersService {
       : OrderStatus.PENDING_PAYMENT;
   }
 
-  private resolveFulfillmentStatus(status: OrderStatus): OrderFulfillmentStatus {
-    if (status === OrderStatus.DELIVERED) return OrderFulfillmentStatus.FULFILLED;
-    if (status === OrderStatus.SHIPPED || status === OrderStatus.READY_FOR_PICKUP) {
+  private assertRefundable(
+    order: {
+      status: OrderStatus;
+      paymentStatus: OrderPaymentStatus;
+      total: { toString(): string };
+      currencyCode: string;
+    },
+    dto: RefundOrderDto,
+  ) {
+    if (order.status === OrderStatus.REFUNDED) {
+      throw new BadRequestException({
+        code: 'ORDER_ALREADY_REFUNDED',
+        message: 'El pedido ya fue reembolsado por completo.',
+      });
+    }
+
+    if (order.status !== OrderStatus.DELIVERED) {
+      throw new BadRequestException({
+        code: 'ORDER_NOT_REFUNDABLE',
+        message: 'Solo se pueden reembolsar pedidos entregados.',
+      });
+    }
+
+    if (
+      order.paymentStatus !== OrderPaymentStatus.PAID &&
+      order.paymentStatus !== OrderPaymentStatus.PARTIALLY_REFUNDED
+    ) {
+      throw new BadRequestException({
+        code: 'ORDER_PAYMENT_NOT_REFUNDABLE',
+        message: 'El pago del pedido no admite reembolso.',
+      });
+    }
+
+    const orderTotal = Number(order.total);
+
+    if (dto.type === RefundType.PARTIAL) {
+      if (dto.amount == null) {
+        throw new BadRequestException({
+          code: 'REFUND_AMOUNT_REQUIRED',
+          message: 'Indica el monto del reembolso parcial.',
+        });
+      }
+
+      if (dto.amount <= 0 || dto.amount > orderTotal) {
+        throw new BadRequestException({
+          code: 'INVALID_REFUND_AMOUNT',
+          message: `El monto debe ser mayor a 0 y no superar ${orderTotal.toFixed(2)} ${order.currencyCode}.`,
+        });
+      }
+    }
+  }
+
+  private buildRefundNote(
+    dto: RefundOrderDto,
+    amount: number,
+    currencyCode: string,
+  ) {
+    const formattedAmount = `${amount.toFixed(2)} ${currencyCode}`;
+    const base =
+      dto.type === RefundType.FULL
+        ? `Reembolso total (${formattedAmount})`
+        : `Reembolso parcial (${formattedAmount})`;
+
+    return dto.note?.trim() ? `${base}. ${dto.note.trim()}` : base;
+  }
+
+  private wasStockFulfilled(order: {
+    fulfillmentStatus: OrderFulfillmentStatus;
+    shippedAt: Date | null;
+    deliveredAt: Date | null;
+  }) {
+    return (
+      order.fulfillmentStatus === OrderFulfillmentStatus.FULFILLED ||
+      order.shippedAt != null ||
+      order.deliveredAt != null
+    );
+  }
+
+  private resolveFulfillmentStatus(
+    status: OrderStatus,
+  ): OrderFulfillmentStatus {
+    if (status === OrderStatus.DELIVERED)
+      return OrderFulfillmentStatus.FULFILLED;
+    if (
+      status === OrderStatus.SHIPPED ||
+      status === OrderStatus.READY_FOR_PICKUP
+    ) {
       return OrderFulfillmentStatus.PARTIAL;
     }
     return OrderFulfillmentStatus.UNFULFILLED;
@@ -456,12 +714,21 @@ export class OrdersService {
     const now = new Date();
     return {
       confirmedAt:
-        status === OrderStatus.CONFIRMED ? existing.confirmedAt ?? now : existing.confirmedAt,
-      shippedAt: status === OrderStatus.SHIPPED ? existing.shippedAt ?? now : existing.shippedAt,
+        status === OrderStatus.CONFIRMED
+          ? (existing.confirmedAt ?? now)
+          : existing.confirmedAt,
+      shippedAt:
+        status === OrderStatus.SHIPPED
+          ? (existing.shippedAt ?? now)
+          : existing.shippedAt,
       deliveredAt:
-        status === OrderStatus.DELIVERED ? existing.deliveredAt ?? now : existing.deliveredAt,
+        status === OrderStatus.DELIVERED
+          ? (existing.deliveredAt ?? now)
+          : existing.deliveredAt,
       cancelledAt:
-        status === OrderStatus.CANCELLED ? existing.cancelledAt ?? now : existing.cancelledAt,
+        status === OrderStatus.CANCELLED
+          ? (existing.cancelledAt ?? now)
+          : existing.cancelledAt,
     };
   }
 
@@ -513,7 +780,9 @@ export class OrdersService {
       warehouseId: warehouse.id,
       currencyCode: settings.defaultCurrencyCode,
       minOrderAmount:
-        settings.minOrderAmount != null ? Number(settings.minOrderAmount) : null,
+        settings.minOrderAmount != null
+          ? Number(settings.minOrderAmount)
+          : null,
       taxRateId: tax?.id ?? null,
       taxRateName: tax?.name ?? null,
       taxRatePercent,
@@ -578,7 +847,9 @@ export class OrdersService {
         quantity: item.quantity,
         unitPrice,
         compareAtPrice:
-          variant.compareAtPrice != null ? Number(variant.compareAtPrice) : null,
+          variant.compareAtPrice != null
+            ? Number(variant.compareAtPrice)
+            : null,
         lineSubtotal,
         taxAmount,
         lineTotal,
@@ -648,8 +919,12 @@ export class OrdersService {
     }
   }
 
-  private async releaseStockForOrder(tx: Prisma.TransactionClient, orderId: string) {
-    const reservations = await this.orderRepository.findActiveReservationsByOrder(tx, orderId);
+  private async releaseStockForOrder(
+    tx: Prisma.TransactionClient,
+    orderId: string,
+  ) {
+    const reservations =
+      await this.orderRepository.findActiveReservationsByOrder(tx, orderId);
 
     for (const reservation of reservations) {
       const level = await this.orderRepository.getStockLevelInTransaction(
@@ -667,7 +942,53 @@ export class OrdersService {
         );
       }
 
-      await this.orderRepository.releaseReservationInTransaction(tx, reservation.id);
+      await this.orderRepository.releaseReservationInTransaction(
+        tx,
+        reservation.id,
+      );
+    }
+  }
+
+  private async restockForOrder(
+    tx: Prisma.TransactionClient,
+    order: {
+      id: string;
+      orderNumber: string;
+      warehouseId: string | null;
+      items: { variantId: string | null; quantity: number }[];
+    },
+    performedById?: string,
+  ) {
+    if (!order.warehouseId) return;
+
+    for (const item of order.items) {
+      if (!item.variantId) continue;
+
+      const level = await this.orderRepository.getStockLevelInTransaction(
+        tx,
+        order.warehouseId,
+        item.variantId,
+      );
+
+      const quantityBefore = level?.quantityOnHand ?? 0;
+      const quantityAfter = quantityBefore + item.quantity;
+
+      await this.orderRepository.upsertStockLevelInTransaction(
+        tx,
+        order.warehouseId,
+        item.variantId,
+        quantityAfter,
+      );
+
+      await this.orderRepository.createMovementInTransaction(tx, {
+        warehouseId: order.warehouseId,
+        variantId: item.variantId,
+        quantityChange: item.quantity,
+        quantityBefore,
+        quantityAfter,
+        note: `Reingreso por reembolso pedido ${order.orderNumber}`,
+        performedById: performedById ?? null,
+      });
     }
   }
 
@@ -767,7 +1088,9 @@ export class OrdersService {
     };
   }
 
-  private mapOrderDetail(order: NonNullable<Awaited<ReturnType<PrismaOrderRepository['findById']>>>) {
+  private mapOrderDetail(
+    order: NonNullable<Awaited<ReturnType<PrismaOrderRepository['findById']>>>,
+  ) {
     const summary = this.mapOrderSummary({
       ...order,
       _count: { items: order.items.length },
@@ -845,8 +1168,36 @@ export class OrdersService {
     } satisfies OrderDetailRecord;
   }
 
+  private buildAddressDedupKey(address: {
+    type: string;
+    addressLine1: string;
+    addressLine2: string | null;
+    district: string | null;
+    province: string | null;
+    department: string | null;
+    country: string;
+    postalCode: string | null;
+  }) {
+    return [
+      address.type,
+      address.addressLine1,
+      address.addressLine2,
+      address.district,
+      address.province,
+      address.department,
+      address.country,
+      address.postalCode,
+    ]
+      .map((part) => (part ?? '').trim().toLowerCase())
+      .join('|');
+  }
+
   private resolveCustomerName(order: {
-    customer: { firstName: string | null; lastName: string | null; email: string } | null;
+    customer: {
+      firstName: string | null;
+      lastName: string | null;
+      email: string;
+    } | null;
     guestFirstName: string | null;
     guestLastName: string | null;
     guestEmail: string | null;
@@ -867,10 +1218,16 @@ export class OrdersService {
   }
 
   private resolveUserName(
-    user: { firstName: string | null; lastName: string | null; email: string } | null | undefined,
+    user:
+      | { firstName: string | null; lastName: string | null; email: string }
+      | null
+      | undefined,
   ) {
     if (!user) return null;
-    const name = [user.firstName, user.lastName].filter(Boolean).join(' ').trim();
+    const name = [user.firstName, user.lastName]
+      .filter(Boolean)
+      .join(' ')
+      .trim();
     return name || user.email;
   }
 }

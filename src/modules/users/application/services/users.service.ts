@@ -47,12 +47,15 @@ export class UsersService {
       });
     }
 
-    const invalidRoles = dto.roleSlugs.filter((slug) => slug === ROLE_SLUGS.CUSTOMER);
+    const invalidRoles = dto.roleSlugs.filter(
+      (slug) => slug === ROLE_SLUGS.CUSTOMER,
+    );
 
     if (invalidRoles.length > 0) {
       throw new ConflictException({
         code: 'INVALID_STAFF_ROLE',
-        message: 'No se puede asignar el rol de cliente a un usuario del panel.',
+        message:
+          'No se puede asignar el rol de cliente a un usuario del panel.',
       });
     }
 
@@ -78,7 +81,8 @@ export class UsersService {
       if (existing.userType === UserType.STAFF) {
         throw new ConflictException({
           code: 'EMAIL_BELONGS_TO_STAFF',
-          message: 'Este correo pertenece a un usuario del panel administrativo.',
+          message:
+            'Este correo pertenece a un usuario del panel administrativo.',
         });
       }
 
@@ -157,10 +161,7 @@ export class UsersService {
       });
     }
 
-    if (
-      dto.status === UserStatus.SUSPENDED &&
-      userId === currentUser.id
-    ) {
+    if (dto.status === UserStatus.SUSPENDED && userId === currentUser.id) {
       throw new BadRequestException({
         code: 'CANNOT_SUSPEND_SELF',
         message: 'No puedes suspender tu propia cuenta.',
@@ -232,11 +233,12 @@ export class UsersService {
     const page = query.page ?? 1;
     const limit = query.limit ?? 10;
 
-    const { items, total } = await this.userRepository.listCustomerUsersPaginated({
-      page,
-      limit,
-      search: query.search,
-    });
+    const { items, total } =
+      await this.userRepository.listCustomerUsersPaginated({
+        page,
+        limit,
+        search: query.search,
+      });
 
     return buildPaginationMeta(
       { page, limit },
@@ -343,12 +345,15 @@ export class UsersService {
   }
 
   private assertValidStaffRoles(roleSlugs: string[]) {
-    const invalidRoles = roleSlugs.filter((slug) => slug === ROLE_SLUGS.CUSTOMER);
+    const invalidRoles = roleSlugs.filter(
+      (slug) => slug === ROLE_SLUGS.CUSTOMER,
+    );
 
     if (invalidRoles.length > 0) {
       throw new ConflictException({
         code: 'INVALID_STAFF_ROLE',
-        message: 'No se puede asignar el rol de cliente a un usuario del panel.',
+        message:
+          'No se puede asignar el rol de cliente a un usuario del panel.',
       });
     }
   }

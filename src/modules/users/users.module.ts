@@ -1,5 +1,6 @@
 import { Module, forwardRef } from '@nestjs/common';
 import { AuthModule } from '../auth/auth.module';
+import { OrdersModule } from '../sales/orders/orders.module';
 import { RolesService } from './application/services/roles.service';
 import { UsersService } from './application/services/users.service';
 import { PrismaUserRepository } from './infrastructure/repositories/prisma-user.repository';
@@ -9,7 +10,7 @@ import { AdminCustomersController } from './presentation/controllers/admin-custo
 import { AdminUsersController } from './presentation/controllers/admin-users.controller';
 
 @Module({
-  imports: [forwardRef(() => AuthModule)],
+  imports: [forwardRef(() => AuthModule), OrdersModule],
   controllers: [
     AdminUsersController,
     AdminCustomersController,

@@ -12,7 +12,10 @@ import type {
 import { PrismaMovementRepository } from '../../infrastructure/repositories/prisma-movement.repository';
 import { PrismaStockRepository } from '../../infrastructure/repositories/prisma-stock.repository';
 import { PrismaWarehouseRepository } from '../../infrastructure/repositories/prisma-warehouse.repository';
-import { ListMovementsQueryDto, ListStockQueryDto } from '../dto/list-inventory-query.dto';
+import {
+  ListMovementsQueryDto,
+  ListStockQueryDto,
+} from '../dto/list-inventory-query.dto';
 import {
   CreateStockMovementDto,
   UpdateStockThresholdDto,
@@ -144,7 +147,9 @@ export class StockService {
     }
 
     if (dto.type === StockMovementType.TRANSFER) {
-      const target = await this.warehouseRepository.findById(dto.targetWarehouseId!);
+      const target = await this.warehouseRepository.findById(
+        dto.targetWarehouseId!,
+      );
       if (!target || !target.isActive) {
         throw new NotFoundException({
           code: 'TARGET_WAREHOUSE_NOT_FOUND',
@@ -153,72 +158,80 @@ export class StockService {
       }
     }
 
-    const movement = await this.movementRepository.runStockTransaction(async (tx) => {
-      const sourceLevel = await this.movementRepository.getLevelInTransaction(
-        tx,
-        dto.warehouseId,
-        dto.variantId,
-      );
-      const quantityBefore = sourceLevel?.quantityOnHand ?? 0;
-      const quantityReserved = sourceLevel?.quantityReserved ?? 0;
-      const quantityAfter = quantityBefore + quantityChange;
-
-      if (quantityAfter < 0) {
-        throw new BadRequestException({
-          code: 'INSUFFICIENT_STOCK',
-          message: 'Stock insuficiente para completar el movimiento.',
-        });
-      }
-
-      if (quantityAfter < quantityReserved) {
-        throw new BadRequestException({
-          code: 'STOCK_BELOW_RESERVED',
-          message: `No puedes dejar el stock por debajo de lo reservado (${quantityReserved} unidades).`,
-        });
-      }
-
-      await this.movementRepository.upsertLevelInTransaction(
-        tx,
-        dto.warehouseId,
-        dto.variantId,
-        quantityAfter,
-      );
-
-      if (dto.type === StockMovementType.TRANSFER) {
-        const targetLevel = await this.movementRepository.getLevelInTransaction(
+    const movement = await this.movementRepository.runStockTransaction(
+      async (tx) => {
+        const sourceLevel = await this.movementRepository.getLevelInTransaction(
           tx,
-          dto.targetWarehouseId!,
+          dto.warehouseId,
           dto.variantId,
         );
-        const targetBefore = targetLevel?.quantityOnHand ?? 0;
-        const transferQty = Math.abs(quantityChange);
+        const quantityBefore = sourceLevel?.quantityOnHand ?? 0;
+        const quantityReserved = sourceLevel?.quantityReserved ?? 0;
+        const quantityAfter = quantityBefore + quantityChange;
+
+        if (quantityAfter < 0) {
+          throw new BadRequestException({
+            code: 'INSUFFICIENT_STOCK',
+            message: 'Stock insuficiente para completar el movimiento.',
+          });
+        }
+
+        if (quantityAfter < quantityReserved) {
+          throw new BadRequestException({
+            code: 'STOCK_BELOW_RESERVED',
+            message: `No puedes dejar el stock por debajo de lo reservado (${quantityReserved} unidades).`,
+          });
+        }
 
         await this.movementRepository.upsertLevelInTransaction(
           tx,
-          dto.targetWarehouseId!,
+          dto.warehouseId,
           dto.variantId,
-          targetBefore + transferQty,
+          quantityAfter,
         );
-      }
 
-      return this.movementRepository.createMovementInTransaction(tx, {
-        warehouseId: dto.warehouseId,
-        variantId: dto.variantId,
-        type: dto.type,
-        quantityChange,
-        quantityBefore,
-        quantityAfter,
-        note: dto.note?.trim() ?? null,
-        performedById: performedById ?? null,
-        targetWarehouseId:
-          dto.type === StockMovementType.TRANSFER ? dto.targetWarehouseId! : null,
-      });
-    });
+        if (dto.type === StockMovementType.TRANSFER) {
+          const targetLevel =
+            await this.movementRepository.getLevelInTransaction(
+              tx,
+              dto.targetWarehouseId!,
+              dto.variantId,
+            );
+          const targetBefore = targetLevel?.quantityOnHand ?? 0;
+          const transferQty = Math.abs(quantityChange);
+
+          await this.movementRepository.upsertLevelInTransaction(
+            tx,
+            dto.targetWarehouseId!,
+            dto.variantId,
+            targetBefore + transferQty,
+          );
+        }
+
+        return this.movementRepository.createMovementInTransaction(tx, {
+          warehouseId: dto.warehouseId,
+          variantId: dto.variantId,
+          type: dto.type,
+          quantityChange,
+          quantityBefore,
+          quantityAfter,
+          note: dto.note?.trim() ?? null,
+          performedById: performedById ?? null,
+          targetWarehouseId:
+            dto.type === StockMovementType.TRANSFER
+              ? dto.targetWarehouseId!
+              : null,
+        });
+      },
+    );
 
     return this.mapMovement(movement);
   }
 
-  private resolveQuantityChange(type: StockMovementType, quantity: number): number {
+  private resolveQuantityChange(
+    type: StockMovementType,
+    quantity: number,
+  ): number {
     if (type === StockMovementType.ADJUSTMENT) {
       return quantity;
     }
@@ -255,7 +268,8 @@ export class StockService {
   }): StockLevelRecord {
     const quantityAvailable = level.quantityOnHand - level.quantityReserved;
     const isLowStock =
-      level.lowStockThreshold != null && quantityAvailable <= level.lowStockThreshold;
+      level.lowStockThreshold != null &&
+      quantityAvailable <= level.lowStockThreshold;
 
     return {
       id: level.id,
@@ -295,7 +309,11 @@ export class StockService {
       name: string | null;
       product: { name: string };
     };
-    performedBy: { firstName: string | null; lastName: string | null; email: string } | null;
+    performedBy: {
+      firstName: string | null;
+      lastName: string | null;
+      email: string;
+    } | null;
   }): StockMovementRecord {
     const performedByName = movement.performedBy
       ? [movement.performedBy.firstName, movement.performedBy.lastName]

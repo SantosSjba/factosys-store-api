@@ -42,7 +42,10 @@ export class ReservationsService {
     );
   }
 
-  async createReservation(dto: CreateStockReservationDto, performedById?: string) {
+  async createReservation(
+    dto: CreateStockReservationDto,
+    performedById?: string,
+  ) {
     const warehouse = await this.warehouseRepository.findById(dto.warehouseId);
     if (!warehouse || !warehouse.isActive) {
       throw new NotFoundException({
@@ -59,47 +62,50 @@ export class ReservationsService {
       });
     }
 
-    const reservation = await this.reservationRepository.runTransaction(async (tx) => {
-      const level = await this.reservationRepository.getLevelInTransaction(
-        tx,
-        dto.warehouseId,
-        dto.variantId,
-      );
+    const reservation = await this.reservationRepository.runTransaction(
+      async (tx) => {
+        const level = await this.reservationRepository.getLevelInTransaction(
+          tx,
+          dto.warehouseId,
+          dto.variantId,
+        );
 
-      const onHand = level?.quantityOnHand ?? 0;
-      const reserved = level?.quantityReserved ?? 0;
-      const available = onHand - reserved;
+        const onHand = level?.quantityOnHand ?? 0;
+        const reserved = level?.quantityReserved ?? 0;
+        const available = onHand - reserved;
 
-      if (dto.quantity > available) {
-        throw new BadRequestException({
-          code: 'INSUFFICIENT_AVAILABLE_STOCK',
-          message: `Stock disponible insuficiente. Disponible: ${available}.`,
+        if (dto.quantity > available) {
+          throw new BadRequestException({
+            code: 'INSUFFICIENT_AVAILABLE_STOCK',
+            message: `Stock disponible insuficiente. Disponible: ${available}.`,
+          });
+        }
+
+        if (!level) {
+          throw new BadRequestException({
+            code: 'NO_STOCK_LEVEL',
+            message:
+              'No hay stock registrado para esta variante en el almacén.',
+          });
+        }
+
+        await this.reservationRepository.updateReservedInTransaction(
+          tx,
+          dto.warehouseId,
+          dto.variantId,
+          reserved + dto.quantity,
+        );
+
+        return this.reservationRepository.createInTransaction(tx, {
+          warehouseId: dto.warehouseId,
+          variantId: dto.variantId,
+          quantity: dto.quantity,
+          reference: dto.reference?.trim() ?? null,
+          note: dto.note?.trim() ?? null,
+          performedById: performedById ?? null,
         });
-      }
-
-      if (!level) {
-        throw new BadRequestException({
-          code: 'NO_STOCK_LEVEL',
-          message: 'No hay stock registrado para esta variante en el almacén.',
-        });
-      }
-
-      await this.reservationRepository.updateReservedInTransaction(
-        tx,
-        dto.warehouseId,
-        dto.variantId,
-        reserved + dto.quantity,
-      );
-
-      return this.reservationRepository.createInTransaction(tx, {
-        warehouseId: dto.warehouseId,
-        variantId: dto.variantId,
-        quantity: dto.quantity,
-        reference: dto.reference?.trim() ?? null,
-        note: dto.note?.trim() ?? null,
-        performedById: performedById ?? null,
-      });
-    });
+      },
+    );
 
     return this.mapReservation(reservation);
   }
@@ -120,25 +126,30 @@ export class ReservationsService {
       });
     }
 
-    const reservation = await this.reservationRepository.runTransaction(async (tx) => {
-      const level = await this.reservationRepository.getLevelInTransaction(
-        tx,
-        existing.warehouseId,
-        existing.variantId,
-      );
-
-      if (level) {
-        const nextReserved = Math.max(0, level.quantityReserved - existing.quantity);
-        await this.reservationRepository.updateReservedInTransaction(
+    const reservation = await this.reservationRepository.runTransaction(
+      async (tx) => {
+        const level = await this.reservationRepository.getLevelInTransaction(
           tx,
           existing.warehouseId,
           existing.variantId,
-          nextReserved,
         );
-      }
 
-      return this.reservationRepository.releaseInTransaction(tx, id);
-    });
+        if (level) {
+          const nextReserved = Math.max(
+            0,
+            level.quantityReserved - existing.quantity,
+          );
+          await this.reservationRepository.updateReservedInTransaction(
+            tx,
+            existing.warehouseId,
+            existing.variantId,
+            nextReserved,
+          );
+        }
+
+        return this.reservationRepository.releaseInTransaction(tx, id);
+      },
+    );
 
     return this.mapReservation(reservation);
   }
@@ -160,7 +171,11 @@ export class ReservationsService {
       name: string | null;
       product: { name: string };
     };
-    performedBy: { firstName: string | null; lastName: string | null; email: string } | null;
+    performedBy: {
+      firstName: string | null;
+      lastName: string | null;
+      email: string;
+    } | null;
   }): StockReservationRecord {
     const performedByName = reservation.performedBy
       ? [reservation.performedBy.firstName, reservation.performedBy.lastName]

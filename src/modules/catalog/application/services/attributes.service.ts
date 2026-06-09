@@ -1,7 +1,4 @@
-import {
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { buildPaginationMeta } from '../../../../shared/helpers/pagination.helper';
 import { ensureUniqueSlug } from '../../../../shared/helpers/slug.helper';
 import { PaginationQueryDto } from '../../../../shared/dto/pagination-query.dto';
@@ -11,7 +8,9 @@ import { UpdateAttributeDto } from '../dto/update-attribute.dto';
 
 @Injectable()
 export class AttributesService {
-  constructor(private readonly attributeRepository: PrismaAttributeRepository) {}
+  constructor(
+    private readonly attributeRepository: PrismaAttributeRepository,
+  ) {}
 
   async listAttributes(query: PaginationQueryDto) {
     const page = query.page ?? 1;
@@ -87,9 +86,11 @@ export class AttributesService {
       name: dto.name?.trim(),
       slug,
       description:
-        dto.description !== undefined ? dto.description?.trim() ?? null : undefined,
+        dto.description !== undefined
+          ? (dto.description?.trim() ?? null)
+          : undefined,
       dataType: dto.dataType,
-      unit: dto.unit !== undefined ? dto.unit?.trim() ?? null : undefined,
+      unit: dto.unit !== undefined ? (dto.unit?.trim() ?? null) : undefined,
       scope: dto.scope,
       options: dto.options,
       isFilterable: dto.isFilterable,

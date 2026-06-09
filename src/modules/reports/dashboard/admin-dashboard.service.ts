@@ -6,6 +6,7 @@ import {
   UserType,
 } from '../../../generated/prisma/client';
 import { PrismaService } from '../../../prisma/prisma.service';
+import type { DashboardStatsQueryDto } from './dashboard-stats-query.dto';
 
 type DayRange = { start: Date; end: Date };
 
@@ -13,19 +14,19 @@ type DayRange = { start: Date; end: Date };
 export class AdminDashboardService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async getStats() {
+  async getStats(query: DashboardStatsQueryDto = {}) {
     const settings = await this.prisma.storeSettings.findFirst();
     const timezone = settings?.timezone ?? 'America/Lima';
     const currencyCode = settings?.defaultCurrencyCode ?? 'PEN';
     const lowStockThreshold = settings?.lowStockGlobalThreshold ?? 5;
 
-    const today = this.getDayRange(timezone, 0);
-    const yesterday = this.getDayRange(timezone, -1);
+    const range = this.resolveRange(query, timezone);
+    const previousRange = this.previousRange(range);
 
     const [
-      ordersToday,
-      ordersYesterday,
-      revenueTodayAgg,
+      ordersInRange,
+      ordersPreviousRange,
+      revenueInRangeAgg,
       pendingPaymentOrders,
       processingOrders,
       productsActive,
@@ -33,10 +34,12 @@ export class AdminDashboardService {
       lowStockItems,
       recentOrders,
       ordersByStatus,
+      dailyOrders,
+      dailyRevenue,
     ] = await Promise.all([
-      this.countOrdersInRange(today),
-      this.countOrdersInRange(yesterday),
-      this.sumRevenueInRange(today),
+      this.countOrdersInRange(range),
+      this.countOrdersInRange(previousRange),
+      this.sumRevenueInRange(range),
       this.prisma.order.count({
         where: {
           paymentStatus: OrderPaymentStatus.PENDING,
@@ -78,25 +81,55 @@ export class AdminDashboardService {
         by: ['status'],
         _count: { _all: true },
         where: {
-          createdAt: { gte: today.start },
+          createdAt: { gte: range.start, lte: range.end },
         },
+      }),
+      this.prisma.order.findMany({
+        where: {
+          createdAt: { gte: range.start, lte: range.end },
+          status: { not: OrderStatus.CANCELLED },
+        },
+        select: { createdAt: true },
+      }),
+      this.prisma.order.findMany({
+        where: {
+          createdAt: { gte: range.start, lte: range.end },
+          paymentStatus: OrderPaymentStatus.PAID,
+          status: { notIn: [OrderStatus.CANCELLED, OrderStatus.REFUNDED] },
+        },
+        select: { createdAt: true, total: true },
       }),
     ]);
 
-    const revenueToday = revenueTodayAgg._sum.total?.toString() ?? '0';
-    const ordersTrend = this.calcTrend(ordersToday, ordersYesterday);
+    const revenueInRange = revenueInRangeAgg._sum.total?.toString() ?? '0';
+    const ordersTrend = this.calcTrend(ordersInRange, ordersPreviousRange);
+    const dailySeries = this.buildDailySeries(
+      range,
+      timezone,
+      dailyOrders,
+      dailyRevenue,
+    );
+
+    const today = this.getDayRange(timezone, 0);
+    const ordersToday = await this.countOrdersInRange(today);
 
     return {
       currencyCode,
-      ordersToday,
-      ordersYesterday,
+      range: {
+        from: range.start.toISOString(),
+        to: range.end.toISOString(),
+      },
+      ordersInRange,
+      ordersPreviousRange,
       ordersTrendPercent: ordersTrend,
-      revenueToday,
+      revenueInRange,
+      ordersToday,
       pendingPaymentOrders,
       processingOrders,
       productsActive,
       staffUsers,
       lowStockItems,
+      dailySeries,
       ordersByStatus: ordersByStatus.map((row) => ({
         status: row.status,
         count: row._count._all,
@@ -117,17 +150,100 @@ export class AdminDashboardService {
     };
   }
 
+  private resolveRange(
+    query: DashboardStatsQueryDto,
+    timezone: string,
+  ): DayRange {
+    if (query.dateFrom && query.dateTo) {
+      return {
+        start: new Date(query.dateFrom),
+        end: new Date(query.dateTo),
+      };
+    }
+
+    if (query.dateFrom) {
+      const start = new Date(query.dateFrom);
+      const end = new Date(start);
+      end.setDate(end.getDate() + 6);
+      end.setHours(23, 59, 59, 999);
+      return { start, end };
+    }
+
+    const end = this.getDayRange(timezone, 0).end;
+    const start = new Date(end);
+    start.setDate(start.getDate() - 6);
+    start.setHours(0, 0, 0, 0);
+    return { start, end };
+  }
+
+  private previousRange(range: DayRange): DayRange {
+    const duration = range.end.getTime() - range.start.getTime();
+    const end = new Date(range.start.getTime() - 1);
+    const start = new Date(end.getTime() - duration);
+    return { start, end };
+  }
+
+  private buildDailySeries(
+    range: DayRange,
+    timezone: string,
+    orders: { createdAt: Date }[],
+    revenueRows: { createdAt: Date; total: { toString(): string } }[],
+  ) {
+    const buckets = new Map<string, { orders: number; revenue: number }>();
+    const cursor = new Date(range.start);
+    cursor.setHours(0, 0, 0, 0);
+
+    while (cursor <= range.end) {
+      const key = this.formatDateKey(cursor, timezone);
+      buckets.set(key, { orders: 0, revenue: 0 });
+      cursor.setDate(cursor.getDate() + 1);
+    }
+
+    for (const order of orders) {
+      const key = this.formatDateKey(order.createdAt, timezone);
+      const bucket = buckets.get(key);
+      if (bucket) bucket.orders += 1;
+    }
+
+    for (const row of revenueRows) {
+      const key = this.formatDateKey(row.createdAt, timezone);
+      const bucket = buckets.get(key);
+      if (bucket) bucket.revenue += Number(row.total);
+    }
+
+    return [...buckets.entries()].map(([date, values]) => ({
+      date,
+      orders: values.orders,
+      revenue: values.revenue.toFixed(2),
+    }));
+  }
+
+  private formatDateKey(date: Date, timezone: string) {
+    return new Intl.DateTimeFormat('en-CA', {
+      timeZone: timezone,
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+    }).format(date);
+  }
+
   private resolveCustomerName(order: {
     guestFirstName: string | null;
     guestLastName: string | null;
     guestEmail: string | null;
-    customer: { firstName: string | null; lastName: string | null; email: string } | null;
+    customer: {
+      firstName: string | null;
+      lastName: string | null;
+      email: string;
+    } | null;
   }) {
     const registered = [order.customer?.firstName, order.customer?.lastName]
       .filter(Boolean)
       .join(' ');
     if (registered) return registered;
-    const guest = [order.guestFirstName, order.guestLastName].filter(Boolean).join(' ');
+    const guest = [order.guestFirstName, order.guestLastName]
+      .filter(Boolean)
+      .join(' ');
     return guest || order.customer?.email || order.guestEmail;
   }
 
@@ -173,7 +289,9 @@ export class AdminDashboardService {
 
   private getTimezoneOffsetMs(timezone: string, date: Date) {
     const utc = new Date(date.toLocaleString('en-US', { timeZone: 'UTC' }));
-    const local = new Date(date.toLocaleString('en-US', { timeZone: timezone }));
+    const local = new Date(
+      date.toLocaleString('en-US', { timeZone: timezone }),
+    );
     return utc.getTime() - local.getTime();
   }
 

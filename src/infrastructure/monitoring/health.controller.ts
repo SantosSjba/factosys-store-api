@@ -23,14 +23,17 @@ export class HealthController {
       'Verifica el estado general de la API y el estado de las tecnologías activas (PostgreSQL, Redis, Elasticsearch, etc.).',
   })
   @ApiOkResponse({
-    description: 'API operativa (puede estar degradada si algún servicio falla)',
+    description:
+      'API operativa (puede estar degradada si algún servicio falla)',
     type: HealthResponseDto,
   })
   @ApiServiceUnavailableResponse({
     description: 'API con servicios críticos no disponibles',
     type: HealthResponseDto,
   })
-  async check(@Res({ passthrough: true }) response: Response): Promise<HealthResponseDto> {
+  async check(
+    @Res({ passthrough: true }) response: Response,
+  ): Promise<HealthResponseDto> {
     const health = await this.healthService.getHealthStatus();
 
     if (health.status === HealthStatus.ERROR) {

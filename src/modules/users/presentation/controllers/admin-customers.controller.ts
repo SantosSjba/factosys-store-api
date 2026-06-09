@@ -15,6 +15,7 @@ import { PERMISSIONS } from '../../../../shared/constants/permissions.constants'
 import { PaginationQueryDto } from '../../../../shared/dto/pagination-query.dto';
 import { CreateCustomerDto } from '../../application/dto/create-customer.dto';
 import { UpdateCustomerDto } from '../../application/dto/update-customer.dto';
+import { OrdersService } from '../../../sales/application/services/orders.service';
 import { UsersService } from '../../application/services/users.service';
 
 @ApiTags('Admin Customers')
@@ -22,7 +23,10 @@ import { UsersService } from '../../application/services/users.service';
 @Controller('admin/customers')
 @UserTypes('STAFF')
 export class AdminCustomersController {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(
+    private readonly usersService: UsersService,
+    private readonly ordersService: OrdersService,
+  ) {}
 
   @Get()
   @RequirePermissions(PERMISSIONS.USERS_READ)
@@ -36,6 +40,13 @@ export class AdminCustomersController {
   @ApiOperation({ summary: 'Crear cliente de la tienda (cuenta activa)' })
   createCustomer(@Body() dto: CreateCustomerDto) {
     return this.usersService.createCustomerUser(dto);
+  }
+
+  @Get(':id/addresses')
+  @RequirePermissions(PERMISSIONS.USERS_READ)
+  @ApiOperation({ summary: 'Direcciones usadas en pedidos del cliente' })
+  listCustomerAddresses(@Param('id') id: string) {
+    return this.ordersService.listCustomerAddresses(id);
   }
 
   @Get(':id')
@@ -54,7 +65,9 @@ export class AdminCustomersController {
 
   @Delete(':id')
   @RequirePermissions(PERMISSIONS.USERS_DELETE)
-  @ApiOperation({ summary: 'Dar de baja cliente (soft delete — suspende y cierra sesiones)' })
+  @ApiOperation({
+    summary: 'Dar de baja cliente (soft delete — suspende y cierra sesiones)',
+  })
   softDeleteCustomer(@Param('id') id: string) {
     return this.usersService.softDeleteCustomerUser(id);
   }

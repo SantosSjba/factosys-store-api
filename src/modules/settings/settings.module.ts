@@ -31,6 +31,11 @@ import { StoreSettingsController } from './presentation/controllers/store-settin
     CurrenciesService,
     TaxesService,
   ],
-  exports: [CompanyService, StoreSettingsService, CurrenciesService, TaxesService],
+  exports: [
+    CompanyService,
+    StoreSettingsService,
+    CurrenciesService,
+    TaxesService,
+  ],
 })
 export class SettingsModule {}

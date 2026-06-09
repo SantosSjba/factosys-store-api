@@ -2,7 +2,10 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { createHash, randomBytes } from 'crypto';
-import { AUTH_AUDIENCE, AuthAudience } from '../../../../shared/constants/auth.constants';
+import {
+  AUTH_AUDIENCE,
+  AuthAudience,
+} from '../../../../shared/constants/auth.constants';
 import { parseJwtDurationToSeconds } from '../../../../shared/helpers/jwt-duration.helper';
 import { JwtPayload } from '../../../../shared/interfaces/jwt-payload.interface';
 
@@ -20,7 +23,9 @@ export class TokenService {
     private readonly configService: ConfigService,
   ) {}
 
-  generateAccessToken(payload: Omit<JwtPayload, 'aud'> & { aud?: AuthAudience }): string {
+  generateAccessToken(
+    payload: Omit<JwtPayload, 'aud'> & { aud?: AuthAudience },
+  ): string {
     const audience = payload.aud ?? AUTH_AUDIENCE.STORE;
 
     return this.jwtService.sign(
@@ -62,7 +67,10 @@ export class TokenService {
   }
 
   private getRefreshExpirationDate(): Date {
-    const expiresIn = this.configService.get<string>('jwt.refreshExpiresIn', '7d');
+    const expiresIn = this.configService.get<string>(
+      'jwt.refreshExpiresIn',
+      '7d',
+    );
     const daysMatch = expiresIn.match(/^(\d+)d$/);
 
     if (daysMatch) {

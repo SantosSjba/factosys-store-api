@@ -1,10 +1,4 @@
-import {
-  Controller,
-  Get,
-  NotFoundException,
-  Param,
-  Res,
-} from '@nestjs/common';
+import { Controller, Get, NotFoundException, Param, Res } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import type { Response } from 'express';
 import { Public } from '../../shared/decorators/public.decorator';

@@ -40,10 +40,7 @@ export async function seedUsers(): Promise<string[]> {
   const seededEmails: string[] = [];
 
   for (const userDef of SEED_STAFF_USER_DEFINITIONS) {
-    const email = resolveSeedCredential(
-      userDef.emailEnv,
-      userDef.defaultEmail,
-    );
+    const email = resolveSeedCredential(userDef.emailEnv, userDef.defaultEmail);
     const password = resolveSeedCredential(
       userDef.passwordEnv,
       userDef.defaultPassword,

@@ -4,6 +4,10 @@ import { PushNotificationsModule } from './push/push.module';
 import { SmsNotificationsModule } from './sms/sms.module';
 
 @Module({
-  imports: [EmailNotificationsModule, SmsNotificationsModule, PushNotificationsModule],
+  imports: [
+    EmailNotificationsModule,
+    SmsNotificationsModule,
+    PushNotificationsModule,
+  ],
 })
 export class NotificationsModule {}

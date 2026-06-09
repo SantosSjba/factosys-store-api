@@ -12,7 +12,9 @@ import { CreateWarehouseDto, UpdateWarehouseDto } from '../dto/warehouse.dto';
 
 @Injectable()
 export class WarehousesService {
-  constructor(private readonly warehouseRepository: PrismaWarehouseRepository) {}
+  constructor(
+    private readonly warehouseRepository: PrismaWarehouseRepository,
+  ) {}
 
   async listWarehouses(query: PaginationQueryDto) {
     const page = query.page ?? 1;
@@ -111,11 +113,15 @@ export class WarehousesService {
 
     const warehouse = await this.warehouseRepository.update(id, {
       ...(dto.name !== undefined ? { name: dto.name.trim() } : {}),
-      ...(dto.code !== undefined ? { code: dto.code.trim().toUpperCase() } : {}),
+      ...(dto.code !== undefined
+        ? { code: dto.code.trim().toUpperCase() }
+        : {}),
       ...(dto.description !== undefined
         ? { description: dto.description.trim() || null }
         : {}),
-      ...(dto.address !== undefined ? { address: dto.address.trim() || null } : {}),
+      ...(dto.address !== undefined
+        ? { address: dto.address.trim() || null }
+        : {}),
       ...(dto.isDefault !== undefined ? { isDefault: dto.isDefault } : {}),
       ...(dto.isActive !== undefined ? { isActive: dto.isActive } : {}),
       ...(dto.sortOrder !== undefined ? { sortOrder: dto.sortOrder } : {}),

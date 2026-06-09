@@ -14,6 +14,11 @@ export type OrderItemRecord = {
   sortOrder: number;
 };
 
+export type CustomerSavedAddressRecord = OrderAddressRecord & {
+  lastOrderNumber: string;
+  lastUsedAt: Date;
+};
+
 export type OrderAddressRecord = {
   id: string;
   type: 'SHIPPING' | 'BILLING';

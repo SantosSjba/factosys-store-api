@@ -60,7 +60,9 @@ export class PrismaProductRepository {
         OR: [
           { name: { contains: params.search, mode: 'insensitive' } },
           { slug: { contains: params.search, mode: 'insensitive' } },
-          { shortDescription: { contains: params.search, mode: 'insensitive' } },
+          {
+            shortDescription: { contains: params.search, mode: 'insensitive' },
+          },
           { tags: { has: params.search } },
         ],
       };

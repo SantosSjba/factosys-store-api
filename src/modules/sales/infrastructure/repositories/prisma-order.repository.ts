@@ -31,7 +31,9 @@ const orderDetailInclude = {
 export class PrismaOrderRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  runTransaction<T>(handler: (tx: Prisma.TransactionClient) => Promise<T>): Promise<T> {
+  runTransaction<T>(
+    handler: (tx: Prisma.TransactionClient) => Promise<T>,
+  ): Promise<T> {
     return this.prisma.$transaction(handler);
   }
 
@@ -57,7 +59,9 @@ export class PrismaOrderRepository {
       ...(params.status ? { status: params.status } : {}),
       ...(params.paymentStatus ? { paymentStatus: params.paymentStatus } : {}),
       ...(params.customerId ? { customerId: params.customerId } : {}),
-      ...(params.deliveryMethod ? { deliveryMethod: params.deliveryMethod } : {}),
+      ...(params.deliveryMethod
+        ? { deliveryMethod: params.deliveryMethod }
+        : {}),
       ...(params.dateFrom || params.dateTo
         ? {
             createdAt: {
@@ -71,8 +75,15 @@ export class PrismaOrderRepository {
             OR: [
               { orderNumber: { contains: params.search, mode: 'insensitive' } },
               { guestEmail: { contains: params.search, mode: 'insensitive' } },
-              { guestFirstName: { contains: params.search, mode: 'insensitive' } },
-              { guestLastName: { contains: params.search, mode: 'insensitive' } },
+              {
+                guestFirstName: {
+                  contains: params.search,
+                  mode: 'insensitive',
+                },
+              },
+              {
+                guestLastName: { contains: params.search, mode: 'insensitive' },
+              },
               {
                 customer: {
                   email: { contains: params.search, mode: 'insensitive' },
@@ -105,6 +116,21 @@ export class PrismaOrderRepository {
     ]);
 
     return { items, total };
+  }
+
+  findAddressesByCustomerId(customerId: string) {
+    return this.prisma.orderAddress.findMany({
+      where: { order: { customerId } },
+      orderBy: { order: { createdAt: 'desc' } },
+      include: {
+        order: {
+          select: {
+            orderNumber: true,
+            createdAt: true,
+          },
+        },
+      },
+    });
   }
 
   incrementOrderNumber(tx: Prisma.TransactionClient) {

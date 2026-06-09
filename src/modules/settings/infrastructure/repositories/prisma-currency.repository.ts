@@ -14,7 +14,11 @@ export class PrismaCurrencyRepository {
     return this.prisma.currency.findUnique({ where: { code } });
   }
 
-  async listPaginated(params: { page: number; limit: number; search?: string }) {
+  async listPaginated(params: {
+    page: number;
+    limit: number;
+    search?: string;
+  }) {
     const where: Prisma.CurrencyWhereInput = params.search
       ? {
           OR: [
@@ -64,6 +68,8 @@ export class PrismaCurrencyRepository {
   }
 
   findDefault() {
-    return this.prisma.currency.findFirst({ where: { isDefault: true, isActive: true } });
+    return this.prisma.currency.findFirst({
+      where: { isDefault: true, isActive: true },
+    });
   }
 }

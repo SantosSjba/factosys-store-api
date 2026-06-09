@@ -1,4 +1,7 @@
-import { PaginationQueryDto, PaginationResult } from '../types/pagination.types';
+import {
+  PaginationQueryDto,
+  PaginationResult,
+} from '../types/pagination.types';
 
 export function buildPaginationMeta<T>(
   query: PaginationQueryDto,

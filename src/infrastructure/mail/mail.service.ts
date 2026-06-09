@@ -66,4 +66,41 @@ export class MailService {
       return false;
     }
   }
+
+  async sendOrderEmail(params: {
+    to: string;
+    subject: string;
+    heading: string;
+    body: string;
+    orderNumber: string;
+    total: string;
+    currencyCode: string;
+  }): Promise<boolean> {
+    const totalLabel = `${params.total} ${params.currencyCode}`;
+
+    try {
+      await this.transporter.sendMail({
+        from: this.configService.get<string>('mail.from'),
+        to: params.to,
+        subject: params.subject,
+        html: `
+          <p>${params.heading}</p>
+          <p>${params.body}</p>
+          <p><strong>Pedido:</strong> ${params.orderNumber}</p>
+          <p><strong>Total:</strong> ${totalLabel}</p>
+          <p>Gracias por comprar en Factosys Store.</p>
+        `,
+        text: `${params.heading}\n\n${params.body}\n\nPedido: ${params.orderNumber}\nTotal: ${totalLabel}`,
+      });
+
+      this.logger.log(`Correo de pedido enviado a ${params.to}`);
+      return true;
+    } catch (error) {
+      this.logger.error(
+        `No se pudo enviar el correo de pedido a ${params.to}`,
+        error instanceof Error ? error.stack : undefined,
+      );
+      return false;
+    }
+  }
 }

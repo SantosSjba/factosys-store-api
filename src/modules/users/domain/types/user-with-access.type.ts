@@ -1,4 +1,8 @@
-import { AuthProvider, UserStatus, UserType } from '../../../../generated/prisma/client';
+import {
+  AuthProvider,
+  UserStatus,
+  UserType,
+} from '../../../../generated/prisma/client';
 
 export interface UserWithAccess {
   id: string;

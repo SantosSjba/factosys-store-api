@@ -77,7 +77,11 @@ export class HealthService {
     const connectionString = this.configService.get<string>('database.url');
 
     if (!connectionString) {
-      return this.down('postgresql', 'PostgreSQL', 'DATABASE_URL no configurada');
+      return this.down(
+        'postgresql',
+        'PostgreSQL',
+        'DATABASE_URL no configurada',
+      );
     }
 
     const pool = new Pool({
@@ -139,7 +143,11 @@ export class HealthService {
       await redis.quit();
 
       if (pong !== 'PONG') {
-        return this.down('redis', 'Redis', 'Respuesta inesperada del servidor Redis');
+        return this.down(
+          'redis',
+          'Redis',
+          'Respuesta inesperada del servidor Redis',
+        );
       }
 
       return {
@@ -232,7 +240,9 @@ export class HealthService {
       status: enabled
         ? TechnologyHealthStatus.CONFIGURED
         : TechnologyHealthStatus.DOWN,
-      message: enabled ? 'Documentación habilitada en /docs' : 'Documentación deshabilitada',
+      message: enabled
+        ? 'Documentación habilitada en /docs'
+        : 'Documentación deshabilitada',
     };
   }
 

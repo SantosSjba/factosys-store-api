@@ -34,7 +34,9 @@ export class AdminUsersController {
 
   @Get()
   @RequirePermissions(PERMISSIONS.USERS_READ)
-  @ApiOperation({ summary: 'Listar usuarios del panel administrativo (paginado)' })
+  @ApiOperation({
+    summary: 'Listar usuarios del panel administrativo (paginado)',
+  })
   listStaff(@Query() query: ListStaffUsersQueryDto) {
     return this.usersService.listStaffUsers(query);
   }
@@ -71,7 +73,10 @@ export class AdminUsersController {
 
   @Delete(':id')
   @RequirePermissions(PERMISSIONS.USERS_DELETE)
-  @ApiOperation({ summary: 'Dar de baja usuario staff (soft delete — suspende y cierra sesiones)' })
+  @ApiOperation({
+    summary:
+      'Dar de baja usuario staff (soft delete — suspende y cierra sesiones)',
+  })
   softDeleteStaff(
     @Param('id') id: string,
     @CurrentUser() currentUser: AuthenticatedUser,

@@ -36,7 +36,10 @@ export class TechnologyHealthDto {
   @ApiProperty({ example: 'postgresql' })
   key: string;
 
-  @ApiProperty({ enum: TechnologyHealthStatus, example: TechnologyHealthStatus.UP })
+  @ApiProperty({
+    enum: TechnologyHealthStatus,
+    example: TechnologyHealthStatus.UP,
+  })
   status: TechnologyHealthStatus;
 
   @ApiProperty({ example: 18, required: false })

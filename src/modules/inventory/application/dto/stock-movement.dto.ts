@@ -24,7 +24,8 @@ export class CreateStockMovementDto {
   type!: StockMovementType;
 
   @ApiProperty({
-    description: 'Cantidad positiva para entradas/salidas/transferencias. Ajuste puede ser negativo.',
+    description:
+      'Cantidad positiva para entradas/salidas/transferencias. Ajuste puede ser negativo.',
     example: 10,
   })
   @IsInt()
@@ -36,7 +37,9 @@ export class CreateStockMovementDto {
   note?: string;
 
   @ApiPropertyOptional({ description: 'Requerido para transferencias' })
-  @ValidateIf((dto: CreateStockMovementDto) => dto.type === StockMovementType.TRANSFER)
+  @ValidateIf(
+    (dto: CreateStockMovementDto) => dto.type === StockMovementType.TRANSFER,
+  )
   @IsUUID()
   targetWarehouseId?: string;
 }

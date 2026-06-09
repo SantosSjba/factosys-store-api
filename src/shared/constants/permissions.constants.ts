@@ -14,9 +14,10 @@ export const PERMISSIONS = {
   SETTINGS_READ: 'settings.read',
   SETTINGS_WRITE: 'settings.write',
   REPORTS_READ: 'reports.read',
+  COUPONS_READ: 'coupons.read',
+  COUPONS_WRITE: 'coupons.write',
 } as const;
 
-export type PermissionSlug =
-  (typeof PERMISSIONS)[keyof typeof PERMISSIONS];
+export type PermissionSlug = (typeof PERMISSIONS)[keyof typeof PERMISSIONS];
 
 export const ALL_PERMISSIONS = Object.values(PERMISSIONS);

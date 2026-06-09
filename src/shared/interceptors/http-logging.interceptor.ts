@@ -32,12 +32,27 @@ export class HttpLoggingInterceptor implements NestInterceptor {
     return next.handle().pipe(
       tap({
         next: () => {
-          const response = context.switchToHttp().getResponse<{ statusCode: number }>();
-          this.logRequest(method, originalUrl, response.statusCode, startedAt, ip);
+          const response = context
+            .switchToHttp()
+            .getResponse<{ statusCode: number }>();
+          this.logRequest(
+            method,
+            originalUrl,
+            response.statusCode,
+            startedAt,
+            ip,
+          );
         },
         error: (error: { status?: number; message?: string }) => {
           const status = error.status ?? 500;
-          this.logRequest(method, originalUrl, status, startedAt, ip, error.message);
+          this.logRequest(
+            method,
+            originalUrl,
+            status,
+            startedAt,
+            ip,
+            error.message,
+          );
         },
       }),
     );
@@ -55,12 +70,18 @@ export class HttpLoggingInterceptor implements NestInterceptor {
     const message = `${method} ${url} ${statusCode} ${durationMs}ms ip=${ip}`;
 
     if (statusCode >= 500) {
-      this.logger.error(message, errorMessage ? { error: errorMessage } : undefined);
+      this.logger.error(
+        message,
+        errorMessage ? { error: errorMessage } : undefined,
+      );
       return;
     }
 
     if (statusCode >= 400) {
-      this.logger.warn(message, errorMessage ? { error: errorMessage } : undefined);
+      this.logger.warn(
+        message,
+        errorMessage ? { error: errorMessage } : undefined,
+      );
       return;
     }
 

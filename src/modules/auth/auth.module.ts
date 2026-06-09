@@ -20,9 +20,7 @@ import { StoreProfileController } from './presentation/controllers/store-profile
 const googleEnabled = isGoogleAuthEnabled();
 
 const googleControllers = googleEnabled ? [StoreGoogleAuthController] : [];
-const googleProviders = googleEnabled
-  ? [GoogleStrategy, GoogleAuthGuard]
-  : [];
+const googleProviders = googleEnabled ? [GoogleStrategy, GoogleAuthGuard] : [];
 
 @Module({
   imports: [

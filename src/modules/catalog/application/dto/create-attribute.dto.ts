@@ -28,7 +28,10 @@ export class CreateAttributeDto {
   @IsString()
   description?: string;
 
-  @ApiPropertyOptional({ enum: AttributeDataType, default: AttributeDataType.TEXT })
+  @ApiPropertyOptional({
+    enum: AttributeDataType,
+    default: AttributeDataType.TEXT,
+  })
   @IsOptional()
   @IsEnum(AttributeDataType)
   dataType?: AttributeDataType;
@@ -38,7 +41,10 @@ export class CreateAttributeDto {
   @IsString()
   unit?: string;
 
-  @ApiPropertyOptional({ enum: AttributeScope, default: AttributeScope.PRODUCT })
+  @ApiPropertyOptional({
+    enum: AttributeScope,
+    default: AttributeScope.PRODUCT,
+  })
   @IsOptional()
   @IsEnum(AttributeScope)
   scope?: AttributeScope;

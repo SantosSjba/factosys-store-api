@@ -11,7 +11,11 @@ import { AdminStockController } from './presentation/controllers/admin-stock.con
 import { AdminWarehousesController } from './presentation/controllers/admin-warehouses.controller';
 
 @Module({
-  controllers: [AdminWarehousesController, AdminStockController, AdminReservationsController],
+  controllers: [
+    AdminWarehousesController,
+    AdminStockController,
+    AdminReservationsController,
+  ],
   providers: [
     PrismaWarehouseRepository,
     PrismaStockRepository,

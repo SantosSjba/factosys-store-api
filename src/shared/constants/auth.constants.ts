@@ -3,8 +3,7 @@ export const AUTH_AUDIENCE = {
   ADMIN: 'factosys-admin',
 } as const;
 
-export type AuthAudience =
-  (typeof AUTH_AUDIENCE)[keyof typeof AUTH_AUDIENCE];
+export type AuthAudience = (typeof AUTH_AUDIENCE)[keyof typeof AUTH_AUDIENCE];
 
 export const IS_PUBLIC_KEY = 'isPublic';
 export const ROLES_KEY = 'roles';

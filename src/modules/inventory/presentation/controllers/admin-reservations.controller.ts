@@ -5,7 +5,10 @@ import { CurrentUser } from '../../../../shared/decorators/current-user.decorato
 import { RequirePermissions } from '../../../../shared/decorators/permissions.decorator';
 import { UserTypes } from '../../../../shared/decorators/user-types.decorator';
 import type { AuthenticatedUser } from '../../../../shared/interfaces/jwt-payload.interface';
-import { ListReservationsQueryDto, CreateStockReservationDto } from '../../application/dto/stock-reservation.dto';
+import {
+  ListReservationsQueryDto,
+  CreateStockReservationDto,
+} from '../../application/dto/stock-reservation.dto';
 import { ReservationsService } from '../../application/services/reservations.service';
 
 @ApiTags('Admin Inventory')

@@ -132,7 +132,8 @@ export class AuthService {
 
     if (data.token) {
       const tokenHash = this.tokenService.hashToken(data.token);
-      result = await this.userRepository.consumeEmailVerificationToken(tokenHash);
+      result =
+        await this.userRepository.consumeEmailVerificationToken(tokenHash);
     } else if (data.email && data.code) {
       const codeHash = this.tokenService.hashToken(data.code);
       result = await this.userRepository.consumeEmailVerificationCode(
@@ -142,7 +143,8 @@ export class AuthService {
     } else {
       throw new BadRequestException({
         code: 'INVALID_VERIFICATION_PAYLOAD',
-        message: 'Debes enviar el código con tu correo o un token de verificación válido.',
+        message:
+          'Debes enviar el código con tu correo o un token de verificación válido.',
       });
     }
 
@@ -162,10 +164,17 @@ export class AuthService {
       });
     }
 
-    return this.issueTokens(user, AUTH_AUDIENCE.STORE, context, LoginAuthMethod.LOCAL);
+    return this.issueTokens(
+      user,
+      AUTH_AUDIENCE.STORE,
+      context,
+      LoginAuthMethod.LOCAL,
+    );
   }
 
-  async resendStoreVerificationEmail(email: string): Promise<{ message: string; verificationCode?: string }> {
+  async resendStoreVerificationEmail(
+    email: string,
+  ): Promise<{ message: string; verificationCode?: string }> {
     const user = await this.userRepository.findByEmail(email);
 
     if (!user || user.userType !== UserType.CUSTOMER) {
@@ -204,7 +213,9 @@ export class AuthService {
     let user = await this.userRepository.findByGoogleId(profile.googleId);
 
     if (!user) {
-      const existingByEmail = await this.userRepository.findByEmail(profile.email);
+      const existingByEmail = await this.userRepository.findByEmail(
+        profile.email,
+      );
 
       if (existingByEmail) {
         if (existingByEmail.userType !== UserType.CUSTOMER) {
@@ -227,7 +238,8 @@ export class AuthService {
         user = await this.userRepository.linkGoogleAccount({
           userId: existingByEmail.id,
           googleId: profile.googleId,
-          firstName: profile.firstName ?? existingByEmail.firstName ?? undefined,
+          firstName:
+            profile.firstName ?? existingByEmail.firstName ?? undefined,
           lastName: profile.lastName ?? existingByEmail.lastName ?? undefined,
         });
       } else {
@@ -387,7 +399,8 @@ export class AuthService {
     } catch (error) {
       const failureReason =
         error instanceof UnauthorizedException
-          ? (error.getResponse() as { code?: string }).code ?? 'INVALID_CREDENTIALS'
+          ? ((error.getResponse() as { code?: string }).code ??
+            'INVALID_CREDENTIALS')
           : 'UNKNOWN_ERROR';
 
       await this.recordLoginFailure({
@@ -421,7 +434,8 @@ export class AuthService {
     ) {
       throw new UnauthorizedException({
         code: 'EMAIL_NOT_VERIFIED',
-        message: 'Debes verificar tu correo electrónico antes de iniciar sesión.',
+        message:
+          'Debes verificar tu correo electrónico antes de iniciar sesión.',
       });
     }
 

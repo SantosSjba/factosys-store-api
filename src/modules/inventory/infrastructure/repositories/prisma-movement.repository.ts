@@ -1,5 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import type { Prisma, StockMovementType } from '../../../../generated/prisma/client';
+import type {
+  Prisma,
+  StockMovementType,
+} from '../../../../generated/prisma/client';
 import { PrismaService } from '../../../../prisma/prisma.service';
 
 const movementInclude = {
@@ -39,11 +42,21 @@ export class PrismaMovementRepository {
         ? {
             OR: [
               { note: { contains: params.search, mode: 'insensitive' } },
-              { variant: { sku: { contains: params.search, mode: 'insensitive' } } },
-              { variant: { name: { contains: params.search, mode: 'insensitive' } } },
               {
                 variant: {
-                  product: { name: { contains: params.search, mode: 'insensitive' } },
+                  sku: { contains: params.search, mode: 'insensitive' },
+                },
+              },
+              {
+                variant: {
+                  name: { contains: params.search, mode: 'insensitive' },
+                },
+              },
+              {
+                variant: {
+                  product: {
+                    name: { contains: params.search, mode: 'insensitive' },
+                  },
                 },
               },
               {

@@ -124,7 +124,9 @@ export class CategoriesService {
       name: dto.name?.trim(),
       slug,
       description:
-        dto.description !== undefined ? dto.description?.trim() ?? null : undefined,
+        dto.description !== undefined
+          ? (dto.description?.trim() ?? null)
+          : undefined,
       parent:
         dto.parentId !== undefined
           ? dto.parentId
@@ -295,7 +297,9 @@ export class CategoriesService {
     }
 
     const sortNodes = (items: CategoryNode[]) => {
-      items.sort((a, b) => a.sortOrder - b.sortOrder || a.name.localeCompare(b.name));
+      items.sort(
+        (a, b) => a.sortOrder - b.sortOrder || a.name.localeCompare(b.name),
+      );
       items.forEach((item) => sortNodes(item.children));
     };
 

@@ -31,6 +31,11 @@ import { StoreCatalogController } from './presentation/controllers/store-catalog
     AttributesService,
     ProductsService,
   ],
-  exports: [ProductsService, CategoriesService, BrandsService, AttributesService],
+  exports: [
+    ProductsService,
+    CategoriesService,
+    BrandsService,
+    AttributesService,
+  ],
 })
 export class CatalogModule {}

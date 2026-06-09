@@ -45,7 +45,10 @@ async function bootstrap() {
   );
 
   if (swaggerPath) {
-    const { httpUrl, httpsUrl } = getDevSwaggerUrls(appPort, Boolean(httpsOptions));
+    const { httpUrl, httpsUrl } = getDevSwaggerUrls(
+      appPort,
+      Boolean(httpsOptions),
+    );
     if (httpsUrl) {
       logger.log(
         `Swagger (HTTPS, Safari): ${httpsUrl} — acepta el certificado local si el navegador lo pide`,

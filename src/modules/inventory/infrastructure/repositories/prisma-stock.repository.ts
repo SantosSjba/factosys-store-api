@@ -43,17 +43,25 @@ export class PrismaStockRepository {
     const where: Prisma.StockLevelWhereInput = {
       ...(params.warehouseId ? { warehouseId: params.warehouseId } : {}),
       ...(params.variantId ? { variantId: params.variantId } : {}),
-      ...(params.productId
-        ? { variant: { productId: params.productId } }
-        : {}),
+      ...(params.productId ? { variant: { productId: params.productId } } : {}),
       ...(params.search
         ? {
             OR: [
-              { variant: { sku: { contains: params.search, mode: 'insensitive' } } },
-              { variant: { name: { contains: params.search, mode: 'insensitive' } } },
               {
                 variant: {
-                  product: { name: { contains: params.search, mode: 'insensitive' } },
+                  sku: { contains: params.search, mode: 'insensitive' },
+                },
+              },
+              {
+                variant: {
+                  name: { contains: params.search, mode: 'insensitive' },
+                },
+              },
+              {
+                variant: {
+                  product: {
+                    name: { contains: params.search, mode: 'insensitive' },
+                  },
                 },
               },
             ],
@@ -76,7 +84,8 @@ export class PrismaStockRepository {
       ? items.filter(
           (item) =>
             item.lowStockThreshold != null &&
-            item.quantityOnHand - item.quantityReserved <= item.lowStockThreshold,
+            item.quantityOnHand - item.quantityReserved <=
+              item.lowStockThreshold,
         )
       : items;
 

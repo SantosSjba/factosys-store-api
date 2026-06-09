@@ -53,10 +53,7 @@ import { HttpLoggingInterceptor } from './shared/interceptors/http-logging.inter
         mailConfig,
         queueConfig,
       ],
-      envFilePath: [
-        `.env.${process.env.NODE_ENV ?? 'development'}`,
-        '.env',
-      ],
+      envFilePath: [`.env.${process.env.NODE_ENV ?? 'development'}`, '.env'],
       validationSchema: envValidationSchema,
     }),
     EventEmitterModule.forRoot(),

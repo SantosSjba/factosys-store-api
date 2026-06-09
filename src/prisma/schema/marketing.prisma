@@ -1,0 +1,21 @@
+enum CouponType {
+  PERCENT
+  FIXED
+}
+
+model Coupon {
+  id             String     @id @default(uuid())
+  code           String     @unique
+  type           CouponType
+  value          Decimal    @db.Decimal(12, 2)
+  minOrderAmount Decimal?   @db.Decimal(12, 2)
+  maxUses        Int?
+  usedCount      Int        @default(0)
+  startsAt       DateTime?
+  expiresAt      DateTime?
+  isActive       Boolean    @default(true)
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+
+  @@index([isActive])
+}

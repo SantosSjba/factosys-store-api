@@ -15,12 +15,15 @@ const STATUS_CODE_MAP: Record<number, string> = {
 
 const STATUS_MESSAGE_MAP: Record<number, string> = {
   [HttpStatus.BAD_REQUEST]: 'La solicitud no es válida.',
-  [HttpStatus.UNAUTHORIZED]: 'No tienes autorización para realizar esta acción.',
+  [HttpStatus.UNAUTHORIZED]:
+    'No tienes autorización para realizar esta acción.',
   [HttpStatus.FORBIDDEN]: 'No tienes permisos para acceder a este recurso.',
   [HttpStatus.NOT_FOUND]: 'El recurso solicitado no fue encontrado.',
-  [HttpStatus.CONFLICT]: 'La solicitud entra en conflicto con el estado actual.',
+  [HttpStatus.CONFLICT]:
+    'La solicitud entra en conflicto con el estado actual.',
   [HttpStatus.UNPROCESSABLE_ENTITY]: 'No se pudo procesar la solicitud.',
-  [HttpStatus.TOO_MANY_REQUESTS]: 'Has realizado demasiadas solicitudes. Intenta más tarde.',
+  [HttpStatus.TOO_MANY_REQUESTS]:
+    'Has realizado demasiadas solicitudes. Intenta más tarde.',
   [HttpStatus.INTERNAL_SERVER_ERROR]:
     'Ocurrió un error inesperado. Intenta nuevamente más tarde.',
 };

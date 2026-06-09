@@ -18,7 +18,11 @@ export class PrismaWarehouseRepository {
     return this.prisma.warehouse.findFirst({ where: { isDefault: true } });
   }
 
-  async listPaginated(params: { page: number; limit: number; search?: string }) {
+  async listPaginated(params: {
+    page: number;
+    limit: number;
+    search?: string;
+  }) {
     const where: Prisma.WarehouseWhereInput = params.search
       ? {
           OR: [

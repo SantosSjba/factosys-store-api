@@ -159,7 +159,9 @@ export class ProductsService {
     if (dto.primaryCategoryId || dto.brandId !== undefined) {
       await this.assertCatalogReferences(
         dto.primaryCategoryId ?? existing.primaryCategoryId,
-        dto.brandId === null ? undefined : dto.brandId ?? existing.brandId ?? undefined,
+        dto.brandId === null
+          ? undefined
+          : (dto.brandId ?? existing.brandId ?? undefined),
       );
     }
 
@@ -189,7 +191,7 @@ export class ProductsService {
     const nextStatus = dto.status ?? existing.status;
     const publishedAt =
       nextStatus === ProductStatus.ACTIVE
-        ? existing.publishedAt ?? new Date()
+        ? (existing.publishedAt ?? new Date())
         : nextStatus === ProductStatus.DRAFT
           ? null
           : existing.publishedAt;
@@ -200,16 +202,18 @@ export class ProductsService {
         slug,
         shortDescription:
           dto.shortDescription !== undefined
-            ? dto.shortDescription?.trim() ?? null
+            ? (dto.shortDescription?.trim() ?? null)
             : undefined,
         description: dto.description,
         productType: dto.productType,
         status: dto.status,
         metaTitle:
-          dto.metaTitle !== undefined ? dto.metaTitle?.trim() ?? null : undefined,
+          dto.metaTitle !== undefined
+            ? (dto.metaTitle?.trim() ?? null)
+            : undefined,
         metaDescription:
           dto.metaDescription !== undefined
-            ? dto.metaDescription?.trim() ?? null
+            ? (dto.metaDescription?.trim() ?? null)
             : undefined,
         tags: dto.tags,
         publishedAt,
@@ -329,10 +333,17 @@ export class ProductsService {
     await this.productRepository.deleteImage(imageId);
 
     if (wasPrimary) {
-      const remaining = await this.productRepository.findImagesByProductId(productId);
+      const remaining =
+        await this.productRepository.findImagesByProductId(productId);
       if (remaining[0]) {
-        await this.productRepository.clearPrimaryImage(productId, remaining[0].id);
-        await this.productRepository.setImagePrimary(remaining[0].id, productId);
+        await this.productRepository.clearPrimaryImage(
+          productId,
+          remaining[0].id,
+        );
+        await this.productRepository.setImagePrimary(
+          remaining[0].id,
+          productId,
+        );
       }
     }
 
@@ -365,7 +376,10 @@ export class ProductsService {
     }
 
     await this.productRepository.clearPrimaryImage(productId, imageId);
-    const updated = await this.productRepository.setImagePrimary(imageId, productId);
+    const updated = await this.productRepository.setImagePrimary(
+      imageId,
+      productId,
+    );
 
     return this.mapProductImage(updated);
   }
@@ -386,13 +400,15 @@ export class ProductsService {
     ) {
       throw new BadRequestException({
         code: 'INVALID_IMAGE_ORDER',
-        message: 'Debes enviar todos los IDs de imágenes del producto en el orden deseado.',
+        message:
+          'Debes enviar todos los IDs de imágenes del producto en el orden deseado.',
       });
     }
 
     await this.productRepository.updateImagesSortOrder(productId, imageIds);
 
-    const images = await this.productRepository.findImagesByProductId(productId);
+    const images =
+      await this.productRepository.findImagesByProductId(productId);
     return images.map((entry) => this.mapProductImage(entry));
   }
 
@@ -479,7 +495,7 @@ export class ProductsService {
 
     const defaultVariants = variants.filter((variant) => variant.isDefault);
     if (defaultVariants.length === 0) {
-      variants[0]!.isDefault = true;
+      variants[0].isDefault = true;
     } else if (defaultVariants.length > 1) {
       throw new BadRequestException({
         code: 'MULTIPLE_DEFAULT_VARIANTS',
@@ -526,13 +542,15 @@ export class ProductsService {
     const attributeIds = [
       ...productValues.map((entry) => entry.attributeId),
       ...variants.flatMap(
-        (variant) => variant.attributeValues?.map((entry) => entry.attributeId) ?? [],
+        (variant) =>
+          variant.attributeValues?.map((entry) => entry.attributeId) ?? [],
       ),
     ];
 
     if (attributeIds.length === 0) return;
 
-    const attributes = await this.attributeRepository.findManyByIds(attributeIds);
+    const attributes =
+      await this.attributeRepository.findManyByIds(attributeIds);
     const attributeMap = new Map<string, Attribute>(
       attributes.map((entry) => [entry.id, entry]),
     );

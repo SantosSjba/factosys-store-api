@@ -37,7 +37,10 @@ export class StorageService implements OnModuleInit {
 
   constructor(private readonly configService: ConfigService) {
     const endpoint = this.configService.get<string>('storage.endpoint', '');
-    const region = this.configService.get<string>('storage.region', 'us-east-1');
+    const region = this.configService.get<string>(
+      'storage.region',
+      'us-east-1',
+    );
     const forcePathStyle = this.configService.get<boolean>(
       'storage.forcePathStyle',
       true,
@@ -68,12 +71,16 @@ export class StorageService implements OnModuleInit {
 
   async onModuleInit(): Promise<void> {
     if (!this.bucketName) {
-      this.logger.warn('AWS_S3_BUCKET_NAME no configurado; storage deshabilitado.');
+      this.logger.warn(
+        'AWS_S3_BUCKET_NAME no configurado; storage deshabilitado.',
+      );
       return;
     }
 
     try {
-      await this.client.send(new HeadBucketCommand({ Bucket: this.bucketName }));
+      await this.client.send(
+        new HeadBucketCommand({ Bucket: this.bucketName }),
+      );
       this.logger.log(`Bucket S3 listo: ${this.bucketName}`);
     } catch {
       try {

@@ -10,7 +10,11 @@ export class PrismaTaxRepository {
     return this.prisma.taxRate.findUnique({ where: { id } });
   }
 
-  async listPaginated(params: { page: number; limit: number; search?: string }) {
+  async listPaginated(params: {
+    page: number;
+    limit: number;
+    search?: string;
+  }) {
     const where: Prisma.TaxRateWhereInput = params.search
       ? {
           OR: [
@@ -60,6 +64,8 @@ export class PrismaTaxRepository {
   }
 
   findDefault() {
-    return this.prisma.taxRate.findFirst({ where: { isDefault: true, isActive: true } });
+    return this.prisma.taxRate.findFirst({
+      where: { isDefault: true, isActive: true },
+    });
   }
 }

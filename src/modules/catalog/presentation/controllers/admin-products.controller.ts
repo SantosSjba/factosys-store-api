@@ -11,14 +11,23 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { ApiBearerAuth, ApiBody, ApiConsumes, ApiOperation, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiConsumes,
+  ApiOperation,
+  ApiTags,
+} from '@nestjs/swagger';
 import { memoryStorage } from 'multer';
 import { PERMISSIONS } from '../../../../shared/constants/permissions.constants';
 import { RequirePermissions } from '../../../../shared/decorators/permissions.decorator';
 import { UserTypes } from '../../../../shared/decorators/user-types.decorator';
 import type { UploadedImageFile } from '../../../../shared/types/uploaded-file.type';
 import { ListProductsQueryDto } from '../../application/dto/list-products-query.dto';
-import { CreateProductDto, UpdateProductDto } from '../../application/dto/product-payload.dto';
+import {
+  CreateProductDto,
+  UpdateProductDto,
+} from '../../application/dto/product-payload.dto';
 import { ReorderProductImagesDto } from '../../application/dto/reorder-product-images.dto';
 import { SetProductImagePrimaryDto } from '../../application/dto/set-product-image-primary.dto';
 import { ProductsService } from '../../application/services/products.service';

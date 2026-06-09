@@ -65,8 +65,8 @@ export async function seedCatalog(): Promise<string[]> {
       where: { slug: attribute.slug },
       update: {
         name: attribute.name,
-        dataType: attribute.dataType as AttributeDataType,
-        scope: attribute.scope as AttributeScope,
+        dataType: attribute.dataType,
+        scope: attribute.scope,
         options: [...attribute.options],
         unit: attribute.unit,
         isFilterable: attribute.isFilterable,
@@ -74,8 +74,8 @@ export async function seedCatalog(): Promise<string[]> {
       create: {
         name: attribute.name,
         slug: attribute.slug,
-        dataType: attribute.dataType as AttributeDataType,
-        scope: attribute.scope as AttributeScope,
+        dataType: attribute.dataType,
+        scope: attribute.scope,
         options: [...attribute.options],
         unit: attribute.unit,
         isFilterable: attribute.isFilterable,
@@ -113,7 +113,8 @@ export async function seedCatalog(): Promise<string[]> {
       create: {
         name: 'Kingston Fury Beast DDR5 16GB',
         slug: 'kingston-fury-beast-ddr5-16gb',
-        shortDescription: 'Memoria DDR5 de alto rendimiento para gaming y productividad.',
+        shortDescription:
+          'Memoria DDR5 de alto rendimiento para gaming y productividad.',
         description:
           'Módulo Kingston Fury Beast DDR5 16GB ideal para actualizar tu PC con mayor ancho de banda y eficiencia energética.',
         brandId: kingstonId,
@@ -165,7 +166,8 @@ export async function seedCatalog(): Promise<string[]> {
       create: {
         name: 'ASUS VivoBook 15 Intel Core i7',
         slug: 'asus-vivobook-15-i7',
-        shortDescription: 'Laptop delgada con Intel Core i7 para trabajo y estudio.',
+        shortDescription:
+          'Laptop delgada con Intel Core i7 para trabajo y estudio.',
         description:
           'ASUS VivoBook 15 con procesador Intel Core i7, ideal para multitarea, estudiantes y oficina.',
         brandId: asusId,
