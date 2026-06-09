@@ -60,4 +60,14 @@ export const PERMISSION_SEED_DEFINITIONS: PermissionSeedDefinition[] = [
     name: 'Gestionar cupones',
     module: 'coupons',
   },
+  {
+    slug: PERMISSIONS.MARKETING_READ,
+    name: 'Ver marketing',
+    module: 'marketing',
+  },
+  {
+    slug: PERMISSIONS.MARKETING_WRITE,
+    name: 'Gestionar marketing',
+    module: 'marketing',
+  },
 ];

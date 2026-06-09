@@ -3,6 +3,12 @@ enum CouponType {
   FIXED
 }
 
+enum BannerPlacement {
+  HOME_HERO
+  HOME_SECONDARY
+  CATEGORY_TOP
+}
+
 model Coupon {
   id             String     @id @default(uuid())
   code           String     @unique
@@ -16,6 +22,52 @@ model Coupon {
   isActive       Boolean    @default(true)
   createdAt      DateTime   @default(now())
   updatedAt      DateTime   @updatedAt
+  campaigns      Campaign[]
 
   @@index([isActive])
+}
+
+model Banner {
+  id        String          @id @default(uuid())
+  title     String
+  subtitle  String?
+  imageKey  String?
+  imageUrl  String?
+  linkUrl   String?
+  placement BannerPlacement @default(HOME_HERO)
+  sortOrder Int             @default(0)
+  startsAt  DateTime?
+  expiresAt DateTime?
+  isActive  Boolean         @default(true)
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+  campaigns CampaignBanner[]
+
+  @@index([isActive, placement])
+}
+
+model Campaign {
+  id          String           @id @default(uuid())
+  name        String
+  slug        String           @unique
+  description String?
+  couponId    String?
+  coupon      Coupon?          @relation(fields: [couponId], references: [id], onDelete: SetNull)
+  startsAt    DateTime?
+  expiresAt   DateTime?
+  isActive    Boolean          @default(true)
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+  banners     CampaignBanner[]
+
+  @@index([isActive])
+}
+
+model CampaignBanner {
+  campaignId String
+  bannerId   String
+  campaign   Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  banner     Banner   @relation(fields: [bannerId], references: [id], onDelete: Cascade)
+
+  @@id([campaignId, bannerId])
 }

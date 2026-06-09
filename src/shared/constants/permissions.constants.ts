@@ -16,6 +16,8 @@ export const PERMISSIONS = {
   REPORTS_READ: 'reports.read',
   COUPONS_READ: 'coupons.read',
   COUPONS_WRITE: 'coupons.write',
+  MARKETING_READ: 'marketing.read',
+  MARKETING_WRITE: 'marketing.write',
 } as const;
 
 export type PermissionSlug = (typeof PERMISSIONS)[keyof typeof PERMISSIONS];
