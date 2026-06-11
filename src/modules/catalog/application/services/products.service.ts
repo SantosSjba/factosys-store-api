@@ -61,12 +61,15 @@ export class ProductsService {
   async listStoreProducts(query: ListProductsQueryDto) {
     const page = query.page ?? 1;
     const limit = query.limit ?? 12;
+    const categoryIds = query.categoryId
+      ? await this.resolveStoreCategoryScope(query.categoryId)
+      : undefined;
 
     const { items, total } = await this.productRepository.listPaginated({
       page,
       limit,
       search: query.search,
-      categoryId: query.categoryId,
+      categoryIds,
       brandId: query.brandId,
       onlyActive: true,
     });
@@ -589,6 +592,32 @@ export class ProductsService {
         }
       }
     }
+  }
+
+  private async resolveStoreCategoryScope(categoryId: string) {
+    const categories = await this.categoryRepository.listAll();
+    const childrenByParent = new Map<string, string[]>();
+
+    for (const category of categories) {
+      if (!category.parentId) continue;
+      const siblings = childrenByParent.get(category.parentId) ?? [];
+      siblings.push(category.id);
+      childrenByParent.set(category.parentId, siblings);
+    }
+
+    const scope = new Set<string>([categoryId]);
+    const queue = [categoryId];
+
+    while (queue.length > 0) {
+      const current = queue.shift()!;
+      for (const childId of childrenByParent.get(current) ?? []) {
+        if (scope.has(childId)) continue;
+        scope.add(childId);
+        queue.push(childId);
+      }
+    }
+
+    return Array.from(scope);
   }
 
   private normalizeCategoryIds(

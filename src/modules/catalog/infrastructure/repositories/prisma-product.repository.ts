@@ -32,6 +32,7 @@ export class PrismaProductRepository {
     limit: number;
     search?: string;
     categoryId?: string;
+    categoryIds?: string[];
     brandId?: string;
     status?: ProductStatus;
     onlyActive?: boolean;
@@ -48,7 +49,12 @@ export class PrismaProductRepository {
       where.brandId = params.brandId;
     }
 
-    if (params.categoryId) {
+    if (params.categoryIds?.length) {
+      where.OR = [
+        { primaryCategoryId: { in: params.categoryIds } },
+        { categories: { some: { categoryId: { in: params.categoryIds } } } },
+      ];
+    } else if (params.categoryId) {
       where.OR = [
         { primaryCategoryId: params.categoryId },
         { categories: { some: { categoryId: params.categoryId } } },
