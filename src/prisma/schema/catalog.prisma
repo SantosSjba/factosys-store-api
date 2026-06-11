@@ -160,6 +160,7 @@ model ProductVariant {
   stockMovements    StockMovement[]
   stockReservations StockReservation[]
   orderItems        OrderItem[]
+  cartItems         CartItem[]
 
   @@index([productId, sortOrder])
   @@index([isActive])

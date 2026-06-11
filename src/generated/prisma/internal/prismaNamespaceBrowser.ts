@@ -90,6 +90,8 @@ export const ModelName = {
   OrderItem: 'OrderItem',
   OrderAddress: 'OrderAddress',
   OrderStatusHistory: 'OrderStatusHistory',
+  Cart: 'Cart',
+  CartItem: 'CartItem',
   CompanyProfile: 'CompanyProfile',
   StoreSettings: 'StoreSettings',
   Currency: 'Currency',
@@ -732,6 +734,28 @@ export const OrderStatusHistoryScalarFieldEnum = {
 } as const
 
 export type OrderStatusHistoryScalarFieldEnum = (typeof OrderStatusHistoryScalarFieldEnum)[keyof typeof OrderStatusHistoryScalarFieldEnum]
+
+
+export const CartScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CartScalarFieldEnum = (typeof CartScalarFieldEnum)[keyof typeof CartScalarFieldEnum]
+
+
+export const CartItemScalarFieldEnum = {
+  id: 'id',
+  cartId: 'cartId',
+  variantId: 'variantId',
+  quantity: 'quantity',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CartItemScalarFieldEnum = (typeof CartItemScalarFieldEnum)[keyof typeof CartItemScalarFieldEnum]
 
 
 export const CompanyProfileScalarFieldEnum = {

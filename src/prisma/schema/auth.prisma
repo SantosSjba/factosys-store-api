@@ -33,6 +33,7 @@ model User {
   returnRequestsCreated   ReturnRequest[]          @relation("ReturnRequestsCreatedBy")
   returnRequestsHandled   ReturnRequest[]          @relation("ReturnRequestsHandledBy")
   productFavorites        ProductFavorite[]
+  cart                    Cart?
 
   @@index([userType, status])
   @@index([email])
