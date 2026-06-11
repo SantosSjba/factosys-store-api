@@ -35,6 +35,7 @@ import { StoreCatalogController } from './presentation/controllers/store-catalog
   ],
   exports: [
     ProductsService,
+    PrismaProductRepository,
     CategoriesService,
     BrandsService,
     AttributesService,

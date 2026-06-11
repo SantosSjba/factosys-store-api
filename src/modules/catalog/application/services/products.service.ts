@@ -412,6 +412,10 @@ export class ProductsService {
     return images.map((entry) => this.mapProductImage(entry));
   }
 
+  presentStoreProduct(product: ProductRecord): ProductRecord {
+    return this.presentProduct(product);
+  }
+
   private presentProduct(product: ProductRecord): ProductRecord {
     const images = product.images.map((image) => ({
       ...image,

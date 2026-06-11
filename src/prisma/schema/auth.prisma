@@ -32,6 +32,7 @@ model User {
   mediaAssets             MediaAsset[]             @relation("MediaAssetsUploadedBy")
   returnRequestsCreated   ReturnRequest[]          @relation("ReturnRequestsCreatedBy")
   returnRequestsHandled   ReturnRequest[]          @relation("ReturnRequestsHandledBy")
+  productFavorites        ProductFavorite[]
 
   @@index([userType, status])
   @@index([email])

@@ -22,6 +22,7 @@ import { AuditModule } from './modules/audit/audit.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { MediaModule } from './modules/media/media.module';
 import { CatalogModule } from './modules/catalog/catalog.module';
+import { FavoritesModule } from './modules/favorites/favorites.module';
 import { InventoryModule } from './modules/inventory/inventory.module';
 import { MarketingModule } from './modules/marketing/marketing.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
@@ -67,6 +68,7 @@ import { HttpLoggingInterceptor } from './shared/interceptors/http-logging.inter
     AuthModule,
     UsersModule,
     CatalogModule,
+    FavoritesModule,
     InventoryModule,
     SalesModule,
     PaymentsModule,

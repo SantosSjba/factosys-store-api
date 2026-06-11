@@ -119,6 +119,7 @@ model Product {
   variants         ProductVariant[]
   attributeValues  ProductAttributeValue[]
   images           ProductImage[]
+  favorites        ProductFavorite[]
 
   @@index([status, createdAt])
   @@index([brandId])
@@ -204,4 +205,17 @@ model ProductImage {
 
   @@index([productId, sortOrder])
   @@index([variantId])
+}
+
+model ProductFavorite {
+  id        String   @id @default(uuid())
+  userId    String
+  productId String
+  createdAt DateTime @default(now())
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, productId])
+  @@index([userId, createdAt])
 }
