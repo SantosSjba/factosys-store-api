@@ -1,6 +1,7 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import {
+  IsEmail,
   IsEnum,
   IsOptional,
   IsString,
@@ -66,6 +67,30 @@ export class StoreCheckoutShippingAddressDto {
   country?: string;
 }
 
+export class StoreGuestContactDto {
+  @ApiProperty()
+  @IsEmail()
+  email!: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  @MaxLength(120)
+  firstName?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  @MaxLength(120)
+  lastName?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  @MaxLength(32)
+  phone?: string;
+}
+
 export class StorePlaceOrderDto extends StoreCheckoutQuoteDto {
   @ApiProperty({ enum: OrderPaymentMethod })
   @IsEnum(OrderPaymentMethod)
@@ -85,4 +110,10 @@ export class StorePlaceOrderDto extends StoreCheckoutQuoteDto {
   @ValidateNested()
   @Type(() => StoreCheckoutShippingAddressDto)
   shippingAddress?: StoreCheckoutShippingAddressDto;
+
+  @ApiPropertyOptional({ type: StoreGuestContactDto })
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => StoreGuestContactDto)
+  guestContact?: StoreGuestContactDto;
 }

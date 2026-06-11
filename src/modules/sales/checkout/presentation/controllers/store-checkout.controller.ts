@@ -1,20 +1,21 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { CurrentUser } from '../../../../../shared/decorators/current-user.decorator';
-import { UserTypes } from '../../../../../shared/decorators/user-types.decorator';
-import type { AuthenticatedUser } from '../../../../../shared/interfaces/jwt-payload.interface';
+import { Public } from '../../../../../shared/decorators/public.decorator';
+import { StoreActorParam } from '../../../../../shared/decorators/store-actor.decorator';
+import { OptionalJwtAuthGuard } from '../../../../../shared/guards/optional-jwt-auth.guard';
+import { StoreActorGuard } from '../../../../../shared/guards/store-actor.guard';
+import type { StoreActor } from '../../../../../shared/types/store-actor.type';
 import { StoreCheckoutQuoteDto } from '../../application/dto/store-checkout-quote.dto';
 import { StorePlaceOrderDto } from '../../application/dto/store-place-order.dto';
 import { StoreCheckoutService } from '../../application/services/store-checkout.service';
 
 @ApiTags('Store Checkout')
-@ApiBearerAuth()
 @Controller('store/checkout')
-@UserTypes('CUSTOMER')
 export class StoreCheckoutController {
   constructor(private readonly checkoutService: StoreCheckoutService) {}
 
   @Get('settings')
+  @Public()
   @ApiOperation({
     summary: 'Configuración pública de checkout (envío, recojo, pagos)',
   })
@@ -23,20 +24,26 @@ export class StoreCheckoutController {
   }
 
   @Post('quote')
+  @Public()
+  @ApiBearerAuth()
+  @UseGuards(OptionalJwtAuthGuard, StoreActorGuard)
   @ApiOperation({ summary: 'Cotizar pedido desde el carrito' })
   quote(
-    @CurrentUser() user: AuthenticatedUser,
+    @StoreActorParam() actor: StoreActor,
     @Body() dto: StoreCheckoutQuoteDto,
   ) {
-    return this.checkoutService.quote(user.id, dto);
+    return this.checkoutService.quote(actor, dto);
   }
 
   @Post('orders')
+  @Public()
+  @ApiBearerAuth()
+  @UseGuards(OptionalJwtAuthGuard, StoreActorGuard)
   @ApiOperation({ summary: 'Confirmar pedido desde el carrito' })
   placeOrder(
-    @CurrentUser() user: AuthenticatedUser,
+    @StoreActorParam() actor: StoreActor,
     @Body() dto: StorePlaceOrderDto,
   ) {
-    return this.checkoutService.placeOrder(user.id, dto);
+    return this.checkoutService.placeOrder(actor, dto);
   }
 }

@@ -1,4 +1,6 @@
 import { Module } from '@nestjs/common';
+import { OptionalJwtAuthGuard } from '../../../shared/guards/optional-jwt-auth.guard';
+import { StoreActorGuard } from '../../../shared/guards/store-actor.guard';
 import { CouponsModule } from '../../marketing/coupons/coupons.module';
 import { SettingsModule } from '../../settings/settings.module';
 import { OrdersModule } from '../orders/orders.module';
@@ -9,6 +11,6 @@ import { StoreCheckoutController } from './presentation/controllers/store-checko
 @Module({
   imports: [CartsModule, OrdersModule, SettingsModule, CouponsModule],
   controllers: [StoreCheckoutController],
-  providers: [StoreCheckoutService],
+  providers: [StoreCheckoutService, OptionalJwtAuthGuard, StoreActorGuard],
 })
 export class CheckoutModule {}

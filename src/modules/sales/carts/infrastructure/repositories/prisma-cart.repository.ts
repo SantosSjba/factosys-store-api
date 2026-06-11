@@ -15,6 +15,19 @@ const cartItemInclude = {
   },
 } as const;
 
+const cartInclude = {
+  items: {
+    where: {
+      variant: {
+        isActive: true,
+        product: { status: ProductStatus.ACTIVE },
+      },
+    },
+    include: cartItemInclude,
+    orderBy: { createdAt: 'asc' as const },
+  },
+} as const;
+
 @Injectable()
 export class PrismaCartRepository {
   constructor(private readonly prisma: PrismaService) {}
@@ -22,18 +35,14 @@ export class PrismaCartRepository {
   findByUserId(userId: string) {
     return this.prisma.cart.findUnique({
       where: { userId },
-      include: {
-        items: {
-          where: {
-            variant: {
-              isActive: true,
-              product: { status: ProductStatus.ACTIVE },
-            },
-          },
-          include: cartItemInclude,
-          orderBy: { createdAt: 'asc' },
-        },
-      },
+      include: cartInclude,
+    });
+  }
+
+  findByGuestToken(guestToken: string) {
+    return this.prisma.cart.findUnique({
+      where: { guestToken },
+      include: cartInclude,
     });
   }
 
@@ -43,12 +52,17 @@ export class PrismaCartRepository {
 
     return this.prisma.cart.create({
       data: { userId },
-      include: {
-        items: {
-          include: cartItemInclude,
-          orderBy: { createdAt: 'asc' },
-        },
-      },
+      include: cartInclude,
+    });
+  }
+
+  async getOrCreateGuest(guestToken: string) {
+    const existing = await this.findByGuestToken(guestToken);
+    if (existing) return existing;
+
+    return this.prisma.cart.create({
+      data: { guestToken },
+      include: cartInclude,
     });
   }
 
@@ -91,10 +105,22 @@ export class PrismaCartRepository {
     });
   }
 
-  async countItems(userId: string) {
+  deleteCart(cartId: string) {
+    return this.prisma.cart.delete({ where: { id: cartId } });
+  }
+
+  async countItemsByUserId(userId: string) {
+    return this.countItems({ userId });
+  }
+
+  async countItemsByGuestToken(guestToken: string) {
+    return this.countItems({ guestToken });
+  }
+
+  private async countItems(cartFilter: { userId: string } | { guestToken: string }) {
     const result = await this.prisma.cartItem.aggregate({
       where: {
-        cart: { userId },
+        cart: cartFilter,
         variant: {
           isActive: true,
           product: { status: ProductStatus.ACTIVE },
@@ -103,7 +129,7 @@ export class PrismaCartRepository {
       _sum: { quantity: true },
     });
 
-    return result._sum.quantity ?? 0;
+    return result._sum?.quantity ?? 0;
   }
 
   touchCart(cartId: string) {

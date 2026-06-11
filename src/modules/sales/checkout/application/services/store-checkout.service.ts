@@ -15,9 +15,12 @@ import { CouponsService } from '../../../../marketing/coupons/application/servic
 import { ShippingZonesService } from '../../../../settings/shipping-zones/shipping-zones.service';
 import { CreateOrderDto } from '../../../application/dto/create-order.dto';
 import { OrdersService } from '../../../application/services/orders.service';
+import type { StoreActor } from '../../../../../shared/types/store-actor.type';
 import { CartService } from '../../../carts/application/services/cart.service';
 import { StoreCheckoutQuoteDto } from '../dto/store-checkout-quote.dto';
 import { StorePlaceOrderDto } from '../dto/store-place-order.dto';
+
+const SETTINGS_CACHE_MS = 30_000;
 
 type StoreContext = {
   warehouseId: string;
@@ -42,6 +45,13 @@ type QuoteLine = {
 
 @Injectable()
 export class StoreCheckoutService {
+  private settingsCache:
+    | {
+        expiresAt: number;
+        value: Awaited<ReturnType<StoreCheckoutService['loadSettings']>>;
+      }
+    | null = null;
+
   constructor(
     private readonly cartService: CartService,
     private readonly ordersService: OrdersService,
@@ -51,21 +61,10 @@ export class StoreCheckoutService {
   ) {}
 
   async getSettings() {
-    const settings = await this.prisma.storeSettings.findUnique({
-      where: { id: 'default' },
-      include: { defaultTaxRate: true },
-    });
-
-    if (!settings) {
-      throw new BadRequestException({
-        code: 'STORE_SETTINGS_NOT_FOUND',
-        message: 'Configura la tienda antes de procesar pedidos.',
-      });
-    }
-
-    const tax = settings.defaultTaxRate;
+    const { settings, tax } = await this.loadSettingsCached();
 
     return {
+      guestCheckoutEnabled: settings.guestCheckoutEnabled,
       minOrderAmount: this.decimalToNumber(settings.minOrderAmount),
       freeShippingMinAmount: this.decimalToNumber(
         settings.freeShippingMinAmount,
@@ -108,8 +107,11 @@ export class StoreCheckoutService {
     };
   }
 
-  async quote(userId: string, dto: StoreCheckoutQuoteDto) {
-    const cart = await this.cartService.getCart(userId);
+  async quote(actor: StoreActor, dto: StoreCheckoutQuoteDto) {
+    const [cart, context] = await Promise.all([
+      this.cartService.getCart(actor),
+      this.resolveStoreContext(),
+    ]);
 
     if (cart.items.length === 0) {
       throw new BadRequestException({
@@ -118,7 +120,6 @@ export class StoreCheckoutService {
       });
     }
 
-    const context = await this.resolveStoreContext();
     const lines = await this.buildQuoteLines(cart.items, context);
     const stockIssues = lines
       .filter((line) => line.quantity > line.availableQuantity)
@@ -169,11 +170,11 @@ export class StoreCheckoutService {
     };
   }
 
-  async placeOrder(userId: string, dto: StorePlaceOrderDto) {
+  async placeOrder(actor: StoreActor, dto: StorePlaceOrderDto) {
     this.assertShippingAddress(dto);
     await this.assertPaymentMethodEnabled(dto.paymentMethod);
 
-    const quote = await this.quote(userId, dto);
+    const quote = await this.quote(actor, dto);
 
     if (!quote.canPlaceOrder) {
       throw new BadRequestException({
@@ -184,8 +185,58 @@ export class StoreCheckoutService {
       });
     }
 
+    const createDto = await this.buildCreateOrderDto(actor, dto, quote);
+    const order = await this.ordersService.createOrder(createDto, undefined, {
+      storeResponse: true,
+    });
+    await this.cartService.clearCart(actor);
+
+    return order;
+  }
+
+  private async buildCreateOrderDto(
+    actor: StoreActor,
+    dto: StorePlaceOrderDto,
+    quote: Awaited<ReturnType<StoreCheckoutService['quote']>>,
+  ): Promise<CreateOrderDto> {
+    const base: CreateOrderDto = {
+      items: quote.lines.map((line) => ({
+        variantId: line.variantId,
+        quantity: line.quantity,
+      })),
+      deliveryMethod: dto.deliveryMethod,
+      shippingAmount: quote.shippingAmount,
+      discountAmount: quote.discountAmount,
+      couponCode: quote.couponCode ?? undefined,
+      customerNotes: dto.customerNotes,
+      paymentStatus: OrderPaymentStatus.PENDING,
+      paymentMethod: dto.paymentMethod,
+      source: OrderSource.WEB,
+      reserveStock: true,
+      creationNote: 'Pedido creado desde la tienda web.',
+    };
+
+    if (actor.kind === 'guest') {
+      this.assertGuestContact(dto);
+      const guest = dto.guestContact!;
+
+      return {
+        ...base,
+        guestEmail: guest.email,
+        guestFirstName: guest.firstName,
+        guestLastName: guest.lastName,
+        guestPhone: guest.phone,
+        addresses: this.buildShippingAddresses(dto, {
+          email: guest.email,
+          firstName: guest.firstName ?? null,
+          lastName: guest.lastName ?? null,
+          phone: guest.phone ?? null,
+        }),
+      };
+    }
+
     const customer = await this.prisma.user.findFirst({
-      where: { id: userId, userType: 'CUSTOMER' },
+      where: { id: actor.userId, userType: 'CUSTOMER' },
       select: {
         id: true,
         email: true,
@@ -202,59 +253,61 @@ export class StoreCheckoutService {
       });
     }
 
-    const createDto: CreateOrderDto = {
+    return {
+      ...base,
       customerId: customer.id,
-      items: quote.lines.map((line) => ({
-        variantId: line.variantId,
-        quantity: line.quantity,
-      })),
-      deliveryMethod: dto.deliveryMethod,
-      shippingAmount: quote.shippingAmount,
-      discountAmount: quote.discountAmount,
-      couponCode: quote.couponCode ?? undefined,
-      customerNotes: dto.customerNotes,
-      paymentStatus: OrderPaymentStatus.PENDING,
-      paymentMethod: dto.paymentMethod,
-      source: OrderSource.WEB,
-      reserveStock: true,
-      creationNote: 'Pedido creado desde la tienda web.',
-      addresses:
-        dto.deliveryMethod === OrderDeliveryMethod.SHIPPING &&
-        dto.shippingAddress
-          ? [
-              {
-                type: OrderAddressType.SHIPPING,
-                firstName:
-                  dto.shippingAddress.firstName?.trim() ||
-                  customer.firstName ||
-                  undefined,
-                lastName:
-                  dto.shippingAddress.lastName?.trim() ||
-                  customer.lastName ||
-                  undefined,
-                phone:
-                  dto.shippingAddress.phone?.trim() ||
-                  customer.phone ||
-                  undefined,
-                email: customer.email,
-                addressLine1: dto.shippingAddress.addressLine1,
-                addressLine2: dto.shippingAddress.addressLine2,
-                district: dto.shippingAddress.district,
-                province: dto.shippingAddress.province,
-                department: dto.shippingAddress.department,
-                country:
-                  dto.shippingAddress.country?.trim().toUpperCase() ?? 'PE',
-              },
-            ]
-          : undefined,
+      addresses: this.buildShippingAddresses(dto, customer),
     };
+  }
 
-    const order = await this.ordersService.createOrder(createDto, undefined, {
-      storeResponse: true,
-    });
-    await this.cartService.clearCart(userId);
+  private buildShippingAddresses(
+    dto: StorePlaceOrderDto,
+    contact: {
+      email: string;
+      firstName: string | null;
+      lastName: string | null;
+      phone: string | null;
+    },
+  ) {
+    if (
+      dto.deliveryMethod !== OrderDeliveryMethod.SHIPPING ||
+      !dto.shippingAddress
+    ) {
+      return undefined;
+    }
 
-    return order;
+    return [
+      {
+        type: OrderAddressType.SHIPPING,
+        firstName:
+          dto.shippingAddress.firstName?.trim() ||
+          contact.firstName ||
+          undefined,
+        lastName:
+          dto.shippingAddress.lastName?.trim() ||
+          contact.lastName ||
+          undefined,
+        phone:
+          dto.shippingAddress.phone?.trim() || contact.phone || undefined,
+        email: contact.email,
+        addressLine1: dto.shippingAddress.addressLine1,
+        addressLine2: dto.shippingAddress.addressLine2,
+        district: dto.shippingAddress.district,
+        province: dto.shippingAddress.province,
+        department: dto.shippingAddress.department,
+        country: dto.shippingAddress.country?.trim().toUpperCase() ?? 'PE',
+      },
+    ];
+  }
+
+  private assertGuestContact(dto: StorePlaceOrderDto) {
+    const guest = dto.guestContact;
+    if (!guest?.email?.trim()) {
+      throw new BadRequestException({
+        code: 'GUEST_CONTACT_REQUIRED',
+        message: 'Ingresa tu correo para continuar como invitado.',
+      });
+    }
   }
 
   private assertShippingAddress(dto: StorePlaceOrderDto) {
@@ -423,7 +476,21 @@ export class StoreCheckoutService {
     };
   }
 
-  private async resolveStoreContext(): Promise<StoreContext> {
+  private async loadSettingsCached() {
+    if (this.settingsCache && this.settingsCache.expiresAt > Date.now()) {
+      return this.settingsCache.value;
+    }
+
+    const value = await this.loadSettings();
+    this.settingsCache = {
+      expiresAt: Date.now() + SETTINGS_CACHE_MS,
+      value,
+    };
+
+    return value;
+  }
+
+  private async loadSettings() {
     const settings = await this.prisma.storeSettings.findUnique({
       where: { id: 'default' },
       include: { defaultTaxRate: true, defaultWarehouse: true },
@@ -436,6 +503,14 @@ export class StoreCheckoutService {
       });
     }
 
+    return {
+      settings,
+      tax: settings.defaultTaxRate,
+    };
+  }
+
+  private async resolveStoreContext(): Promise<StoreContext> {
+    const { settings } = await this.loadSettingsCached();
     const warehouse = settings.defaultWarehouse;
     if (!warehouse?.isActive) {
       throw new BadRequestException({

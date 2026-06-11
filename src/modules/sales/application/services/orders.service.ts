@@ -397,7 +397,10 @@ export class OrdersService {
       }
     });
 
-    if (options?.storeResponse && dto.customerId) {
+    if (
+      options?.storeResponse &&
+      (dto.customerId || dto.guestEmail?.trim())
+    ) {
       return this.mapStoreOrderDetail(order);
     }
 

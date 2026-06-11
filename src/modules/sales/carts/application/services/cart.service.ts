@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common';
 import { ProductStatus } from '../../../../../generated/prisma/client';
 import { PrismaService } from '../../../../../prisma/prisma.service';
+import type { StoreActor } from '../../../../../shared/types/store-actor.type';
 import { PrismaCartRepository } from '../../infrastructure/repositories/prisma-cart.repository';
 
 const MAX_LINE_QUANTITY = 99;
@@ -22,22 +23,28 @@ export class CartService {
     private readonly prisma: PrismaService,
   ) {}
 
-  async getCart(userId: string) {
-    const cart = await this.cartRepository.getOrCreate(userId);
+  getCart(actor: StoreActor) {
+    return this.getCartForActor(actor);
+  }
+
+  async getCartForActor(actor: StoreActor) {
+    const cart = await this.getOrCreateCart(actor);
     const warehouseId = await this.resolveWarehouseId();
     return this.presentCart(cart, warehouseId);
   }
 
-  countCartItems(userId: string) {
-    return this.cartRepository.countItems(userId);
+  countCartItems(actor: StoreActor) {
+    return actor.kind === 'customer'
+      ? this.cartRepository.countItemsByUserId(actor.userId)
+      : this.cartRepository.countItemsByGuestToken(actor.guestToken);
   }
 
-  async addItem(userId: string, variantId: string, quantity: number) {
+  async addItem(actor: StoreActor, variantId: string, quantity: number) {
     await this.assertVariantAvailable(variantId);
 
     const warehouseId = await this.resolveWarehouseId();
     const available = await this.getAvailableQuantity(warehouseId, variantId);
-    const cart = await this.cartRepository.getOrCreate(userId);
+    const cart = await this.getOrCreateCart(actor);
     const existing = await this.cartRepository.findItem(cart.id, variantId);
 
     if (existing) {
@@ -81,15 +88,15 @@ export class CartService {
     }
 
     await this.cartRepository.touchCart(cart.id);
-    return this.getCart(userId);
+    return this.getCartForActor(actor);
   }
 
   async updateItemQuantity(
-    userId: string,
+    actor: StoreActor,
     variantId: string,
     quantity: number,
   ) {
-    const cart = await this.cartRepository.findByUserId(userId);
+    const cart = await this.findCart(actor);
 
     if (!cart) {
       throw new NotFoundException({
@@ -130,22 +137,66 @@ export class CartService {
     }
 
     await this.cartRepository.touchCart(cart.id);
-    return this.getCart(userId);
+    return this.getCartForActor(actor);
   }
 
-  async removeItem(userId: string, variantId: string) {
-    return this.updateItemQuantity(userId, variantId, 0);
+  async removeItem(actor: StoreActor, variantId: string) {
+    return this.updateItemQuantity(actor, variantId, 0);
   }
 
-  async clearCart(userId: string) {
-    const cart = await this.cartRepository.findByUserId(userId);
+  async clearCart(actor: StoreActor) {
+    const cart = await this.findCart(actor);
 
     if (cart) {
       await this.cartRepository.clearItems(cart.id);
       await this.cartRepository.touchCart(cart.id);
     }
 
-    return this.getCart(userId);
+    return this.getCartForActor(actor);
+  }
+
+  async mergeGuestCartIntoUser(guestToken: string, userId: string) {
+    const guestCart = await this.cartRepository.findByGuestToken(guestToken);
+    if (!guestCart || guestCart.items.length === 0) {
+      return this.getCartForActor({ kind: 'customer', userId });
+    }
+
+    for (const item of guestCart.items) {
+      try {
+        await this.addItem(
+          { kind: 'customer', userId },
+          item.variantId,
+          item.quantity,
+        );
+      } catch (error) {
+        const code =
+          error instanceof BadRequestException
+            ? (error.getResponse() as { code?: string }).code
+            : undefined;
+
+        if (
+          code !== 'INSUFFICIENT_AVAILABLE_STOCK' &&
+          code !== 'CART_QUANTITY_LIMIT'
+        ) {
+          throw error;
+        }
+      }
+    }
+
+    await this.cartRepository.deleteCart(guestCart.id);
+    return this.getCartForActor({ kind: 'customer', userId });
+  }
+
+  private async getOrCreateCart(actor: StoreActor) {
+    return actor.kind === 'customer'
+      ? this.cartRepository.getOrCreate(actor.userId)
+      : this.cartRepository.getOrCreateGuest(actor.guestToken);
+  }
+
+  private findCart(actor: StoreActor) {
+    return actor.kind === 'customer'
+      ? this.cartRepository.findByUserId(actor.userId)
+      : this.cartRepository.findByGuestToken(actor.guestToken);
   }
 
   private async assertVariantAvailable(variantId: string) {
