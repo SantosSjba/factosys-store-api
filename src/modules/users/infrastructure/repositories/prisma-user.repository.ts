@@ -95,6 +95,7 @@ export class PrismaUserRepository {
     phone?: string;
     status?: UserStatus;
     emailVerifiedAt?: Date | null;
+    termsAcceptedAt?: Date | null;
   }): Promise<UserWithAccess> {
     const customerRole = await this.prisma.role.findUnique({
       where: { slug: 'customer' },
@@ -114,10 +115,21 @@ export class PrismaUserRepository {
         firstName: data.firstName,
         lastName: data.lastName,
         phone: data.phone,
+        termsAcceptedAt: data.termsAcceptedAt,
         roles: {
           create: [{ roleId: customerRole.id }],
         },
       },
+      include: userWithAccessInclude,
+    });
+
+    return this.mapUser(user);
+  }
+
+  async setTermsAccepted(userId: string, acceptedAt: Date = new Date()) {
+    const user = await this.prisma.user.update({
+      where: { id: userId },
+      data: { termsAcceptedAt: acceptedAt },
       include: userWithAccessInclude,
     });
 
@@ -749,6 +761,7 @@ export class PrismaUserRepository {
       firstName: user.firstName,
       lastName: user.lastName,
       phone: user.phone,
+      termsAcceptedAt: user.termsAcceptedAt,
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
       roles,

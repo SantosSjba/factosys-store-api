@@ -16,6 +16,7 @@ import { PasswordService } from '../../../auth/application/services/password.ser
 import { PaginationQueryDto } from '../../../../shared/dto/pagination-query.dto';
 import { CreateCustomerDto } from '../dto/create-customer.dto';
 import { UpdateCustomerDto } from '../dto/update-customer.dto';
+import { UpdateStoreProfileDto } from '../dto/update-store-profile.dto';
 import { ListStaffUsersQueryDto } from '../dto/list-staff-users-query.dto';
 import { UpdateStaffUserDto } from '../dto/update-staff-user.dto';
 import { PrismaUserRepository } from '../../infrastructure/repositories/prisma-user.repository';
@@ -145,6 +146,28 @@ export class UsersService {
     }
 
     return this.mapUserResponse(user);
+  }
+
+  async getStoreProfile(userId: string) {
+    const user = await this.userRepository.findCustomerUserById(userId);
+
+    if (!user) {
+      throw new NotFoundException({
+        code: 'PROFILE_NOT_FOUND',
+        message: 'Perfil de cliente no encontrado.',
+      });
+    }
+
+    return this.mapCustomerResponse(user);
+  }
+
+  async updateStoreProfile(userId: string, dto: UpdateStoreProfileDto) {
+    return this.updateCustomerUser(userId, {
+      firstName: dto.firstName,
+      lastName: dto.lastName,
+      phone: dto.phone,
+      password: dto.password,
+    });
   }
 
   async updateStaffUser(

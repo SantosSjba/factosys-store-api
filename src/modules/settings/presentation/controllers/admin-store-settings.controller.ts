@@ -16,7 +16,7 @@ import {
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
-import { memoryStorage } from 'multer';
+import { createMulterMemoryStorage } from '../../../../shared/helpers/multer-memory-storage.helper';
 import type { UploadedImageFile } from '../../../../shared/types/uploaded-file.type';
 import { PERMISSIONS } from '../../../../shared/constants/permissions.constants';
 import { RequirePermissions } from '../../../../shared/decorators/permissions.decorator';
@@ -25,7 +25,7 @@ import { UpdateStoreSettingsDto } from '../../application/dto/store-settings.dto
 import { StoreSettingsService } from '../../application/services/store-settings.service';
 
 const imageUploadInterceptor = FileInterceptor('file', {
-  storage: memoryStorage(),
+  storage: createMulterMemoryStorage(),
   limits: { fileSize: 5 * 1024 * 1024 },
 });
 

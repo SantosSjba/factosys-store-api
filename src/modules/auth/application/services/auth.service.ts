@@ -7,7 +7,6 @@ import {
 import { ConfigService } from '@nestjs/config';
 import { randomInt } from 'crypto';
 import {
-  AuthProvider,
   LoginAuthMethod,
   LoginResult,
   UserStatus,
@@ -88,6 +87,7 @@ export class AuthService {
     firstName?: string;
     lastName?: string;
     phone?: string;
+    acceptTerms: boolean;
   }): Promise<{ message: string; email: string; verificationCode?: string }> {
     const existing = await this.userRepository.findByEmail(data.email);
 
@@ -106,6 +106,7 @@ export class AuthService {
       lastName: data.lastName,
       phone: data.phone,
       status: UserStatus.PENDING_VERIFICATION,
+      termsAcceptedAt: data.acceptTerms ? new Date() : null,
     });
 
     const { emailSent, verificationCode } =
@@ -125,7 +126,12 @@ export class AuthService {
   }
 
   async verifyStoreEmail(
-    data: { token?: string; email?: string; code?: string },
+    data: {
+      token?: string;
+      email?: string;
+      code?: string;
+      acceptTerms?: boolean;
+    },
     context: LoginContext = {},
   ): Promise<AuthTokensResponse> {
     let result: { userId: string } | null = null;
@@ -155,13 +161,24 @@ export class AuthService {
       });
     }
 
-    const user = await this.userRepository.findById(result.userId);
+    let user = await this.userRepository.findById(result.userId);
 
     if (!user) {
       throw new BadRequestException({
         code: 'USER_NOT_FOUND',
         message: 'Usuario no encontrado.',
       });
+    }
+
+    if (!user.termsAcceptedAt) {
+      if (!data.acceptTerms) {
+        throw new BadRequestException({
+          code: 'TERMS_ACCEPTANCE_REQUIRED',
+          message: 'Debes aceptar los términos y condiciones para continuar.',
+        });
+      }
+
+      user = await this.userRepository.setTermsAccepted(user.id);
     }
 
     return this.issueTokens(

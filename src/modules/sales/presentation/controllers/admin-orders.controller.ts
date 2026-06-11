@@ -11,7 +11,7 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { memoryStorage } from 'multer';
+import { createMulterMemoryStorage } from '../../../../shared/helpers/multer-memory-storage.helper';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { CurrentUser } from '../../../../shared/decorators/current-user.decorator';
 import { RequirePermissions } from '../../../../shared/decorators/permissions.decorator';
@@ -35,7 +35,7 @@ import { OrdersService } from '../../application/services/orders.service';
 import type { UploadedImageFile } from '../../../../shared/types/uploaded-file.type';
 
 const evidenceUpload = FileInterceptor('file', {
-  storage: memoryStorage(),
+  storage: createMulterMemoryStorage(),
   limits: { fileSize: 5 * 1024 * 1024 },
 });
 

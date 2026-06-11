@@ -1,5 +1,12 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsEmail, IsOptional, IsString, MinLength } from 'class-validator';
+import {
+  Equals,
+  IsBoolean,
+  IsEmail,
+  IsOptional,
+  IsString,
+  MinLength,
+} from 'class-validator';
 
 export class StoreRegisterDto {
   @ApiProperty({ example: 'cliente@ejemplo.com' })
@@ -25,4 +32,12 @@ export class StoreRegisterDto {
   @IsOptional()
   @IsString()
   phone?: string;
+
+  @ApiProperty({
+    example: true,
+    description: 'Aceptación obligatoria de términos y condiciones',
+  })
+  @IsBoolean({ message: 'Debes aceptar los términos y condiciones.' })
+  @Equals(true, { message: 'Debes aceptar los términos y condiciones.' })
+  acceptTerms: boolean;
 }

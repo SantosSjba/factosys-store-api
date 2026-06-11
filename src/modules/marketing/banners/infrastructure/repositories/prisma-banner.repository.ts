@@ -1,5 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import type { Prisma } from '../../../../../generated/prisma/client';
+import type {
+  BannerPlacement,
+  Prisma,
+} from '../../../../../generated/prisma/client';
 import { PrismaService } from '../../../../../prisma/prisma.service';
 
 @Injectable()
@@ -47,5 +50,19 @@ export class PrismaBannerRepository {
 
   delete(id: string) {
     return this.prisma.banner.delete({ where: { id } });
+  }
+
+  listActiveByPlacement(placement: BannerPlacement, now = new Date()) {
+    return this.prisma.banner.findMany({
+      where: {
+        placement,
+        isActive: true,
+        AND: [
+          { OR: [{ startsAt: null }, { startsAt: { lte: now } }] },
+          { OR: [{ expiresAt: null }, { expiresAt: { gte: now } }] },
+        ],
+      },
+      orderBy: [{ sortOrder: 'asc' }, { createdAt: 'desc' }],
+    });
   }
 }

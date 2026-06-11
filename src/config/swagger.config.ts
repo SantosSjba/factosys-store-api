@@ -1,10 +1,13 @@
+import { createRequire } from 'node:module';
 import { INestApplication } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 // Misma resolución que @nestjs/swagger: assets locales, sin CDN.
-
-const swaggerUiDistPath: string = require('swagger-ui-dist/absolute-path.js')();
+const nodeRequire = createRequire(__filename);
+const swaggerUiDistPath = (
+  nodeRequire('swagger-ui-dist/absolute-path.js') as () => string
+)();
 
 export function setupSwagger(
   app: INestApplication,

@@ -21,6 +21,7 @@ import { CouponsService } from '../../../marketing/coupons/application/services/
 import { PrismaService } from '../../../../prisma/prisma.service';
 import type { UploadedImageFile } from '../../../../shared/types/uploaded-file.type';
 import { buildPaginationMeta } from '../../../../shared/helpers/pagination.helper';
+import { ListStoreOrdersQueryDto } from '../dto/list-store-orders-query.dto';
 import type {
   CustomerSavedAddressRecord,
   OrderDetailRecord,
@@ -210,6 +211,37 @@ export class OrdersService {
     }
 
     return this.mapOrderDetail(order);
+  }
+
+  async listCustomerOrders(customerId: string, query: ListStoreOrdersQueryDto) {
+    const page = query.page ?? 1;
+    const limit = query.limit ?? 10;
+
+    const { items, total } = await this.orderRepository.listCustomerPaginated({
+      customerId,
+      page,
+      limit,
+      status: query.activeOnly ? undefined : query.status,
+      activeOnly: query.activeOnly,
+    });
+
+    return buildPaginationMeta(
+      { page, limit },
+      items.map((item) => this.mapStoreOrderSummary(item)),
+      total,
+    );
+  }
+
+  async getCustomerOrder(customerId: string, orderId: string) {
+    const order = await this.orderRepository.findById(orderId);
+    if (!order || order.customerId !== customerId) {
+      throw new NotFoundException({
+        code: 'ORDER_NOT_FOUND',
+        message: 'Pedido no encontrado.',
+      });
+    }
+
+    return this.mapStoreOrderDetail(order);
   }
 
   async createOrder(dto: CreateOrderDto, staffUserId?: string) {
@@ -486,7 +518,7 @@ export class OrdersService {
     file: UploadedImageFile | undefined,
     staffUserId?: string,
   ) {
-    const order = await this.requireOrder(id);
+    await this.requireOrder(id);
     let fileMeta: {
       fileName: string;
       storageKey: string;
@@ -1155,6 +1187,109 @@ export class OrdersService {
         performedById: performedById ?? null,
       });
     }
+  }
+
+  private mapStoreOrderSummary(order: {
+    id: string;
+    orderNumber: string;
+    status: OrderStatus;
+    paymentStatus: OrderPaymentStatus;
+    deliveryMethod: OrderDeliveryMethod;
+    currencyCode: string;
+    total: { toString(): string };
+    deliveredAt: Date | null;
+    shippedAt: Date | null;
+    createdAt: Date;
+    _count: { items: number };
+    items: Array<{
+      productName: string;
+      variantName: string | null;
+      quantity: number;
+      variant: {
+        images: Array<{ url: string }>;
+        product: { images: Array<{ url: string }> };
+      } | null;
+    }>;
+  }) {
+    const preview = order.items[0] ?? null;
+
+    return {
+      id: order.id,
+      orderNumber: order.orderNumber,
+      status: order.status,
+      paymentStatus: order.paymentStatus,
+      deliveryMethod: order.deliveryMethod,
+      currencyCode: order.currencyCode,
+      total: order.total.toString(),
+      itemCount: order._count.items,
+      previewItem: preview
+        ? {
+            productName: preview.productName,
+            variantName: preview.variantName,
+            quantity: preview.quantity,
+            imageUrl: this.resolveOrderItemImageUrl(preview),
+          }
+        : null,
+      extraItemsCount: Math.max(order._count.items - 1, 0),
+      deliveredAt: order.deliveredAt?.toISOString() ?? null,
+      shippedAt: order.shippedAt?.toISOString() ?? null,
+      createdAt: order.createdAt.toISOString(),
+    };
+  }
+
+  private mapStoreOrderDetail(
+    order: NonNullable<Awaited<ReturnType<PrismaOrderRepository['findById']>>>,
+  ) {
+    const detail = this.mapOrderDetail(order);
+
+    return {
+      id: detail.id,
+      orderNumber: detail.orderNumber,
+      status: detail.status,
+      paymentStatus: detail.paymentStatus,
+      fulfillmentStatus: detail.fulfillmentStatus,
+      deliveryMethod: detail.deliveryMethod,
+      currencyCode: detail.currencyCode,
+      subtotal: detail.subtotal,
+      taxAmount: detail.taxAmount,
+      shippingAmount: detail.shippingAmount,
+      discountAmount: detail.discountAmount,
+      total: detail.total,
+      itemCount: detail.itemCount,
+      paymentMethod: detail.paymentMethod,
+      trackingNumber: detail.trackingNumber,
+      carrier: detail.carrier,
+      trackingUrl: detail.trackingUrl,
+      customerNotes: detail.customerNotes,
+      confirmedAt: detail.confirmedAt?.toISOString() ?? null,
+      shippedAt: detail.shippedAt?.toISOString() ?? null,
+      deliveredAt: detail.deliveredAt?.toISOString() ?? null,
+      cancelledAt: detail.cancelledAt?.toISOString() ?? null,
+      paidAt: detail.paidAt?.toISOString() ?? null,
+      createdAt: detail.createdAt.toISOString(),
+      updatedAt: detail.updatedAt.toISOString(),
+      items: detail.items,
+      addresses: detail.addresses,
+      statusHistory: detail.statusHistory.map((entry) => ({
+        id: entry.id,
+        toStatus: entry.toStatus,
+        toPaymentStatus: entry.toPaymentStatus,
+        note: entry.note,
+        createdAt: entry.createdAt.toISOString(),
+      })),
+    };
+  }
+
+  private resolveOrderItemImageUrl(item: {
+    variant: {
+      images: Array<{ url: string }>;
+      product: { images: Array<{ url: string }> };
+    } | null;
+  }) {
+    const variantImage = item.variant?.images[0]?.url;
+    if (variantImage) return variantImage;
+
+    return item.variant?.product?.images[0]?.url ?? null;
   }
 
   private mapOrderSummary(order: {

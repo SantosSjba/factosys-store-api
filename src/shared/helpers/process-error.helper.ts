@@ -1,10 +1,13 @@
+import { LoggerService } from '@nestjs/common';
 import { Logger } from 'winston';
 import {
   getBootstrapErrorMessage,
   getUnknownErrorMessage,
 } from './error-message.helper';
 
-export function registerProcessErrorHandlers(logger?: Logger): void {
+export function registerProcessErrorHandlers(
+  logger?: Logger | LoggerService,
+): void {
   process.on('unhandledRejection', (reason: unknown) => {
     const message = getUnknownErrorMessage(reason);
 

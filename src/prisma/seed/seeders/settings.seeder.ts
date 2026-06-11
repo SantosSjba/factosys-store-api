@@ -111,7 +111,7 @@ export async function seedSettings(): Promise<string[]> {
   return [
     `Empresa: ${company.tradeName ?? company.legalName}`,
     `Monedas: ${currency.code}, ${usd.code}`,
-    `Impuesto: ${igv.name} ${igv.rate}%`,
+    `Impuesto: ${igv.name} ${igv.rate.toString()}%`,
     `Tienda: ${store.storeName}`,
   ];
 }

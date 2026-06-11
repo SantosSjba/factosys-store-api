@@ -1,6 +1,7 @@
 import './config/preload-env';
-import { ConfigService } from '@nestjs/config';
+import { type INestApplication, type LoggerService } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
+import { ConfigService } from '@nestjs/config';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import { AppModule } from './app.module';
 import { applySecurityMiddleware } from './config/bootstrap-security';
@@ -17,16 +18,16 @@ import { createValidationPipe } from './shared/pipes/validation.pipe';
 
 async function bootstrap() {
   const httpsOptions = resolveDevHttpsOptions();
-  const app = await NestFactory.create(AppModule, {
+  const app = await NestFactory.create<INestApplication>(AppModule, {
     bufferLogs: true,
     ...(httpsOptions ? { httpsOptions } : {}),
   });
 
-  const logger = app.get(WINSTON_MODULE_NEST_PROVIDER);
+  const logger = app.get<LoggerService>(WINSTON_MODULE_NEST_PROVIDER);
   app.useLogger(logger);
   registerProcessErrorHandlers(logger);
 
-  const configService = app.get(ConfigService, { strict: false });
+  const configService = app.get(ConfigService);
   const apiPrefix = configService.get<string>('app.apiPrefix', 'api');
   const appPort = configService.get<number>('app.port', 3000);
 

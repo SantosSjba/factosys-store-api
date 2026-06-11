@@ -1,5 +1,13 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { IsEmail, IsOptional, IsString, Matches } from 'class-validator';
+import {
+  Equals,
+  IsBoolean,
+  IsEmail,
+  IsOptional,
+  IsString,
+  Matches,
+  ValidateIf,
+} from 'class-validator';
 
 export class VerifyEmailDto {
   @ApiPropertyOptional({
@@ -22,4 +30,15 @@ export class VerifyEmailDto {
   @IsString()
   @Matches(/^\d{6}$/, { message: 'El código debe tener 6 dígitos.' })
   code?: string;
+
+  @ApiPropertyOptional({
+    example: true,
+    description:
+      'Requerido si el usuario aún no aceptó términos (p. ej. registro con Google)',
+  })
+  @IsOptional()
+  @IsBoolean()
+  @ValidateIf((dto: VerifyEmailDto) => dto.acceptTerms !== undefined)
+  @Equals(true, { message: 'Debes aceptar los términos y condiciones.' })
+  acceptTerms?: boolean;
 }

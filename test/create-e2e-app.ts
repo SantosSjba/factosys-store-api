@@ -11,10 +11,10 @@ export async function createE2eApp(): Promise<INestApplication<App>> {
   })
     .overrideProvider(PrismaService)
     .useValue({
-      onModuleInit: async () => undefined,
-      onModuleDestroy: async () => undefined,
-      $connect: async () => undefined,
-      $disconnect: async () => undefined,
+      onModuleInit: () => undefined,
+      onModuleDestroy: () => undefined,
+      $connect: () => undefined,
+      $disconnect: () => undefined,
     })
     .compile();
 

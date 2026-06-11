@@ -19,6 +19,15 @@ export class BannersService {
     private readonly storageService: StorageService,
   ) {}
 
+  async listPublicBanners(
+    placement: BannerPlacement = BannerPlacement.HOME_HERO,
+  ) {
+    const banners =
+      await this.bannerRepository.listActiveByPlacement(placement);
+
+    return banners.map((banner) => this.mapPublicBanner(banner));
+  }
+
   async listBanners(query: PaginationQueryDto) {
     const page = query.page ?? 1;
     const limit = query.limit ?? 10;
@@ -140,6 +149,29 @@ export class BannersService {
     });
 
     return this.mapBanner(updated);
+  }
+
+  private mapPublicBanner(banner: {
+    id: string;
+    title: string;
+    subtitle: string | null;
+    imageKey: string | null;
+    imageUrl: string | null;
+    linkUrl: string | null;
+    placement: BannerPlacement;
+    sortOrder: number;
+  }) {
+    return {
+      id: banner.id,
+      title: banner.title,
+      subtitle: banner.subtitle,
+      imageUrl: banner.imageKey
+        ? this.storageService.getReadableUrl(banner.imageKey)
+        : banner.imageUrl,
+      linkUrl: banner.linkUrl,
+      placement: banner.placement,
+      sortOrder: banner.sortOrder,
+    };
   }
 
   private mapBanner(banner: {

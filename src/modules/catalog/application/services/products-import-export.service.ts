@@ -1,5 +1,8 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { ProductStatus, ProductType } from '../../../../generated/prisma/client';
+import {
+  ProductStatus,
+  ProductType,
+} from '../../../../generated/prisma/client';
 import { PrismaService } from '../../../../prisma/prisma.service';
 
 @Injectable()
@@ -63,6 +66,7 @@ export class ProductsImportExportService {
   }
 
   async importProductsCsv(csvContent: string, staffUserId?: string) {
+    void staffUserId;
     const lines = csvContent
       .replace(/^\uFEFF/, '')
       .split(/\r?\n/)

@@ -40,6 +40,18 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null;
 }
 
+function toErrorString(value: unknown, fallback: string): string {
+  if (typeof value === 'string') {
+    return value;
+  }
+
+  if (typeof value === 'number' || typeof value === 'boolean') {
+    return String(value);
+  }
+
+  return fallback;
+}
+
 export function resolveApplicationError(
   exception: unknown,
 ): ResolvedApplicationError {
@@ -62,10 +74,10 @@ export function resolveApplicationError(
 
       return {
         statusCode,
-        code: String(response.code ?? getDefaultCode(statusCode)),
+        code: toErrorString(response.code, getDefaultCode(statusCode)),
         message: hasArrayMessage
           ? getDefaultMessage(statusCode)
-          : String(rawMessage ?? getDefaultMessage(statusCode)),
+          : toErrorString(rawMessage, getDefaultMessage(statusCode)),
         details: response.details ?? (hasArrayMessage ? rawMessage : undefined),
       };
     }

@@ -16,6 +16,7 @@ export interface UserWithAccess {
   firstName: string | null;
   lastName: string | null;
   phone: string | null;
+  termsAcceptedAt: Date | null;
   createdAt: Date;
   updatedAt: Date;
   roles: { slug: string; name: string }[];

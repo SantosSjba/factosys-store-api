@@ -4,6 +4,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { isGoogleAuthEnabled } from '../../config/preload-env';
 import { parseJwtDurationToSeconds } from '../../shared/helpers/jwt-duration.helper';
+import { OrdersModule } from '../sales/orders/orders.module';
 import { UsersModule } from '../users/users.module';
 import { AuthService } from './application/services/auth.service';
 import { PasswordService } from './application/services/password.service';
@@ -25,6 +26,7 @@ const googleProviders = googleEnabled ? [GoogleStrategy, GoogleAuthGuard] : [];
 @Module({
   imports: [
     forwardRef(() => UsersModule),
+    OrdersModule,
     PassportModule.register({ defaultStrategy: 'jwt' }),
     JwtModule.registerAsync({
       imports: [ConfigModule],

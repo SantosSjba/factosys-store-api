@@ -22,16 +22,22 @@ export class HealthService {
   constructor(private readonly configService: ConfigService) {}
 
   async getHealthStatus(): Promise<HealthResponseDto> {
-    const technologies = await Promise.all([
+    const [postgresql, redis, elasticsearch] = await Promise.all([
       this.checkPostgreSQL(),
       this.checkRedis(),
       this.checkElasticsearch(),
+    ]);
+
+    const technologies: TechnologyHealthDto[] = [
+      postgresql,
+      redis,
+      elasticsearch,
       this.checkConfiguredService('prisma', 'Prisma ORM', 'database.url'),
       this.checkConfiguredService('bullmq', 'BullMQ (Colas)', 'redis.host'),
       this.checkConfiguredService('s3', 'AWS S3', 'storage.bucketName'),
       this.checkConfiguredService('mail', 'Correo SMTP', 'mail.host'),
       this.checkSwagger(),
-    ]);
+    ];
 
     return {
       status: this.resolveOverallStatus(technologies),

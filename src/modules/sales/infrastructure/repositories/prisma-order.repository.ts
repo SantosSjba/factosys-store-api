@@ -1,11 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import type {
-  OrderAddressType,
-  OrderDeliveryMethod,
-  OrderPaymentStatus,
-  OrderSource,
+import {
   OrderStatus,
-  Prisma,
+  type OrderDeliveryMethod,
+  type OrderPaymentStatus,
+  type Prisma,
 } from '../../../../generated/prisma/client';
 import { PrismaService } from '../../../../prisma/prisma.service';
 
@@ -13,6 +11,32 @@ const orderSummaryInclude = {
   customer: true,
   warehouse: true,
   _count: { select: { items: true } },
+} satisfies Prisma.OrderInclude;
+
+const storeOrderSummaryInclude = {
+  _count: { select: { items: true } },
+  items: {
+    take: 1,
+    orderBy: { sortOrder: 'asc' as const },
+    include: {
+      variant: {
+        include: {
+          images: {
+            where: { isPrimary: true },
+            take: 1,
+          },
+          product: {
+            include: {
+              images: {
+                where: { isPrimary: true },
+                take: 1,
+              },
+            },
+          },
+        },
+      },
+    },
+  },
 } satisfies Prisma.OrderInclude;
 
 const orderDetailInclude = {
@@ -112,6 +136,43 @@ export class PrismaOrderRepository {
       this.prisma.order.findMany({
         where,
         include: orderSummaryInclude,
+        orderBy: { createdAt: 'desc' },
+        skip: (params.page - 1) * params.limit,
+        take: params.limit,
+      }),
+      this.prisma.order.count({ where }),
+    ]);
+
+    return { items, total };
+  }
+
+  async listCustomerPaginated(params: {
+    customerId: string;
+    page: number;
+    limit: number;
+    status?: OrderStatus;
+    activeOnly?: boolean;
+  }) {
+    const where: Prisma.OrderWhereInput = {
+      customerId: params.customerId,
+      ...(params.status ? { status: params.status } : {}),
+      ...(params.activeOnly
+        ? {
+            status: {
+              notIn: [
+                OrderStatus.DELIVERED,
+                OrderStatus.CANCELLED,
+                OrderStatus.REFUNDED,
+              ],
+            },
+          }
+        : {}),
+    };
+
+    const [items, total] = await Promise.all([
+      this.prisma.order.findMany({
+        where,
+        include: storeOrderSummaryInclude,
         orderBy: { createdAt: 'desc' },
         skip: (params.page - 1) * params.limit,
         take: params.limit,

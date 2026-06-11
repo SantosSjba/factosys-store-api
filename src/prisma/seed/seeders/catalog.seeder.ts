@@ -1,9 +1,4 @@
-import {
-  AttributeDataType,
-  AttributeScope,
-  ProductStatus,
-  ProductType,
-} from '../../../generated/prisma/client';
+import { ProductStatus, ProductType } from '../../../generated/prisma/client';
 import { seedPrisma } from '../client';
 import {
   CATALOG_ATTRIBUTE_SEED,
