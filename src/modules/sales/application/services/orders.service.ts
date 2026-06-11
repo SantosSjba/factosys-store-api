@@ -244,7 +244,11 @@ export class OrdersService {
     return this.mapStoreOrderDetail(order);
   }
 
-  async createOrder(dto: CreateOrderDto, staffUserId?: string) {
+  async createOrder(
+    dto: CreateOrderDto,
+    staffUserId?: string,
+    options?: { storeResponse?: boolean },
+  ) {
     const context = await this.resolveStoreContext(dto.warehouseId);
     await this.validateCustomer(dto);
 
@@ -320,6 +324,7 @@ export class OrdersService {
         pricesIncludeTax: context.pricesIncludeTax,
         internalNotes: dto.internalNotes?.trim() ?? null,
         customerNotes: dto.customerNotes?.trim() ?? null,
+        paymentMethod: dto.paymentMethod ?? null,
         confirmedAt:
           initialStatus === OrderStatus.CONFIRMED ? new Date() : null,
         paidAt: paymentStatus === OrderPaymentStatus.PAID ? new Date() : null,
@@ -367,13 +372,13 @@ export class OrdersService {
           create: {
             toStatus: initialStatus,
             toPaymentStatus: paymentStatus,
-            note: 'Pedido creado desde admin.',
+            note: dto.creationNote?.trim() ?? 'Pedido creado desde admin.',
             performedById: staffUserId ?? null,
           },
         },
       });
 
-      if (initialStatus === OrderStatus.CONFIRMED) {
+      if (initialStatus === OrderStatus.CONFIRMED || dto.reserveStock) {
         await this.reserveStockForOrder(tx, created, staffUserId);
       }
 
@@ -384,9 +389,16 @@ export class OrdersService {
       await this.couponsService.consumeCoupon(couponId);
     }
 
-    this.eventEmitter.emit('order.created', new OrderCreatedEvent(order.id));
-    if (order.paymentStatus === OrderPaymentStatus.PAID) {
-      this.eventEmitter.emit('order.paid', new OrderPaidEvent(order.id));
+    const orderId = order.id;
+    setImmediate(() => {
+      this.eventEmitter.emit('order.created', new OrderCreatedEvent(orderId));
+      if (order.paymentStatus === OrderPaymentStatus.PAID) {
+        this.eventEmitter.emit('order.paid', new OrderPaidEvent(orderId));
+      }
+    });
+
+    if (options?.storeResponse && dto.customerId) {
+      return this.mapStoreOrderDetail(order);
     }
 
     return this.mapOrderDetail(order);

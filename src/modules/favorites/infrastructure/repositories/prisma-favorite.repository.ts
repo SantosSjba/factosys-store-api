@@ -54,11 +54,7 @@ export class PrismaFavoriteRepository {
     });
   }
 
-  async listPaginated(params: {
-    userId: string;
-    page: number;
-    limit: number;
-  }) {
+  async listPaginated(params: { userId: string; page: number; limit: number }) {
     const where = {
       userId: params.userId,
       product: { status: ProductStatus.ACTIVE },

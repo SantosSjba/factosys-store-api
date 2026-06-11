@@ -1,0 +1,466 @@
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
+import {
+  OrderAddressType,
+  OrderDeliveryMethod,
+  OrderPaymentMethod,
+  OrderPaymentStatus,
+  OrderSource,
+} from '../../../../../generated/prisma/client';
+import { PrismaService } from '../../../../../prisma/prisma.service';
+import { CouponsService } from '../../../../marketing/coupons/application/services/coupons.service';
+import { ShippingZonesService } from '../../../../settings/shipping-zones/shipping-zones.service';
+import { CreateOrderDto } from '../../../application/dto/create-order.dto';
+import { OrdersService } from '../../../application/services/orders.service';
+import { CartService } from '../../../carts/application/services/cart.service';
+import { StoreCheckoutQuoteDto } from '../dto/store-checkout-quote.dto';
+import { StorePlaceOrderDto } from '../dto/store-place-order.dto';
+
+type StoreContext = {
+  warehouseId: string;
+  currencyCode: string;
+  minOrderAmount: number | null;
+  taxRatePercent: number;
+  pricesIncludeTax: boolean;
+  flatShippingFee: number | null;
+};
+
+type QuoteLine = {
+  variantId: string;
+  productName: string;
+  variantName: string | null;
+  quantity: number;
+  unitPrice: number;
+  lineSubtotal: number;
+  taxAmount: number;
+  lineTotal: number;
+  availableQuantity: number;
+};
+
+@Injectable()
+export class StoreCheckoutService {
+  constructor(
+    private readonly cartService: CartService,
+    private readonly ordersService: OrdersService,
+    private readonly couponsService: CouponsService,
+    private readonly shippingZonesService: ShippingZonesService,
+    private readonly prisma: PrismaService,
+  ) {}
+
+  async getSettings() {
+    const settings = await this.prisma.storeSettings.findUnique({
+      where: { id: 'default' },
+      include: { defaultTaxRate: true },
+    });
+
+    if (!settings) {
+      throw new BadRequestException({
+        code: 'STORE_SETTINGS_NOT_FOUND',
+        message: 'Configura la tienda antes de procesar pedidos.',
+      });
+    }
+
+    const tax = settings.defaultTaxRate;
+
+    return {
+      minOrderAmount: this.decimalToNumber(settings.minOrderAmount),
+      freeShippingMinAmount: this.decimalToNumber(
+        settings.freeShippingMinAmount,
+      ),
+      flatShippingFee: this.decimalToNumber(settings.flatShippingFee),
+      handlingDaysMin: settings.handlingDaysMin,
+      handlingDaysMax: settings.handlingDaysMax,
+      currencyCode: settings.defaultCurrencyCode,
+      tax: tax
+        ? {
+            name: tax.name,
+            rate: tax.rate.toString(),
+            pricesIncludeTax: settings.pricesIncludeTax,
+          }
+        : null,
+      pickup: {
+        name: settings.pickupPointName,
+        address: settings.pickupPointAddress,
+        district: settings.pickupPointDistrict,
+        province: settings.pickupPointProvince,
+        department: settings.pickupPointDepartment,
+        hours: settings.pickupPointHours,
+        phone: settings.pickupPointPhone,
+      },
+      payments: {
+        cash: settings.paymentCashEnabled,
+        bankTransfer: {
+          enabled: settings.paymentBankTransferEnabled,
+          instructions: settings.bankTransferInstructions,
+        },
+        yape: {
+          enabled: settings.paymentYapeEnabled,
+          number: settings.yapeNumber,
+        },
+        plin: {
+          enabled: settings.paymentPlinEnabled,
+          number: settings.plinNumber,
+        },
+      },
+    };
+  }
+
+  async quote(userId: string, dto: StoreCheckoutQuoteDto) {
+    const cart = await this.cartService.getCart(userId);
+
+    if (cart.items.length === 0) {
+      throw new BadRequestException({
+        code: 'CART_EMPTY',
+        message: 'Tu carrito está vacío.',
+      });
+    }
+
+    const context = await this.resolveStoreContext();
+    const lines = await this.buildQuoteLines(cart.items, context);
+    const stockIssues = lines
+      .filter((line) => line.quantity > line.availableQuantity)
+      .map((line) => ({
+        variantId: line.variantId,
+        productName: line.productName,
+        variantName: line.variantName,
+        requestedQuantity: line.quantity,
+        availableQuantity: line.availableQuantity,
+      }));
+
+    const subtotal = this.sum(lines.map((line) => line.lineSubtotal));
+    const taxAmount = this.sum(lines.map((line) => line.taxAmount));
+    const shipping = await this.resolveShippingAmount(dto, subtotal, context);
+    const discount = await this.resolveDiscount(dto.couponCode, subtotal);
+    const total = subtotal + taxAmount + shipping.amount - discount.amount;
+
+    if (context.minOrderAmount != null && total < context.minOrderAmount) {
+      throw new BadRequestException({
+        code: 'MIN_ORDER_AMOUNT_NOT_MET',
+        message: `El monto mínimo de pedido es ${context.minOrderAmount.toFixed(2)} ${context.currencyCode}.`,
+      });
+    }
+
+    return {
+      deliveryMethod: dto.deliveryMethod,
+      currencyCode: context.currencyCode,
+      itemCount: cart.itemCount,
+      lines: lines.map((line) => ({
+        variantId: line.variantId,
+        productName: line.productName,
+        variantName: line.variantName,
+        quantity: line.quantity,
+        unitPrice: line.unitPrice,
+        lineSubtotal: line.lineSubtotal,
+        availableQuantity: line.availableQuantity,
+      })),
+      subtotal,
+      taxAmount,
+      shippingAmount: shipping.amount,
+      shippingZoneName: shipping.zoneName,
+      isFreeShipping: shipping.isFreeShipping,
+      discountAmount: discount.amount,
+      couponCode: discount.couponCode,
+      total,
+      stockIssues,
+      canPlaceOrder: stockIssues.length === 0,
+    };
+  }
+
+  async placeOrder(userId: string, dto: StorePlaceOrderDto) {
+    this.assertShippingAddress(dto);
+    await this.assertPaymentMethodEnabled(dto.paymentMethod);
+
+    const quote = await this.quote(userId, dto);
+
+    if (!quote.canPlaceOrder) {
+      throw new BadRequestException({
+        code: 'INSUFFICIENT_AVAILABLE_STOCK',
+        message:
+          'Uno o más productos ya no tienen stock suficiente. Ajusta tu carrito e intenta de nuevo.',
+        details: quote.stockIssues,
+      });
+    }
+
+    const customer = await this.prisma.user.findFirst({
+      where: { id: userId, userType: 'CUSTOMER' },
+      select: {
+        id: true,
+        email: true,
+        firstName: true,
+        lastName: true,
+        phone: true,
+      },
+    });
+
+    if (!customer) {
+      throw new NotFoundException({
+        code: 'CUSTOMER_NOT_FOUND',
+        message: 'Cliente no encontrado.',
+      });
+    }
+
+    const createDto: CreateOrderDto = {
+      customerId: customer.id,
+      items: quote.lines.map((line) => ({
+        variantId: line.variantId,
+        quantity: line.quantity,
+      })),
+      deliveryMethod: dto.deliveryMethod,
+      shippingAmount: quote.shippingAmount,
+      discountAmount: quote.discountAmount,
+      couponCode: quote.couponCode ?? undefined,
+      customerNotes: dto.customerNotes,
+      paymentStatus: OrderPaymentStatus.PENDING,
+      paymentMethod: dto.paymentMethod,
+      source: OrderSource.WEB,
+      reserveStock: true,
+      creationNote: 'Pedido creado desde la tienda web.',
+      addresses:
+        dto.deliveryMethod === OrderDeliveryMethod.SHIPPING &&
+        dto.shippingAddress
+          ? [
+              {
+                type: OrderAddressType.SHIPPING,
+                firstName:
+                  dto.shippingAddress.firstName?.trim() ||
+                  customer.firstName ||
+                  undefined,
+                lastName:
+                  dto.shippingAddress.lastName?.trim() ||
+                  customer.lastName ||
+                  undefined,
+                phone:
+                  dto.shippingAddress.phone?.trim() ||
+                  customer.phone ||
+                  undefined,
+                email: customer.email,
+                addressLine1: dto.shippingAddress.addressLine1,
+                addressLine2: dto.shippingAddress.addressLine2,
+                district: dto.shippingAddress.district,
+                province: dto.shippingAddress.province,
+                department: dto.shippingAddress.department,
+                country:
+                  dto.shippingAddress.country?.trim().toUpperCase() ?? 'PE',
+              },
+            ]
+          : undefined,
+    };
+
+    const order = await this.ordersService.createOrder(createDto, undefined, {
+      storeResponse: true,
+    });
+    await this.cartService.clearCart(userId);
+
+    return order;
+  }
+
+  private assertShippingAddress(dto: StorePlaceOrderDto) {
+    if (dto.deliveryMethod !== OrderDeliveryMethod.SHIPPING) return;
+
+    const address = dto.shippingAddress;
+    if (!address?.addressLine1?.trim()) {
+      throw new BadRequestException({
+        code: 'SHIPPING_ADDRESS_REQUIRED',
+        message: 'Ingresa la dirección de envío.',
+      });
+    }
+
+    if (
+      !address.district?.trim() ||
+      !address.province?.trim() ||
+      !address.department?.trim()
+    ) {
+      throw new BadRequestException({
+        code: 'SHIPPING_ADDRESS_INCOMPLETE',
+        message: 'Completa distrito, provincia y departamento para el envío.',
+      });
+    }
+  }
+
+  private async assertPaymentMethodEnabled(method: OrderPaymentMethod) {
+    const settings = await this.getSettings();
+    const enabledMap: Record<OrderPaymentMethod, boolean> = {
+      [OrderPaymentMethod.CASH]: settings.payments.cash,
+      [OrderPaymentMethod.BANK_TRANSFER]:
+        settings.payments.bankTransfer.enabled,
+      [OrderPaymentMethod.YAPE]: settings.payments.yape.enabled,
+      [OrderPaymentMethod.PLIN]: settings.payments.plin.enabled,
+      [OrderPaymentMethod.CARD]: false,
+      [OrderPaymentMethod.GATEWAY]: false,
+    };
+
+    if (!enabledMap[method]) {
+      throw new BadRequestException({
+        code: 'PAYMENT_METHOD_NOT_AVAILABLE',
+        message: 'El método de pago seleccionado no está disponible.',
+      });
+    }
+  }
+
+  private async buildQuoteLines(
+    items: Array<{
+      variantId: string;
+      productName: string;
+      variantName: string | null;
+      quantity: number;
+      unitPrice: number;
+      availableQuantity?: number;
+    }>,
+    context: StoreContext,
+  ): Promise<QuoteLine[]> {
+    const availability = await this.loadAvailability(
+      context.warehouseId,
+      items.map((item) => item.variantId),
+    );
+
+    return items.map((item) => {
+      const gross = item.unitPrice * item.quantity;
+      let lineSubtotal = gross;
+      let taxAmount = 0;
+
+      if (context.taxRatePercent > 0) {
+        if (context.pricesIncludeTax) {
+          lineSubtotal = gross / (1 + context.taxRatePercent / 100);
+          taxAmount = gross - lineSubtotal;
+        } else {
+          taxAmount = lineSubtotal * (context.taxRatePercent / 100);
+        }
+      }
+
+      const lineTotal = context.pricesIncludeTax
+        ? gross
+        : lineSubtotal + taxAmount;
+
+      return {
+        variantId: item.variantId,
+        productName: item.productName,
+        variantName: item.variantName,
+        quantity: item.quantity,
+        unitPrice: item.unitPrice,
+        lineSubtotal,
+        taxAmount,
+        lineTotal,
+        availableQuantity: availability.get(item.variantId) ?? 0,
+      };
+    });
+  }
+
+  private async loadAvailability(warehouseId: string, variantIds: string[]) {
+    const uniqueIds = [...new Set(variantIds)];
+    const levels = await this.prisma.stockLevel.findMany({
+      where: {
+        warehouseId,
+        variantId: { in: uniqueIds },
+      },
+      select: {
+        variantId: true,
+        quantityOnHand: true,
+        quantityReserved: true,
+      },
+    });
+
+    return new Map(
+      uniqueIds.map((variantId) => {
+        const level = levels.find((entry) => entry.variantId === variantId);
+        const available = level
+          ? Math.max(0, level.quantityOnHand - level.quantityReserved)
+          : 0;
+        return [variantId, available] as const;
+      }),
+    );
+  }
+
+  private async resolveShippingAmount(
+    dto: StoreCheckoutQuoteDto,
+    subtotal: number,
+    context: StoreContext,
+  ) {
+    if (dto.deliveryMethod === OrderDeliveryMethod.PICKUP) {
+      return { amount: 0, zoneName: null, isFreeShipping: false };
+    }
+
+    if (!dto.department?.trim() || !dto.province?.trim()) {
+      return {
+        amount: context.flatShippingFee ?? 0,
+        zoneName: null,
+        isFreeShipping: false,
+      };
+    }
+
+    const result = await this.shippingZonesService.calculateShippingFee({
+      department: dto.department,
+      province: dto.province,
+      subtotal,
+      fallbackFee: context.flatShippingFee ?? 0,
+    });
+
+    return {
+      amount: result.fee,
+      zoneName: result.zoneName,
+      isFreeShipping: result.isFreeShipping,
+    };
+  }
+
+  private async resolveDiscount(
+    couponCode: string | undefined,
+    subtotal: number,
+  ) {
+    if (!couponCode?.trim()) {
+      return { amount: 0, couponCode: null as string | null };
+    }
+
+    const quote = await this.couponsService.resolveDiscount(
+      couponCode.trim(),
+      subtotal,
+    );
+
+    return {
+      amount: quote.discountAmount,
+      couponCode: couponCode.trim(),
+    };
+  }
+
+  private async resolveStoreContext(): Promise<StoreContext> {
+    const settings = await this.prisma.storeSettings.findUnique({
+      where: { id: 'default' },
+      include: { defaultTaxRate: true, defaultWarehouse: true },
+    });
+
+    if (!settings) {
+      throw new BadRequestException({
+        code: 'STORE_SETTINGS_NOT_FOUND',
+        message: 'Configura la tienda antes de procesar pedidos.',
+      });
+    }
+
+    const warehouse = settings.defaultWarehouse;
+    if (!warehouse?.isActive) {
+      throw new BadRequestException({
+        code: 'WAREHOUSE_NOT_CONFIGURED',
+        message: 'La tienda no tiene un almacén activo configurado.',
+      });
+    }
+
+    const tax = settings.defaultTaxRate;
+
+    return {
+      warehouseId: warehouse.id,
+      currencyCode: settings.defaultCurrencyCode,
+      minOrderAmount: this.decimalToNumber(settings.minOrderAmount),
+      taxRatePercent: tax ? Number(tax.rate) : 0,
+      pricesIncludeTax: settings.pricesIncludeTax,
+      flatShippingFee: this.decimalToNumber(settings.flatShippingFee),
+    };
+  }
+
+  private decimalToNumber(value: { toString(): string } | null | undefined) {
+    return value != null ? Number(value) : null;
+  }
+
+  private sum(values: number[]) {
+    return values.reduce((total, value) => total + value, 0);
+  }
+}

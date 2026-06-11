@@ -24,10 +24,7 @@ export class StoreOrdersController {
 
   @Get(':id')
   @ApiOperation({ summary: 'Detalle de pedido del cliente autenticado' })
-  getMyOrder(
-    @CurrentUser() user: AuthenticatedUser,
-    @Param('id') id: string,
-  ) {
+  getMyOrder(@CurrentUser() user: AuthenticatedUser, @Param('id') id: string) {
     return this.ordersService.getCustomerOrder(user.id, id);
   }
 }

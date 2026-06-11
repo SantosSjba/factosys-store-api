@@ -27,6 +27,7 @@ import { InventoryModule } from './modules/inventory/inventory.module';
 import { MarketingModule } from './modules/marketing/marketing.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
 import { PaymentsModule } from './modules/payments/payments.module';
+import { PresenceModule } from './modules/presence/presence.module';
 import { ReportsModule } from './modules/reports/reports.module';
 import { SalesModule } from './modules/sales/sales.module';
 import { SettingsModule } from './modules/settings/settings.module';
@@ -71,6 +72,7 @@ import { HttpLoggingInterceptor } from './shared/interceptors/http-logging.inter
     FavoritesModule,
     InventoryModule,
     SalesModule,
+    PresenceModule,
     PaymentsModule,
     MarketingModule,
     NotificationsModule,

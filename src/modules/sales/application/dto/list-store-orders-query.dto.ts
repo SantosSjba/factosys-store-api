@@ -11,7 +11,8 @@ export class ListStoreOrdersQueryDto extends PaginationQueryDto {
   status?: OrderStatus;
 
   @ApiPropertyOptional({
-    description: 'Solo pedidos en curso (excluye entregados, cancelados y reembolsados).',
+    description:
+      'Solo pedidos en curso (excluye entregados, cancelados y reembolsados).',
   })
   @IsOptional()
   @Transform(({ value }) => value === 'true' || value === true)

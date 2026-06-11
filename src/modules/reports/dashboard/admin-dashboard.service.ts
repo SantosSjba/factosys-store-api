@@ -5,6 +5,7 @@ import {
   ProductStatus,
   UserType,
 } from '../../../generated/prisma/client';
+import { CustomerPresenceService } from '../../presence/customer-presence.service';
 import { PrismaService } from '../../../prisma/prisma.service';
 import type { DashboardStatsQueryDto } from './dashboard-stats-query.dto';
 
@@ -12,7 +13,10 @@ type DayRange = { start: Date; end: Date };
 
 @Injectable()
 export class AdminDashboardService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly customerPresence: CustomerPresenceService,
+  ) {}
 
   async getStats(query: DashboardStatsQueryDto = {}) {
     const settings = await this.prisma.storeSettings.findFirst();
@@ -111,7 +115,10 @@ export class AdminDashboardService {
     );
 
     const today = this.getDayRange(timezone, 0);
-    const ordersToday = await this.countOrdersInRange(today);
+    const [ordersToday, onlineCustomers] = await Promise.all([
+      this.countOrdersInRange(today),
+      this.customerPresence.getOnlineCustomers(),
+    ]);
 
     return {
       currencyCode,
@@ -129,6 +136,7 @@ export class AdminDashboardService {
       productsActive,
       staffUsers,
       lowStockItems,
+      onlineCustomers,
       dailySeries,
       ordersByStatus: ordersByStatus.map((row) => ({
         status: row.status,

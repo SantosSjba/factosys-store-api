@@ -3,6 +3,7 @@ import { Type } from 'class-transformer';
 import {
   ArrayMinSize,
   IsArray,
+  IsBoolean,
   IsEmail,
   IsEnum,
   IsInt,
@@ -17,6 +18,7 @@ import {
 import {
   OrderAddressType,
   OrderDeliveryMethod,
+  OrderPaymentMethod,
   OrderPaymentStatus,
   OrderSource,
 } from '../../../../generated/prisma/client';
@@ -214,4 +216,22 @@ export class CreateOrderDto {
   @IsString()
   @MaxLength(40)
   couponCode?: string;
+
+  @ApiPropertyOptional({ enum: OrderPaymentMethod })
+  @IsOptional()
+  @IsEnum(OrderPaymentMethod)
+  paymentMethod?: OrderPaymentMethod;
+
+  @ApiPropertyOptional({
+    description: 'Reserva stock aunque el pedido quede pendiente de pago',
+  })
+  @IsOptional()
+  @IsBoolean()
+  reserveStock?: boolean;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  @MaxLength(500)
+  creationNote?: string;
 }
