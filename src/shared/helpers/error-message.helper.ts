@@ -1,4 +1,5 @@
 import { HttpException, HttpStatus } from '@nestjs/common';
+import { Prisma } from '../../generated/prisma/client';
 import { DomainException } from '../exceptions/domain.exception';
 import { resolveInfrastructureError } from './infrastructure-error.helper';
 import { ResolvedApplicationError } from '../types/error-response.types';
@@ -95,6 +96,19 @@ export function resolveApplicationError(
       message:
         typeof response === 'string' ? response : getDefaultMessage(statusCode),
     };
+  }
+
+  if (exception instanceof Prisma.PrismaClientKnownRequestError) {
+    if (exception.code === 'P2022') {
+      return {
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+        code: 'DATABASE_SCHEMA_OUTDATED',
+        message:
+          'La base de datos no está actualizada. Ejecuta `npx prisma migrate deploy`.',
+        details:
+          process.env.NODE_ENV === 'development' ? exception.message : undefined,
+      };
+    }
   }
 
   if (exception instanceof Error) {
