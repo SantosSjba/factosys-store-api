@@ -1,5 +1,6 @@
 import { HttpException, HttpStatus } from '@nestjs/common';
 import { DomainException } from '../exceptions/domain.exception';
+import { resolveInfrastructureError } from './infrastructure-error.helper';
 import { ResolvedApplicationError } from '../types/error-response.types';
 
 const STATUS_CODE_MAP: Record<number, string> = {
@@ -10,6 +11,8 @@ const STATUS_CODE_MAP: Record<number, string> = {
   [HttpStatus.CONFLICT]: 'CONFLICT',
   [HttpStatus.UNPROCESSABLE_ENTITY]: 'UNPROCESSABLE_ENTITY',
   [HttpStatus.TOO_MANY_REQUESTS]: 'TOO_MANY_REQUESTS',
+  [HttpStatus.GATEWAY_TIMEOUT]: 'REQUEST_TIMEOUT',
+  [HttpStatus.SERVICE_UNAVAILABLE]: 'SERVICE_UNAVAILABLE',
   [HttpStatus.INTERNAL_SERVER_ERROR]: 'INTERNAL_SERVER_ERROR',
 };
 
@@ -24,6 +27,10 @@ const STATUS_MESSAGE_MAP: Record<number, string> = {
   [HttpStatus.UNPROCESSABLE_ENTITY]: 'No se pudo procesar la solicitud.',
   [HttpStatus.TOO_MANY_REQUESTS]:
     'Has realizado demasiadas solicitudes. Intenta más tarde.',
+  [HttpStatus.GATEWAY_TIMEOUT]:
+    'La operación tardó demasiado. Intenta de nuevo en unos momentos.',
+  [HttpStatus.SERVICE_UNAVAILABLE]:
+    'Un servicio interno no respondió a tiempo. Intenta de nuevo en unos momentos.',
   [HttpStatus.INTERNAL_SERVER_ERROR]:
     'Ocurrió un error inesperado. Intenta nuevamente más tarde.',
 };
@@ -91,6 +98,11 @@ export function resolveApplicationError(
   }
 
   if (exception instanceof Error) {
+    const infrastructureError = resolveInfrastructureError(exception);
+    if (infrastructureError) {
+      return infrastructureError;
+    }
+
     return {
       statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
       code: 'INTERNAL_SERVER_ERROR',

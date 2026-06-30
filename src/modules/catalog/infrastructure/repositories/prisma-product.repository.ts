@@ -115,7 +115,7 @@ export class PrismaProductRepository {
       attributeValues: Array<{ attributeId: string; value: string }>;
     }>;
   }) {
-    return this.prisma.$transaction(async (tx) => {
+    return this.prisma.runTransaction(async (tx) => {
       const product = await tx.product.create({
         data: {
           ...data.product,
@@ -189,7 +189,7 @@ export class PrismaProductRepository {
       }>;
     },
   ) {
-    return this.prisma.$transaction(async (tx) => {
+    return this.prisma.runTransaction(async (tx) => {
       await tx.product.update({ where: { id }, data: data.product });
 
       if (data.categoryIds) {
@@ -359,7 +359,7 @@ export class PrismaProductRepository {
   }
 
   async updateImagesSortOrder(productId: string, orderedImageIds: string[]) {
-    await this.prisma.$transaction(
+    await this.prisma.runBatchTransaction(
       orderedImageIds.map((id, index) =>
         this.prisma.productImage.update({
           where: { id, productId },

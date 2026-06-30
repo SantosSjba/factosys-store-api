@@ -270,7 +270,7 @@ export class PrismaUserRepository {
       return null;
     }
 
-    await this.prisma.$transaction([
+    await this.prisma.runBatchTransaction([
       this.prisma.user.update({
         where: { id },
         data: { status: UserStatus.SUSPENDED },
@@ -305,7 +305,7 @@ export class PrismaUserRepository {
   }
 
   async updateRolePermissions(roleId: string, permissionIds: string[]) {
-    await this.prisma.$transaction([
+    await this.prisma.runBatchTransaction([
       this.prisma.rolePermission.deleteMany({ where: { roleId } }),
       this.prisma.rolePermission.createMany({
         data: permissionIds.map((permissionId) => ({ roleId, permissionId })),
@@ -439,7 +439,7 @@ export class PrismaUserRepository {
         );
       }
 
-      await this.prisma.$transaction(operations);
+      await this.prisma.runBatchTransaction(operations);
     } else {
       await this.prisma.user.update({
         where: { id },
@@ -464,7 +464,7 @@ export class PrismaUserRepository {
       return null;
     }
 
-    await this.prisma.$transaction([
+    await this.prisma.runBatchTransaction([
       this.prisma.user.update({
         where: { id },
         data: { status: UserStatus.SUSPENDED },
@@ -565,7 +565,7 @@ export class PrismaUserRepository {
     tokenHash: string;
     expiresAt: Date;
   }): Promise<void> {
-    await this.prisma.$transaction([
+    await this.prisma.runBatchTransaction([
       this.prisma.emailVerificationToken.updateMany({
         where: { userId: data.userId, usedAt: null },
         data: { usedAt: new Date() },
@@ -605,7 +605,7 @@ export class PrismaUserRepository {
       return null;
     }
 
-    await this.prisma.$transaction([
+    await this.prisma.runBatchTransaction([
       this.prisma.emailVerificationToken.update({
         where: { id: token.id },
         data: { usedAt: new Date() },
@@ -637,7 +637,7 @@ export class PrismaUserRepository {
       return null;
     }
 
-    await this.prisma.$transaction([
+    await this.prisma.runBatchTransaction([
       this.prisma.emailVerificationToken.update({
         where: { id: token.id },
         data: { usedAt: new Date() },
@@ -723,7 +723,7 @@ export class PrismaUserRepository {
   }
 
   async deleteStaffRole(roleId: string) {
-    await this.prisma.$transaction([
+    await this.prisma.runBatchTransaction([
       this.prisma.rolePermission.deleteMany({ where: { roleId } }),
       this.prisma.role.delete({ where: { id: roleId } }),
     ]);

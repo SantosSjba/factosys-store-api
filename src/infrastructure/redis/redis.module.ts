@@ -9,16 +9,30 @@ import { REDIS_CLIENT } from './redis.constants';
 
 const logger = new Logger('RedisClient');
 
-function createRedisClient(config: RedisConnectionConfig): Redis | null {
+function createRedisClient(
+  config: RedisConnectionConfig,
+  configService: ConfigService,
+): Redis | null {
   if (process.env.REDIS_ENABLED === 'false') {
     logger.warn('Redis deshabilitado (REDIS_ENABLED=false)');
     return null;
   }
 
+  const connectTimeout = configService.get<number>(
+    'timeouts.redisConnectMs',
+    5_000,
+  );
+  const commandTimeout = configService.get<number>(
+    'timeouts.redisCommandMs',
+    10_000,
+  );
+
   const options = buildRedisOptions(config, {
     maxRetriesPerRequest: null,
     lazyConnect: true,
     enableOfflineQueue: false,
+    connectTimeout,
+    commandTimeout,
     retryStrategy: (attempt) => {
       if (attempt > 5) return null;
       return Math.min(attempt * 500, 3000);
@@ -31,6 +45,8 @@ function createRedisClient(config: RedisConnectionConfig): Redis | null {
           lazyConnect: true,
           enableOfflineQueue: false,
           maxRetriesPerRequest: null,
+          connectTimeout,
+          commandTimeout,
           retryStrategy: (attempt) => {
             if (attempt > 5) return null;
             return Math.min(attempt * 500, 3000);
@@ -66,7 +82,7 @@ function createRedisClient(config: RedisConnectionConfig): Redis | null {
         if (!config) {
           throw new Error('Configuración Redis no disponible');
         }
-        return createRedisClient(config);
+        return createRedisClient(config, configService);
       },
       inject: [ConfigService],
     },

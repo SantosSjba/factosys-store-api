@@ -19,6 +19,18 @@ export class MailService {
       port,
       secure,
       auth: user ? { user, pass } : undefined,
+      connectionTimeout: this.configService.get<number>(
+        'timeouts.mailConnectionMs',
+        10_000,
+      ),
+      greetingTimeout: this.configService.get<number>(
+        'timeouts.mailGreetingMs',
+        10_000,
+      ),
+      socketTimeout: this.configService.get<number>(
+        'timeouts.mailSocketMs',
+        30_000,
+      ),
     });
   }
 

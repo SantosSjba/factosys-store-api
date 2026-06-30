@@ -103,7 +103,7 @@ export class PrismaMovementRepository {
   runStockTransaction<T>(
     handler: (tx: Prisma.TransactionClient) => Promise<T>,
   ): Promise<T> {
-    return this.prisma.$transaction(handler);
+    return this.prisma.runTransaction(handler);
   }
 
   getLevelInTransaction(

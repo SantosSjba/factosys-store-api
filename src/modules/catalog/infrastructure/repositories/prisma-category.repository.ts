@@ -55,7 +55,7 @@ export class PrismaCategoryRepository {
       sortOrder: number;
     }>,
   ) {
-    return this.prisma.$transaction([
+    return this.prisma.runBatchTransaction([
       this.prisma.categoryAttribute.deleteMany({ where: { categoryId } }),
       this.prisma.categoryAttribute.createMany({
         data: attributes.map((item) => ({

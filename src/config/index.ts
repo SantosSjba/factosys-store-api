@@ -9,3 +9,4 @@ export * from './mail.config';
 export * from './queue.config';
 export * from './redis.config';
 export * from './storage.config';
+export * from './timeouts.config';

@@ -40,6 +40,19 @@ async function bootstrap() {
 
   await app.listen(appPort);
 
+  const httpServer = app.getHttpServer() as {
+    setTimeout?: (ms: number) => void;
+    headersTimeout?: number;
+    keepAliveTimeout?: number;
+  };
+  const socketTimeoutMs = configService.get<number>(
+    'timeouts.httpServerSocketMs',
+    130_000,
+  );
+  httpServer.setTimeout?.(socketTimeoutMs);
+  httpServer.headersTimeout = socketTimeoutMs + 5_000;
+  httpServer.keepAliveTimeout = 65_000;
+
   const protocol = httpsOptions ? 'https' : 'http';
   logger.log(
     `Servidor listo en ${protocol}://127.0.0.1:${appPort}/${apiPrefix}`,

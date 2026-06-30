@@ -15,6 +15,7 @@ import {
   queueConfig,
   redisConfig,
   storageConfig,
+  timeoutsConfig,
 } from './config';
 import { envValidationSchema } from './config/env.validation';
 import { InfrastructureModule } from './infrastructure/infrastructure.module';
@@ -39,6 +40,7 @@ import { RolesGuard } from './shared/guards/roles.guard';
 import { UserTypeGuard } from './shared/guards/user-type.guard';
 import { AdminAuditInterceptor } from './shared/interceptors/admin-audit.interceptor';
 import { HttpLoggingInterceptor } from './shared/interceptors/http-logging.interceptor';
+import { RequestTimeoutInterceptor } from './shared/interceptors/request-timeout.interceptor';
 
 @Module({
   imports: [
@@ -57,6 +59,7 @@ import { HttpLoggingInterceptor } from './shared/interceptors/http-logging.inter
         storageConfig,
         mailConfig,
         queueConfig,
+        timeoutsConfig,
       ],
       envFilePath: [`.env.${process.env.NODE_ENV ?? 'development'}`, '.env'],
       validationSchema: envValidationSchema,
@@ -99,6 +102,10 @@ import { HttpLoggingInterceptor } from './shared/interceptors/http-logging.inter
     {
       provide: APP_GUARD,
       useClass: PermissionsGuard,
+    },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: RequestTimeoutInterceptor,
     },
     {
       provide: APP_INTERCEPTOR,

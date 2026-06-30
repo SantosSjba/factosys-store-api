@@ -62,7 +62,7 @@ export class PrismaOrderRepository {
   runTransaction<T>(
     handler: (tx: Prisma.TransactionClient) => Promise<T>,
   ): Promise<T> {
-    return this.prisma.$transaction(handler);
+    return this.prisma.runTransaction(handler);
   }
 
   findById(id: string) {

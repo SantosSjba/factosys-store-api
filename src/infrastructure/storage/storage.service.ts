@@ -34,6 +34,7 @@ export class StorageService implements OnModuleInit {
   private readonly publicUrl: string;
   private readonly readableUrlBase: string;
   private readonly apiPrefix: string;
+  private readonly s3RequestMs: number;
 
   constructor(private readonly configService: ConfigService) {
     const endpoint = this.configService.get<string>('storage.endpoint', '');
@@ -54,6 +55,10 @@ export class StorageService implements OnModuleInit {
       .get<string>('storage.readableUrlBase', '')
       .replace(/\/$/, '');
     this.apiPrefix = this.configService.get<string>('app.apiPrefix', 'api');
+    this.s3RequestMs = this.configService.get<number>(
+      'timeouts.s3RequestMs',
+      30_000,
+    );
 
     this.client = new S3Client({
       region,
@@ -78,14 +83,18 @@ export class StorageService implements OnModuleInit {
     }
 
     try {
-      await this.client.send(
-        new HeadBucketCommand({ Bucket: this.bucketName }),
+      await this.sendWithTimeout(
+        this.client.send(
+          new HeadBucketCommand({ Bucket: this.bucketName }),
+        ),
       );
       this.logger.log(`Bucket S3 listo: ${this.bucketName}`);
     } catch {
       try {
-        await this.client.send(
-          new CreateBucketCommand({ Bucket: this.bucketName }),
+        await this.sendWithTimeout(
+          this.client.send(
+            new CreateBucketCommand({ Bucket: this.bucketName }),
+          ),
         );
         this.logger.log(`Bucket S3 creado: ${this.bucketName}`);
       } catch (error) {
@@ -95,6 +104,24 @@ export class StorageService implements OnModuleInit {
         );
       }
     }
+  }
+
+  private sendWithTimeout<T>(operation: Promise<T>): Promise<T> {
+    return new Promise<T>((resolve, reject) => {
+      const timer = setTimeout(() => {
+        reject(new Error('S3 request timed out'));
+      }, this.s3RequestMs);
+
+      operation
+        .then((result) => {
+          clearTimeout(timer);
+          resolve(result);
+        })
+        .catch((error: unknown) => {
+          clearTimeout(timer);
+          reject(error);
+        });
+    });
   }
 
   buildStorageKey(folder: string, originalName: string): string {
@@ -132,13 +159,15 @@ export class StorageService implements OnModuleInit {
   }): Promise<UploadedObject> {
     const storageKey = this.buildStorageKey(data.folder, data.originalName);
 
-    await this.client.send(
-      new PutObjectCommand({
-        Bucket: this.bucketName,
-        Key: storageKey,
-        Body: data.buffer,
-        ContentType: data.mimeType,
-      }),
+    await this.sendWithTimeout(
+      this.client.send(
+        new PutObjectCommand({
+          Bucket: this.bucketName,
+          Key: storageKey,
+          Body: data.buffer,
+          ContentType: data.mimeType,
+        }),
+      ),
     );
 
     return {
@@ -158,11 +187,13 @@ export class StorageService implements OnModuleInit {
     }
 
     try {
-      const output = await this.client.send(
-        new GetObjectCommand({
-          Bucket: this.bucketName,
-          Key: storageKey,
-        }),
+      const output = await this.sendWithTimeout(
+        this.client.send(
+          new GetObjectCommand({
+            Bucket: this.bucketName,
+            Key: storageKey,
+          }),
+        ),
       );
 
       if (output.ContentType) {
@@ -205,11 +236,13 @@ export class StorageService implements OnModuleInit {
   async deleteObject(storageKey: string): Promise<void> {
     if (!storageKey) return;
 
-    await this.client.send(
-      new DeleteObjectCommand({
-        Bucket: this.bucketName,
-        Key: storageKey,
-      }),
+    await this.sendWithTimeout(
+      this.client.send(
+        new DeleteObjectCommand({
+          Bucket: this.bucketName,
+          Key: storageKey,
+        }),
+      ),
     );
   }
 

@@ -5,6 +5,7 @@ import {
   Injectable,
   NestInterceptor,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 import { Observable, tap } from 'rxjs';
 import { Logger } from 'winston';
@@ -13,6 +14,7 @@ import { Logger } from 'winston';
 export class HttpLoggingInterceptor implements NestInterceptor {
   constructor(
     @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: Logger,
+    private readonly configService: ConfigService,
   ) {}
 
   intercept(context: ExecutionContext, next: CallHandler): Observable<unknown> {
@@ -67,6 +69,10 @@ export class HttpLoggingInterceptor implements NestInterceptor {
     errorMessage?: string,
   ): void {
     const durationMs = Date.now() - startedAt;
+    const slowThresholdMs = this.configService.get<number>(
+      'timeouts.httpSlowRequestMs',
+      3_000,
+    );
     const message = `${method} ${url} ${statusCode} ${durationMs}ms ip=${ip}`;
 
     if (statusCode >= 500) {
@@ -82,6 +88,11 @@ export class HttpLoggingInterceptor implements NestInterceptor {
         message,
         errorMessage ? { error: errorMessage } : undefined,
       );
+      return;
+    }
+
+    if (durationMs >= slowThresholdMs) {
+      this.logger.warn(`${message} (slow)`);
       return;
     }
 

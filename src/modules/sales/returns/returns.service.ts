@@ -239,7 +239,7 @@ export class ReturnsService {
     if (dto.status === ReturnRequestStatus.REFUNDED)
       timestamps.refundedAt = now;
 
-    const updated = await this.prisma.$transaction(async (tx) => {
+    const updated = await this.prisma.runTransaction(async (tx) => {
       const result = await tx.returnRequest.update({
         where: { id },
         data: {
