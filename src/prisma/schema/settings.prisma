@@ -67,6 +67,7 @@ model StoreSettings {
   complaintsBookUrl             String?
   serialNumberRequired          Boolean  @default(false)
   orderConfirmationEmailEnabled Boolean  @default(true)
+  abandonedGatewayOrderExpiryHours Int?  @default(48)
   mailFromName                  String?
   createdAt                     DateTime @default(now())
   updatedAt                     DateTime @updatedAt

@@ -8,12 +8,14 @@ import type { Prisma } from '../../../../generated/prisma/client';
 import {
   OrderDeliveryMethod,
   OrderFulfillmentStatus,
+  OrderPaymentMethod,
   OrderPaymentStatus,
   OrderSource,
   OrderStatus,
   UserType,
 } from '../../../../generated/prisma/client';
 import { OrderCreatedEvent } from '../../../../events/order-created.event';
+import { OrderExpiredEvent } from '../../../../events/order-expired.event';
 import { OrderPaidEvent } from '../../../../events/order-paid.event';
 import { OrderShippedEvent } from '../../../../events/order-shipped.event';
 import { StorageService } from '../../../../infrastructure/storage/storage.service';
@@ -634,7 +636,11 @@ export class OrdersService {
         nextStatus === OrderStatus.CONFIRMED &&
         existing.status === OrderStatus.PENDING_PAYMENT
       ) {
-        await this.reserveStockForOrder(tx, updated, staffUserId);
+        const existingReservations =
+          await this.orderRepository.findActiveReservationsByOrder(tx, id);
+        if (existingReservations.length === 0) {
+          await this.reserveStockForOrder(tx, updated, staffUserId);
+        }
       }
 
       return updated;
@@ -680,6 +686,36 @@ export class OrdersService {
     });
 
     return this.mapOrderDetail(order);
+  }
+
+  async cancelExpiredGatewayOrders(expiryHours: number) {
+    const cutoff = new Date(Date.now() - expiryHours * 60 * 60 * 1000);
+    const expiredOrders = await this.prisma.order.findMany({
+      where: {
+        status: OrderStatus.PENDING_PAYMENT,
+        paymentStatus: OrderPaymentStatus.PENDING,
+        paymentMethod: OrderPaymentMethod.GATEWAY,
+        createdAt: { lt: cutoff },
+      },
+      select: { id: true },
+    });
+
+    let cancelled = 0;
+
+    for (const { id } of expiredOrders) {
+      try {
+        await this.cancelOrder(id, {
+          reason:
+            'Pedido cancelado automáticamente por falta de pago en el plazo establecido.',
+        });
+        this.eventEmitter.emit('order.expired', new OrderExpiredEvent(id));
+        cancelled += 1;
+      } catch (error) {
+        // El pedido pudo haber cambiado de estado entre la consulta y el cancel.
+      }
+    }
+
+    return { cancelled, scanned: expiredOrders.length };
   }
 
   async refundOrder(id: string, dto: RefundOrderDto, staffUserId?: string) {

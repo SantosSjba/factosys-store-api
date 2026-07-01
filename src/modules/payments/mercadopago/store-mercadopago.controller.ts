@@ -4,6 +4,7 @@ import {
   Get,
   Param,
   Post,
+  Query,
   Req,
   UseGuards,
 } from '@nestjs/common';
@@ -37,6 +38,31 @@ export class StoreMercadoPagoController {
   })
   getPaymentMethods() {
     return this.mercadoPagoService.getStorePaymentMethods();
+  }
+
+  @Public()
+  @UseGuards(OptionalJwtAuthGuard)
+  @Get('orders/:orderId/payment-context')
+  @ApiOperation({
+    summary: 'Contexto del pedido para la página de pago con Mercado Pago',
+  })
+  getPaymentContext(
+    @Param('orderId') orderId: string,
+    @Query('email') email: string | undefined,
+    @Req() request: AuthRequest,
+  ) {
+    const user = request.user;
+    const payerEmail = email?.trim();
+
+    return this.mercadoPagoService.getOrderPaymentContext(
+      orderId,
+      {
+        customerId: user?.userType === 'CUSTOMER' ? user.id : undefined,
+        guestEmail:
+          user?.userType === 'CUSTOMER' ? undefined : payerEmail,
+      },
+      payerEmail,
+    );
   }
 
   @Public()

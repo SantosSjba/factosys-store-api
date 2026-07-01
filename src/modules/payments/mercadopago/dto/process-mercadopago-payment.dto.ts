@@ -25,11 +25,13 @@ class MercadoPagoPayerIdentificationDto {
 }
 
 export class ProcessMercadoPagoPaymentDto {
-  @ApiProperty({ enum: ['card', 'yape'] })
+  @ApiProperty({ enum: ['card', 'yape'], description: 'Canal Checkout API Orders' })
   @IsIn(['card', 'yape'])
   paymentChannel!: 'card' | 'yape';
 
-  @ApiProperty({ description: 'Token generado por MercadoPago.js (Brick o Yape)' })
+  @ApiProperty({
+    description: 'Token generado por MercadoPago.js (Checkout API)',
+  })
   @IsString()
   @MinLength(1)
   token!: string;
@@ -41,7 +43,7 @@ export class ProcessMercadoPagoPaymentDto {
 
   @ApiPropertyOptional({
     example: 'credit_card',
-    description: 'Tipo reportado por Card Payment Brick (additionalData.paymentTypeId)',
+    description: 'Tipo reportado por el formulario de tarjeta (Checkout API)',
   })
   @IsOptional()
   @IsIn(['credit_card', 'debit_card', 'prepaid_card'])
@@ -64,4 +66,12 @@ export class ProcessMercadoPagoPaymentDto {
   @ValidateNested()
   @Type(() => MercadoPagoPayerIdentificationDto)
   payerIdentification?: MercadoPagoPayerIdentificationDto;
+
+  @ApiPropertyOptional({
+    description: 'Clave única por intento de pago (X-Idempotency-Key en Mercado Pago)',
+  })
+  @IsOptional()
+  @IsString()
+  @MinLength(8)
+  idempotencyKey?: string;
 }

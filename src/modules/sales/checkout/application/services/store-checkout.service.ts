@@ -12,6 +12,7 @@ import {
   PaymentGatewayProvider,
 } from '../../../../../generated/prisma/client';
 import { PrismaService } from '../../../../../prisma/prisma.service';
+import { MercadoPagoService } from '../../../../payments/mercadopago/mercadopago.service';
 import { CouponsService } from '../../../../marketing/coupons/application/services/coupons.service';
 import { ShippingZonesService } from '../../../../settings/shipping-zones/shipping-zones.service';
 import { CreateOrderDto } from '../../../application/dto/create-order.dto';
@@ -59,6 +60,7 @@ export class StoreCheckoutService {
     private readonly couponsService: CouponsService,
     private readonly shippingZonesService: ShippingZonesService,
     private readonly prisma: PrismaService,
+    private readonly mercadoPagoService: MercadoPagoService,
   ) {}
 
   async getSettings() {
@@ -66,11 +68,14 @@ export class StoreCheckoutService {
     const mercadoPagoGateway =
       await this.prisma.paymentGatewayConfig.findUnique({
         where: { provider: PaymentGatewayProvider.MERCADO_PAGO },
-        select: { isEnabled: true, publicKey: true },
+        select: { isEnabled: true, publicKey: true, isTestMode: true },
       });
     const mercadoPagoEnabled = Boolean(
       mercadoPagoGateway?.isEnabled && mercadoPagoGateway.publicKey,
     );
+    const mercadoPagoAccepted = mercadoPagoEnabled
+      ? await this.mercadoPagoService.getAcceptedMethodsSummary()
+      : { methods: [] as const };
 
     return {
       guestCheckoutEnabled: settings.guestCheckoutEnabled,
@@ -114,6 +119,8 @@ export class StoreCheckoutService {
         },
         gateway: {
           mercadoPago: mercadoPagoEnabled,
+          isTestMode: mercadoPagoGateway?.isTestMode ?? false,
+          acceptedMethods: mercadoPagoAccepted.methods,
         },
       },
     };

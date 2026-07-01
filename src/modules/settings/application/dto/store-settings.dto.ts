@@ -161,6 +161,15 @@ export class UpdateStoreSettingsDto {
   @IsBoolean()
   orderConfirmationEmailEnabled?: boolean;
 
+  @ApiPropertyOptional({
+    description:
+      'Horas para cancelar pedidos GATEWAY sin pagar. 0 o null deshabilita la limpieza automática.',
+  })
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  abandonedGatewayOrderExpiryHours?: number | null;
+
   @ApiPropertyOptional()
   @IsOptional()
   @IsString()

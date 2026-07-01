@@ -1,12 +1,19 @@
+import { randomUUID } from 'node:crypto';
 import {
   BadRequestException,
   Injectable,
   Logger,
   NotFoundException,
   OnModuleInit,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { MercadoPagoConfig, Order, PaymentMethod, WebhookSignatureValidator } from 'mercadopago';
+import {
+  MercadoPagoConfig,
+  Order,
+  PaymentMethod,
+  WebhookSignatureValidator,
+} from 'mercadopago';
 import {
   OrderPaymentMethod,
   OrderPaymentStatus,
@@ -14,6 +21,7 @@ import {
   PaymentTransactionStatus,
 } from '../../../generated/prisma/client';
 import { PrismaService } from '../../../prisma/prisma.service';
+import { OrdersService } from '../../sales/application/services/orders.service';
 import type { ProcessMercadoPagoPaymentDto } from './dto/process-mercadopago-payment.dto';
 
 type MpOrderResponse = {
@@ -29,13 +37,25 @@ type MpOrderResponse = {
   };
 };
 
+type MpCheckoutChannel = 'card' | 'yape';
+
 @Injectable()
 export class MercadoPagoService implements OnModuleInit {
   private readonly logger = new Logger(MercadoPagoService.name);
 
+  /** Medios del Checkout API Perú: tarjetas + Yape */
+  private static readonly STOREFRONT_METHOD_IDS = [
+    'visa',
+    'master',
+    'amex',
+    'diners',
+    'yape',
+  ] as const;
+
   constructor(
     private readonly configService: ConfigService,
     private readonly prisma: PrismaService,
+    private readonly ordersService: OrdersService,
   ) {}
 
   async onModuleInit(): Promise<void> {
@@ -52,12 +72,61 @@ export class MercadoPagoService implements OnModuleInit {
       enabled: true as const,
       publicKey: gateway!.publicKey!,
       isTestMode: gateway!.isTestMode,
+      sandboxPayerEmail: gateway!.isTestMode ? 'test@testuser.com' : null,
     };
   }
 
   async isEnabled(): Promise<boolean> {
     const gateway = await this.getGatewayRecord();
     return this.isGatewayReady(gateway);
+  }
+
+  async getAcceptedMethodsSummary() {
+    const gateway = await this.getGatewayRecord();
+    if (!this.isGatewayReady(gateway)) {
+      return { methods: [] as const };
+    }
+
+    try {
+      const accessToken = gateway!.secretKey!.trim();
+      const client = new MercadoPagoConfig({ accessToken });
+      const paymentMethodClient = new PaymentMethod(client);
+      const methods = await paymentMethodClient.get();
+      const storefrontIds = new Set<string>(
+        MercadoPagoService.STOREFRONT_METHOD_IDS,
+      );
+      const active = methods.filter(
+        (method) =>
+          method.status === 'active' &&
+          method.id &&
+          storefrontIds.has(method.id),
+      );
+
+      const order: string[] = [...MercadoPagoService.STOREFRONT_METHOD_IDS];
+      const sorted = [...active].sort(
+        (a, b) => order.indexOf(a.id!) - order.indexOf(b.id!),
+      );
+
+      return {
+        methods: sorted.map((method) => ({
+          id: method.id!,
+          name: this.resolveMethodDisplayName(method.id!, method.name),
+          thumbnail: method.secure_thumbnail ?? method.thumbnail ?? null,
+        })),
+      };
+    } catch (error) {
+      this.logger.warn(
+        'No se pudieron obtener los medios aceptados de Mercado Pago',
+        error instanceof Error ? error.message : error,
+      );
+      return {
+        methods: MercadoPagoService.STOREFRONT_METHOD_IDS.map((id) => ({
+          id,
+          name: this.resolveMethodDisplayName(id),
+          thumbnail: null,
+        })),
+      };
+    }
   }
 
   async getStorePaymentMethods() {
@@ -74,7 +143,7 @@ export class MercadoPagoService implements OnModuleInit {
       const methods = await paymentMethodClient.get();
       const active = methods.filter((method) => method.status === 'active');
       const channels: Array<{
-        channel: 'card' | 'yape';
+        channel: MpCheckoutChannel;
         label: string;
         paymentMethodId?: string;
         thumbnail?: string;
@@ -119,6 +188,55 @@ export class MercadoPagoService implements OnModuleInit {
         ],
       };
     }
+  }
+
+  async getOrderPaymentContext(
+    orderId: string,
+    actor: { customerId?: string; guestEmail?: string },
+    payerEmail?: string,
+  ) {
+    const gateway = await this.getGatewayRecord();
+    const gatewayReady = this.isGatewayReady(gateway);
+
+    const order = await this.prisma.order.findUnique({
+      where: { id: orderId },
+      include: {
+        customer: { select: { id: true, email: true } },
+      },
+    });
+
+    if (!order) {
+      throw new NotFoundException({
+        code: 'ORDER_NOT_FOUND',
+        message: 'Pedido no encontrado.',
+      });
+    }
+
+    this.assertOrderAccess(order, actor, payerEmail);
+
+    const resolvedPayerEmail =
+      order.guestEmail?.trim() ||
+      order.customer?.email?.trim() ||
+      payerEmail?.trim() ||
+      '';
+
+    const canPay = Boolean(
+      gatewayReady &&
+        order.paymentMethod === OrderPaymentMethod.GATEWAY &&
+        order.paymentStatus !== OrderPaymentStatus.PAID &&
+        resolvedPayerEmail,
+    );
+
+    return {
+      orderId: order.id,
+      orderNumber: order.orderNumber,
+      total: Number(order.total),
+      currencyCode: order.currencyCode,
+      payerEmail: resolvedPayerEmail,
+      paymentMethod: order.paymentMethod,
+      paymentStatus: order.paymentStatus,
+      canPay,
+    };
   }
 
   async processOrderPayment(
@@ -169,13 +287,25 @@ export class MercadoPagoService implements OnModuleInit {
     const client = new MercadoPagoConfig({ accessToken });
     const mpOrder = new Order(client);
     const totalAmount = Number(order.total).toFixed(2);
-    const idempotencyKey = `fs-order-${order.id}`;
+    const idempotencyKey =
+      dto.idempotencyKey?.trim() || `fs-order-${order.id}-${randomUUID()}`;
     const installments = dto.paymentChannel === 'yape' ? 1 : (dto.installments ?? 1);
     const paymentMethodType = this.resolveOrderPaymentMethodType(
       dto.paymentMethodId,
       dto.paymentChannel,
       dto.paymentMethodType,
     );
+    const mpPayerEmail = this.resolveSandboxPayerEmail(
+      dto.payerEmail,
+      gateway!.isTestMode,
+    );
+
+    if (!dto.token?.trim()) {
+      throw new BadRequestException({
+        code: 'MISSING_PAYMENT_TOKEN',
+        message: 'Falta el token de pago.',
+      });
+    }
 
     let mpResponse: MpOrderResponse;
 
@@ -189,7 +319,7 @@ export class MercadoPagoService implements OnModuleInit {
           description: `Pedido ${order.orderNumber}`,
           currency: order.currencyCode,
           payer: {
-            email: dto.payerEmail,
+            email: mpPayerEmail,
             ...(dto.payerIdentification?.type && dto.payerIdentification.number
               ? {
                   identification: {
@@ -227,20 +357,15 @@ export class MercadoPagoService implements OnModuleInit {
 
       mpResponse = result as MpOrderResponse;
     } catch (error) {
+      const mpError = this.extractMercadoPagoError(error);
       this.logger.error(
         `Mercado Pago order.create failed for ${order.orderNumber}`,
-        error instanceof Error ? error.message : error,
+        mpError.message,
       );
       throw new BadRequestException({
         code: 'MERCADOPAGO_PAYMENT_FAILED',
-        message:
-          dto.paymentChannel === 'yape'
-            ? 'No pudimos procesar el pago con Yape. Verifica el celular y el código OTP.'
-            : 'No pudimos procesar el pago con Mercado Pago. Verifica los datos de la tarjeta.',
-        details:
-          process.env.NODE_ENV === 'development' && error instanceof Error
-            ? [error.message]
-            : undefined,
+        message: mpError.userMessage,
+        details: mpError.details,
       });
     }
 
@@ -259,14 +384,12 @@ export class MercadoPagoService implements OnModuleInit {
       metadata: mpResponse,
     });
 
-    if (paymentStatus === PaymentTransactionStatus.COMPLETED) {
-      await this.prisma.order.update({
-        where: { id: order.id },
-        data: {
-          paymentStatus: OrderPaymentStatus.PAID,
-          paidAt: new Date(),
-        },
-      });
+    const isCompleted = paymentStatus === PaymentTransactionStatus.COMPLETED;
+    const isFailed = paymentStatus === PaymentTransactionStatus.FAILED;
+    const isPending = paymentStatus === PaymentTransactionStatus.PENDING;
+
+    if (isCompleted) {
+      await this.markOrderPaidFromGateway(order.id);
     }
 
     return {
@@ -275,11 +398,30 @@ export class MercadoPagoService implements OnModuleInit {
       mercadoPagoOrderId: externalId,
       status: payment?.status ?? mpResponse.status ?? 'pending',
       statusDetail: payment?.status_detail ?? mpResponse.status_detail ?? null,
-      paymentStatus:
-        paymentStatus === PaymentTransactionStatus.COMPLETED
-          ? OrderPaymentStatus.PAID
-          : OrderPaymentStatus.PENDING,
-      approved: paymentStatus === PaymentTransactionStatus.COMPLETED,
+      paymentStatus: isCompleted
+        ? OrderPaymentStatus.PAID
+        : OrderPaymentStatus.PENDING,
+      approved: isCompleted,
+      pending: isPending,
+      rejected: isFailed,
+      paymentVoucherUrl: null,
+    };
+  }
+
+  getWebhookSetup() {
+    const appUrl = this.configService.get<string>('app.url', 'http://localhost:3000');
+    const apiPrefix = this.configService.get<string>('app.apiPrefix', 'api');
+    const webhookSecret = this.configService.get<string>(
+      'mercadopago.webhookSecret',
+      '',
+    );
+
+    return {
+      webhookUrl: `${appUrl.replace(/\/$/, '')}/${apiPrefix}/webhooks/payments/MERCADO_PAGO`,
+      recommendedEvents: ['order', 'payment', 'merchant_order'],
+      secretConfigured: Boolean(webhookSecret.trim()),
+      signatureValidation: webhookSecret.trim() ? 'required' : 'optional',
+      documentationPath: 'docs/mercadopago-webhook.md',
     };
   }
 
@@ -302,13 +444,24 @@ export class MercadoPagoService implements OnModuleInit {
     }
 
     const webhookSecret = gateway!.webhookSecret?.trim();
-    if (webhookSecret && headers?.xSignature) {
+    if (webhookSecret) {
+      if (!headers?.xSignature) {
+        throw new UnauthorizedException({
+          code: 'MISSING_WEBHOOK_SIGNATURE',
+          message: 'Falta la firma del webhook de Mercado Pago.',
+        });
+      }
+
       WebhookSignatureValidator.validate({
         xSignature: headers.xSignature,
         xRequestId: headers.xRequestId,
         dataId,
         secret: webhookSecret,
       });
+    } else if (headers?.xSignature) {
+      this.logger.warn(
+        'Webhook de Mercado Pago recibido con firma pero MERCADOPAGO_WEBHOOK_SECRET no está configurado.',
+      );
     }
 
     const topic = String(payload.type ?? payload.action ?? payload.topic ?? '');
@@ -355,16 +508,26 @@ export class MercadoPagoService implements OnModuleInit {
     });
 
     if (status === PaymentTransactionStatus.COMPLETED) {
-      await this.prisma.order.updateMany({
-        where: { id: orderId, paymentStatus: { not: OrderPaymentStatus.PAID } },
-        data: {
-          paymentStatus: OrderPaymentStatus.PAID,
-          paidAt: new Date(),
-        },
-      });
+      await this.markOrderPaidFromGateway(orderId);
     }
 
     return { received: true, processed: true, orderId, status };
+  }
+
+  private async markOrderPaidFromGateway(orderId: string) {
+    const order = await this.prisma.order.findUnique({
+      where: { id: orderId },
+      select: { paymentStatus: true },
+    });
+
+    if (!order || order.paymentStatus === OrderPaymentStatus.PAID) {
+      return;
+    }
+
+    await this.ordersService.updateOrderPayment(orderId, {
+      paymentStatus: OrderPaymentStatus.PAID,
+      note: 'Pago confirmado por Mercado Pago.',
+    });
   }
 
   private async syncGatewayFromEnv() {
@@ -387,12 +550,21 @@ export class MercadoPagoService implements OnModuleInit {
 
     if (!publicKey && !accessToken) return;
 
+    const hasCredentials = Boolean(publicKey.trim() && accessToken.trim());
+    const isActive = enabled && hasCredentials;
+
+    if (hasCredentials && !enabled) {
+      this.logger.warn(
+        'Mercado Pago tiene credenciales en .env pero MERCADOPAGO_ENABLED no es true. La opción no aparecerá en checkout.',
+      );
+    }
+
     await this.prisma.paymentGatewayConfig.upsert({
       where: { provider: PaymentGatewayProvider.MERCADO_PAGO },
       create: {
         provider: PaymentGatewayProvider.MERCADO_PAGO,
         displayName: 'Mercado Pago',
-        isEnabled: enabled && Boolean(publicKey && accessToken),
+        isEnabled: isActive,
         isTestMode,
         publicKey: publicKey || null,
         secretKey: accessToken || null,
@@ -403,7 +575,7 @@ export class MercadoPagoService implements OnModuleInit {
         },
       },
       update: {
-        isEnabled: enabled && Boolean(publicKey && accessToken),
+        isEnabled: isActive,
         isTestMode,
         publicKey: publicKey || null,
         secretKey: accessToken || null,
@@ -416,7 +588,7 @@ export class MercadoPagoService implements OnModuleInit {
     });
 
     this.logger.log(
-      `Mercado Pago sincronizado desde .env (${enabled ? 'habilitado' : 'deshabilitado'}, ${isTestMode ? 'prueba' : 'producción'})`,
+      `Mercado Pago sincronizado desde .env (${isActive ? 'habilitado' : 'deshabilitado'}, ${isTestMode ? 'prueba' : 'producción'})`,
     );
   }
 
@@ -507,9 +679,82 @@ export class MercadoPagoService implements OnModuleInit {
     });
   }
 
+  private resolveSandboxPayerEmail(email: string, isTestMode: boolean) {
+    const normalized = email.trim().toLowerCase();
+    if (!isTestMode) return email.trim();
+    if (normalized.includes('@testuser.com')) return email.trim();
+    return 'test@testuser.com';
+  }
+
+  private extractMercadoPagoError(error: unknown) {
+    const fallback =
+      'No pudimos procesar el pago con Mercado Pago. Verifica los datos e intenta de nuevo.';
+    const details: string[] = [];
+
+    const pushErrors = (errors: unknown) => {
+      if (!Array.isArray(errors)) return;
+      for (const item of errors) {
+        if (!item || typeof item !== 'object') continue;
+        const code = 'code' in item ? String(item.code) : '';
+        const message = 'message' in item ? String(item.message) : '';
+        if (message) details.push(message);
+        if (code === 'invalid_email_for_sandbox') {
+          details.push(
+            'En modo prueba usa el correo test@testuser.com en el formulario de pago.',
+          );
+        }
+        if (
+          message.toLowerCase().includes('idempotency-key') ||
+          message.toLowerCase().includes('idempotency key')
+        ) {
+          details.push(
+            'Intenta pagar de nuevo. Si el error persiste, crea un pedido nuevo.',
+          );
+        }
+      }
+    };
+
+    if (error && typeof error === 'object') {
+      if ('errors' in error) pushErrors((error as { errors: unknown }).errors);
+      if ('cause' in error && error.cause && typeof error.cause === 'object') {
+        const cause = error.cause as { errors?: unknown; message?: string };
+        pushErrors(cause.errors);
+        if (cause.message) details.push(cause.message);
+      }
+      if (error instanceof Error && error.message) {
+        details.push(error.message);
+      }
+    }
+
+    const uniqueDetails = [...new Set(details.filter(Boolean))];
+    const userMessage = uniqueDetails[0] ?? fallback;
+
+    return {
+      message: uniqueDetails.join(' | ') || fallback,
+      userMessage,
+      details:
+        process.env.NODE_ENV === 'development' && uniqueDetails.length
+          ? uniqueDetails
+          : undefined,
+    };
+  }
+
+  private resolveMethodDisplayName(id: string, fallback?: string) {
+    const labels: Record<string, string> = {
+      account_money: 'Mercado Pago',
+      visa: 'Visa',
+      master: 'Mastercard',
+      amex: 'American Express',
+      diners: 'Diners Club',
+      yape: 'Yape',
+    };
+
+    return labels[id] ?? fallback ?? id;
+  }
+
   private resolveOrderPaymentMethodType(
     paymentMethodId: string,
-    channel: 'card' | 'yape',
+    channel: MpCheckoutChannel,
     paymentMethodType?: string,
   ) {
     if (paymentMethodType) {

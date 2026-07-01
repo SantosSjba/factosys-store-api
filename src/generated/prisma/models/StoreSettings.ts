@@ -34,6 +34,7 @@ export type StoreSettingsAvgAggregateOutputType = {
   flatShippingFee: runtime.Decimal | null
   handlingDaysMin: number | null
   handlingDaysMax: number | null
+  abandonedGatewayOrderExpiryHours: number | null
 }
 
 export type StoreSettingsSumAggregateOutputType = {
@@ -44,6 +45,7 @@ export type StoreSettingsSumAggregateOutputType = {
   flatShippingFee: runtime.Decimal | null
   handlingDaysMin: number | null
   handlingDaysMax: number | null
+  abandonedGatewayOrderExpiryHours: number | null
 }
 
 export type StoreSettingsMinAggregateOutputType = {
@@ -94,6 +96,7 @@ export type StoreSettingsMinAggregateOutputType = {
   complaintsBookUrl: string | null
   serialNumberRequired: boolean | null
   orderConfirmationEmailEnabled: boolean | null
+  abandonedGatewayOrderExpiryHours: number | null
   mailFromName: string | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -147,6 +150,7 @@ export type StoreSettingsMaxAggregateOutputType = {
   complaintsBookUrl: string | null
   serialNumberRequired: boolean | null
   orderConfirmationEmailEnabled: boolean | null
+  abandonedGatewayOrderExpiryHours: number | null
   mailFromName: string | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -200,6 +204,7 @@ export type StoreSettingsCountAggregateOutputType = {
   complaintsBookUrl: number
   serialNumberRequired: number
   orderConfirmationEmailEnabled: number
+  abandonedGatewayOrderExpiryHours: number
   mailFromName: number
   createdAt: number
   updatedAt: number
@@ -215,6 +220,7 @@ export type StoreSettingsAvgAggregateInputType = {
   flatShippingFee?: true
   handlingDaysMin?: true
   handlingDaysMax?: true
+  abandonedGatewayOrderExpiryHours?: true
 }
 
 export type StoreSettingsSumAggregateInputType = {
@@ -225,6 +231,7 @@ export type StoreSettingsSumAggregateInputType = {
   flatShippingFee?: true
   handlingDaysMin?: true
   handlingDaysMax?: true
+  abandonedGatewayOrderExpiryHours?: true
 }
 
 export type StoreSettingsMinAggregateInputType = {
@@ -275,6 +282,7 @@ export type StoreSettingsMinAggregateInputType = {
   complaintsBookUrl?: true
   serialNumberRequired?: true
   orderConfirmationEmailEnabled?: true
+  abandonedGatewayOrderExpiryHours?: true
   mailFromName?: true
   createdAt?: true
   updatedAt?: true
@@ -328,6 +336,7 @@ export type StoreSettingsMaxAggregateInputType = {
   complaintsBookUrl?: true
   serialNumberRequired?: true
   orderConfirmationEmailEnabled?: true
+  abandonedGatewayOrderExpiryHours?: true
   mailFromName?: true
   createdAt?: true
   updatedAt?: true
@@ -381,6 +390,7 @@ export type StoreSettingsCountAggregateInputType = {
   complaintsBookUrl?: true
   serialNumberRequired?: true
   orderConfirmationEmailEnabled?: true
+  abandonedGatewayOrderExpiryHours?: true
   mailFromName?: true
   createdAt?: true
   updatedAt?: true
@@ -521,6 +531,7 @@ export type StoreSettingsGroupByOutputType = {
   complaintsBookUrl: string | null
   serialNumberRequired: boolean
   orderConfirmationEmailEnabled: boolean
+  abandonedGatewayOrderExpiryHours: number | null
   mailFromName: string | null
   createdAt: Date
   updatedAt: Date
@@ -597,6 +608,7 @@ export type StoreSettingsWhereInput = {
   complaintsBookUrl?: Prisma.StringNullableFilter<"StoreSettings"> | string | null
   serialNumberRequired?: Prisma.BoolFilter<"StoreSettings"> | boolean
   orderConfirmationEmailEnabled?: Prisma.BoolFilter<"StoreSettings"> | boolean
+  abandonedGatewayOrderExpiryHours?: Prisma.IntNullableFilter<"StoreSettings"> | number | null
   mailFromName?: Prisma.StringNullableFilter<"StoreSettings"> | string | null
   createdAt?: Prisma.DateTimeFilter<"StoreSettings"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"StoreSettings"> | Date | string
@@ -652,6 +664,7 @@ export type StoreSettingsOrderByWithRelationInput = {
   complaintsBookUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   serialNumberRequired?: Prisma.SortOrder
   orderConfirmationEmailEnabled?: Prisma.SortOrder
+  abandonedGatewayOrderExpiryHours?: Prisma.SortOrderInput | Prisma.SortOrder
   mailFromName?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -710,6 +723,7 @@ export type StoreSettingsWhereUniqueInput = Prisma.AtLeast<{
   complaintsBookUrl?: Prisma.StringNullableFilter<"StoreSettings"> | string | null
   serialNumberRequired?: Prisma.BoolFilter<"StoreSettings"> | boolean
   orderConfirmationEmailEnabled?: Prisma.BoolFilter<"StoreSettings"> | boolean
+  abandonedGatewayOrderExpiryHours?: Prisma.IntNullableFilter<"StoreSettings"> | number | null
   mailFromName?: Prisma.StringNullableFilter<"StoreSettings"> | string | null
   createdAt?: Prisma.DateTimeFilter<"StoreSettings"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"StoreSettings"> | Date | string
@@ -765,6 +779,7 @@ export type StoreSettingsOrderByWithAggregationInput = {
   complaintsBookUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   serialNumberRequired?: Prisma.SortOrder
   orderConfirmationEmailEnabled?: Prisma.SortOrder
+  abandonedGatewayOrderExpiryHours?: Prisma.SortOrderInput | Prisma.SortOrder
   mailFromName?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -826,6 +841,7 @@ export type StoreSettingsScalarWhereWithAggregatesInput = {
   complaintsBookUrl?: Prisma.StringNullableWithAggregatesFilter<"StoreSettings"> | string | null
   serialNumberRequired?: Prisma.BoolWithAggregatesFilter<"StoreSettings"> | boolean
   orderConfirmationEmailEnabled?: Prisma.BoolWithAggregatesFilter<"StoreSettings"> | boolean
+  abandonedGatewayOrderExpiryHours?: Prisma.IntNullableWithAggregatesFilter<"StoreSettings"> | number | null
   mailFromName?: Prisma.StringNullableWithAggregatesFilter<"StoreSettings"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"StoreSettings"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"StoreSettings"> | Date | string
@@ -877,6 +893,7 @@ export type StoreSettingsCreateInput = {
   complaintsBookUrl?: string | null
   serialNumberRequired?: boolean
   orderConfirmationEmailEnabled?: boolean
+  abandonedGatewayOrderExpiryHours?: number | null
   mailFromName?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -932,6 +949,7 @@ export type StoreSettingsUncheckedCreateInput = {
   complaintsBookUrl?: string | null
   serialNumberRequired?: boolean
   orderConfirmationEmailEnabled?: boolean
+  abandonedGatewayOrderExpiryHours?: number | null
   mailFromName?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -983,6 +1001,7 @@ export type StoreSettingsUpdateInput = {
   complaintsBookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serialNumberRequired?: Prisma.BoolFieldUpdateOperationsInput | boolean
   orderConfirmationEmailEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  abandonedGatewayOrderExpiryHours?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   mailFromName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1038,6 +1057,7 @@ export type StoreSettingsUncheckedUpdateInput = {
   complaintsBookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serialNumberRequired?: Prisma.BoolFieldUpdateOperationsInput | boolean
   orderConfirmationEmailEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  abandonedGatewayOrderExpiryHours?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   mailFromName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1091,6 +1111,7 @@ export type StoreSettingsCreateManyInput = {
   complaintsBookUrl?: string | null
   serialNumberRequired?: boolean
   orderConfirmationEmailEnabled?: boolean
+  abandonedGatewayOrderExpiryHours?: number | null
   mailFromName?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1142,6 +1163,7 @@ export type StoreSettingsUpdateManyMutationInput = {
   complaintsBookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serialNumberRequired?: Prisma.BoolFieldUpdateOperationsInput | boolean
   orderConfirmationEmailEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  abandonedGatewayOrderExpiryHours?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   mailFromName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1195,6 +1217,7 @@ export type StoreSettingsUncheckedUpdateManyInput = {
   complaintsBookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serialNumberRequired?: Prisma.BoolFieldUpdateOperationsInput | boolean
   orderConfirmationEmailEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  abandonedGatewayOrderExpiryHours?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   mailFromName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1258,6 +1281,7 @@ export type StoreSettingsCountOrderByAggregateInput = {
   complaintsBookUrl?: Prisma.SortOrder
   serialNumberRequired?: Prisma.SortOrder
   orderConfirmationEmailEnabled?: Prisma.SortOrder
+  abandonedGatewayOrderExpiryHours?: Prisma.SortOrder
   mailFromName?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -1271,6 +1295,7 @@ export type StoreSettingsAvgOrderByAggregateInput = {
   flatShippingFee?: Prisma.SortOrder
   handlingDaysMin?: Prisma.SortOrder
   handlingDaysMax?: Prisma.SortOrder
+  abandonedGatewayOrderExpiryHours?: Prisma.SortOrder
 }
 
 export type StoreSettingsMaxOrderByAggregateInput = {
@@ -1321,6 +1346,7 @@ export type StoreSettingsMaxOrderByAggregateInput = {
   complaintsBookUrl?: Prisma.SortOrder
   serialNumberRequired?: Prisma.SortOrder
   orderConfirmationEmailEnabled?: Prisma.SortOrder
+  abandonedGatewayOrderExpiryHours?: Prisma.SortOrder
   mailFromName?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -1374,6 +1400,7 @@ export type StoreSettingsMinOrderByAggregateInput = {
   complaintsBookUrl?: Prisma.SortOrder
   serialNumberRequired?: Prisma.SortOrder
   orderConfirmationEmailEnabled?: Prisma.SortOrder
+  abandonedGatewayOrderExpiryHours?: Prisma.SortOrder
   mailFromName?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -1387,6 +1414,7 @@ export type StoreSettingsSumOrderByAggregateInput = {
   flatShippingFee?: Prisma.SortOrder
   handlingDaysMin?: Prisma.SortOrder
   handlingDaysMax?: Prisma.SortOrder
+  abandonedGatewayOrderExpiryHours?: Prisma.SortOrder
 }
 
 export type StoreSettingsCreateNestedManyWithoutDefaultWarehouseInput = {
@@ -1519,6 +1547,7 @@ export type StoreSettingsCreateWithoutDefaultWarehouseInput = {
   complaintsBookUrl?: string | null
   serialNumberRequired?: boolean
   orderConfirmationEmailEnabled?: boolean
+  abandonedGatewayOrderExpiryHours?: number | null
   mailFromName?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1572,6 +1601,7 @@ export type StoreSettingsUncheckedCreateWithoutDefaultWarehouseInput = {
   complaintsBookUrl?: string | null
   serialNumberRequired?: boolean
   orderConfirmationEmailEnabled?: boolean
+  abandonedGatewayOrderExpiryHours?: number | null
   mailFromName?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1654,6 +1684,7 @@ export type StoreSettingsScalarWhereInput = {
   complaintsBookUrl?: Prisma.StringNullableFilter<"StoreSettings"> | string | null
   serialNumberRequired?: Prisma.BoolFilter<"StoreSettings"> | boolean
   orderConfirmationEmailEnabled?: Prisma.BoolFilter<"StoreSettings"> | boolean
+  abandonedGatewayOrderExpiryHours?: Prisma.IntNullableFilter<"StoreSettings"> | number | null
   mailFromName?: Prisma.StringNullableFilter<"StoreSettings"> | string | null
   createdAt?: Prisma.DateTimeFilter<"StoreSettings"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"StoreSettings"> | Date | string
@@ -1705,6 +1736,7 @@ export type StoreSettingsCreateWithoutDefaultTaxRateInput = {
   complaintsBookUrl?: string | null
   serialNumberRequired?: boolean
   orderConfirmationEmailEnabled?: boolean
+  abandonedGatewayOrderExpiryHours?: number | null
   mailFromName?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1758,6 +1790,7 @@ export type StoreSettingsUncheckedCreateWithoutDefaultTaxRateInput = {
   complaintsBookUrl?: string | null
   serialNumberRequired?: boolean
   orderConfirmationEmailEnabled?: boolean
+  abandonedGatewayOrderExpiryHours?: number | null
   mailFromName?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1836,6 +1869,7 @@ export type StoreSettingsCreateManyDefaultWarehouseInput = {
   complaintsBookUrl?: string | null
   serialNumberRequired?: boolean
   orderConfirmationEmailEnabled?: boolean
+  abandonedGatewayOrderExpiryHours?: number | null
   mailFromName?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1887,6 +1921,7 @@ export type StoreSettingsUpdateWithoutDefaultWarehouseInput = {
   complaintsBookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serialNumberRequired?: Prisma.BoolFieldUpdateOperationsInput | boolean
   orderConfirmationEmailEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  abandonedGatewayOrderExpiryHours?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   mailFromName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1940,6 +1975,7 @@ export type StoreSettingsUncheckedUpdateWithoutDefaultWarehouseInput = {
   complaintsBookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serialNumberRequired?: Prisma.BoolFieldUpdateOperationsInput | boolean
   orderConfirmationEmailEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  abandonedGatewayOrderExpiryHours?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   mailFromName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1992,6 +2028,7 @@ export type StoreSettingsUncheckedUpdateManyWithoutDefaultWarehouseInput = {
   complaintsBookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serialNumberRequired?: Prisma.BoolFieldUpdateOperationsInput | boolean
   orderConfirmationEmailEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  abandonedGatewayOrderExpiryHours?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   mailFromName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2044,6 +2081,7 @@ export type StoreSettingsCreateManyDefaultTaxRateInput = {
   complaintsBookUrl?: string | null
   serialNumberRequired?: boolean
   orderConfirmationEmailEnabled?: boolean
+  abandonedGatewayOrderExpiryHours?: number | null
   mailFromName?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -2095,6 +2133,7 @@ export type StoreSettingsUpdateWithoutDefaultTaxRateInput = {
   complaintsBookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serialNumberRequired?: Prisma.BoolFieldUpdateOperationsInput | boolean
   orderConfirmationEmailEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  abandonedGatewayOrderExpiryHours?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   mailFromName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2148,6 +2187,7 @@ export type StoreSettingsUncheckedUpdateWithoutDefaultTaxRateInput = {
   complaintsBookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serialNumberRequired?: Prisma.BoolFieldUpdateOperationsInput | boolean
   orderConfirmationEmailEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  abandonedGatewayOrderExpiryHours?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   mailFromName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2200,6 +2240,7 @@ export type StoreSettingsUncheckedUpdateManyWithoutDefaultTaxRateInput = {
   complaintsBookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serialNumberRequired?: Prisma.BoolFieldUpdateOperationsInput | boolean
   orderConfirmationEmailEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  abandonedGatewayOrderExpiryHours?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   mailFromName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2255,6 +2296,7 @@ export type StoreSettingsSelect<ExtArgs extends runtime.Types.Extensions.Interna
   complaintsBookUrl?: boolean
   serialNumberRequired?: boolean
   orderConfirmationEmailEnabled?: boolean
+  abandonedGatewayOrderExpiryHours?: boolean
   mailFromName?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -2310,6 +2352,7 @@ export type StoreSettingsSelectCreateManyAndReturn<ExtArgs extends runtime.Types
   complaintsBookUrl?: boolean
   serialNumberRequired?: boolean
   orderConfirmationEmailEnabled?: boolean
+  abandonedGatewayOrderExpiryHours?: boolean
   mailFromName?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -2365,6 +2408,7 @@ export type StoreSettingsSelectUpdateManyAndReturn<ExtArgs extends runtime.Types
   complaintsBookUrl?: boolean
   serialNumberRequired?: boolean
   orderConfirmationEmailEnabled?: boolean
+  abandonedGatewayOrderExpiryHours?: boolean
   mailFromName?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -2420,12 +2464,13 @@ export type StoreSettingsSelectScalar = {
   complaintsBookUrl?: boolean
   serialNumberRequired?: boolean
   orderConfirmationEmailEnabled?: boolean
+  abandonedGatewayOrderExpiryHours?: boolean
   mailFromName?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type StoreSettingsOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "storeName" | "storeTagline" | "logoUrl" | "logoKey" | "faviconUrl" | "faviconKey" | "defaultLocale" | "timezone" | "defaultCurrencyCode" | "defaultTaxRateId" | "pricesIncludeTax" | "metaTitleDefault" | "metaDescriptionDefault" | "maintenanceMode" | "maintenanceMessage" | "guestCheckoutEnabled" | "minOrderAmount" | "orderNumberPrefix" | "lastOrderNumber" | "defaultWarehouseId" | "lowStockGlobalThreshold" | "freeShippingMinAmount" | "flatShippingFee" | "handlingDaysMin" | "handlingDaysMax" | "pickupPointName" | "pickupPointAddress" | "pickupPointDistrict" | "pickupPointProvince" | "pickupPointDepartment" | "pickupPointHours" | "pickupPointPhone" | "paymentCashEnabled" | "paymentBankTransferEnabled" | "paymentYapeEnabled" | "paymentPlinEnabled" | "bankTransferInstructions" | "yapeNumber" | "plinNumber" | "warrantyPolicyUrl" | "returnsPolicyUrl" | "privacyPolicyUrl" | "termsUrl" | "complaintsBookUrl" | "serialNumberRequired" | "orderConfirmationEmailEnabled" | "mailFromName" | "createdAt" | "updatedAt", ExtArgs["result"]["storeSettings"]>
+export type StoreSettingsOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "storeName" | "storeTagline" | "logoUrl" | "logoKey" | "faviconUrl" | "faviconKey" | "defaultLocale" | "timezone" | "defaultCurrencyCode" | "defaultTaxRateId" | "pricesIncludeTax" | "metaTitleDefault" | "metaDescriptionDefault" | "maintenanceMode" | "maintenanceMessage" | "guestCheckoutEnabled" | "minOrderAmount" | "orderNumberPrefix" | "lastOrderNumber" | "defaultWarehouseId" | "lowStockGlobalThreshold" | "freeShippingMinAmount" | "flatShippingFee" | "handlingDaysMin" | "handlingDaysMax" | "pickupPointName" | "pickupPointAddress" | "pickupPointDistrict" | "pickupPointProvince" | "pickupPointDepartment" | "pickupPointHours" | "pickupPointPhone" | "paymentCashEnabled" | "paymentBankTransferEnabled" | "paymentYapeEnabled" | "paymentPlinEnabled" | "bankTransferInstructions" | "yapeNumber" | "plinNumber" | "warrantyPolicyUrl" | "returnsPolicyUrl" | "privacyPolicyUrl" | "termsUrl" | "complaintsBookUrl" | "serialNumberRequired" | "orderConfirmationEmailEnabled" | "abandonedGatewayOrderExpiryHours" | "mailFromName" | "createdAt" | "updatedAt", ExtArgs["result"]["storeSettings"]>
 export type StoreSettingsInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   defaultTaxRate?: boolean | Prisma.StoreSettings$defaultTaxRateArgs<ExtArgs>
   defaultWarehouse?: boolean | Prisma.StoreSettings$defaultWarehouseArgs<ExtArgs>
@@ -2493,6 +2538,7 @@ export type $StoreSettingsPayload<ExtArgs extends runtime.Types.Extensions.Inter
     complaintsBookUrl: string | null
     serialNumberRequired: boolean
     orderConfirmationEmailEnabled: boolean
+    abandonedGatewayOrderExpiryHours: number | null
     mailFromName: string | null
     createdAt: Date
     updatedAt: Date
@@ -2968,6 +3014,7 @@ export interface StoreSettingsFieldRefs {
   readonly complaintsBookUrl: Prisma.FieldRef<"StoreSettings", 'String'>
   readonly serialNumberRequired: Prisma.FieldRef<"StoreSettings", 'Boolean'>
   readonly orderConfirmationEmailEnabled: Prisma.FieldRef<"StoreSettings", 'Boolean'>
+  readonly abandonedGatewayOrderExpiryHours: Prisma.FieldRef<"StoreSettings", 'Int'>
   readonly mailFromName: Prisma.FieldRef<"StoreSettings", 'String'>
   readonly createdAt: Prisma.FieldRef<"StoreSettings", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"StoreSettings", 'DateTime'>

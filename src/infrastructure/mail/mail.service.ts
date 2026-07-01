@@ -87,8 +87,16 @@ export class MailService {
     orderNumber: string;
     total: string;
     currencyCode: string;
+    actionUrl?: string | null;
+    actionLabel?: string;
   }): Promise<boolean> {
     const totalLabel = `${params.total} ${params.currencyCode}`;
+    const actionHtml = params.actionUrl
+      ? `<p style="margin: 24px 0;"><a href="${params.actionUrl}" style="display:inline-block;padding:12px 24px;background:#009ee3;color:#fff;text-decoration:none;border-radius:8px;font-weight:600;">${params.actionLabel ?? 'Ver pedido'}</a></p>`
+      : '';
+    const actionText = params.actionUrl
+      ? `\n\n${params.actionLabel ?? 'Ver pedido'}: ${params.actionUrl}`
+      : '';
 
     try {
       await this.transporter.sendMail({
@@ -100,9 +108,10 @@ export class MailService {
           <p>${params.body}</p>
           <p><strong>Pedido:</strong> ${params.orderNumber}</p>
           <p><strong>Total:</strong> ${totalLabel}</p>
+          ${actionHtml}
           <p>Gracias por comprar en Factosys Store.</p>
         `,
-        text: `${params.heading}\n\n${params.body}\n\nPedido: ${params.orderNumber}\nTotal: ${totalLabel}`,
+        text: `${params.heading}\n\n${params.body}\n\nPedido: ${params.orderNumber}\nTotal: ${totalLabel}${actionText}\n\nGracias por comprar en Factosys Store.`,
       });
 
       this.logger.log(`Correo de pedido enviado a ${params.to}`);

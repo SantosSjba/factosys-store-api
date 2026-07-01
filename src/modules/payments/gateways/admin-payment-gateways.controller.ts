@@ -7,6 +7,7 @@ import {
   Patch,
   Post,
   Query,
+  BadRequestException,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { PaymentGatewayProvider } from '../../../generated/prisma/client';
@@ -50,6 +51,22 @@ export class AdminPaymentGatewaysController {
   @ApiOperation({ summary: 'Listar transacciones de pago' })
   listTransactions(@Query('orderId') orderId?: string) {
     return this.service.listTransactions(orderId);
+  }
+
+  @Get('admin/payment-gateways/:provider/webhook-setup')
+  @ApiBearerAuth()
+  @UserTypes('STAFF')
+  @RequirePermissions(PERMISSIONS.SETTINGS_READ)
+  @ApiOperation({ summary: 'Instrucciones de webhook para Mercado Pago' })
+  getWebhookSetup(@Param('provider') provider: PaymentGatewayProvider) {
+    if (provider !== PaymentGatewayProvider.MERCADO_PAGO) {
+      throw new BadRequestException({
+        code: 'WEBHOOK_SETUP_NOT_AVAILABLE',
+        message: 'La configuración de webhook solo está disponible para Mercado Pago.',
+      });
+    }
+
+    return this.service.getMercadoPagoWebhookSetup();
   }
 
   @Public()

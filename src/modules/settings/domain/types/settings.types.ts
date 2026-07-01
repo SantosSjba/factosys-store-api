@@ -68,6 +68,7 @@ export type StoreSettingsRecord = {
   complaintsBookUrl: string | null;
   serialNumberRequired: boolean;
   orderConfirmationEmailEnabled: boolean;
+  abandonedGatewayOrderExpiryHours: number | null;
   mailFromName: string | null;
   createdAt: Date;
   updatedAt: Date;

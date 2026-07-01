@@ -4534,6 +4534,7 @@ export const StoreSettingsScalarFieldEnum = {
   complaintsBookUrl: 'complaintsBookUrl',
   serialNumberRequired: 'serialNumberRequired',
   orderConfirmationEmailEnabled: 'orderConfirmationEmailEnabled',
+  abandonedGatewayOrderExpiryHours: 'abandonedGatewayOrderExpiryHours',
   mailFromName: 'mailFromName',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'

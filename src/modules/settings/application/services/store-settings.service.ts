@@ -163,6 +163,10 @@ export class StoreSettingsService {
           : undefined,
       serialNumberRequired: dto.serialNumberRequired,
       orderConfirmationEmailEnabled: dto.orderConfirmationEmailEnabled,
+      abandonedGatewayOrderExpiryHours:
+        dto.abandonedGatewayOrderExpiryHours !== undefined
+          ? dto.abandonedGatewayOrderExpiryHours
+          : undefined,
       mailFromName:
         dto.mailFromName !== undefined
           ? (dto.mailFromName?.trim() ?? null)
@@ -364,6 +368,7 @@ export class StoreSettingsService {
     complaintsBookUrl: string | null;
     serialNumberRequired: boolean;
     orderConfirmationEmailEnabled: boolean;
+    abandonedGatewayOrderExpiryHours: number | null;
     mailFromName: string | null;
     createdAt: Date;
     updatedAt: Date;
@@ -425,6 +430,7 @@ export class StoreSettingsService {
       complaintsBookUrl: settings.complaintsBookUrl,
       serialNumberRequired: settings.serialNumberRequired,
       orderConfirmationEmailEnabled: settings.orderConfirmationEmailEnabled,
+      abandonedGatewayOrderExpiryHours: settings.abandonedGatewayOrderExpiryHours,
       mailFromName: settings.mailFromName,
       createdAt: settings.createdAt,
       updatedAt: settings.updatedAt,

@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { OptionalJwtAuthGuard } from '../../../shared/guards/optional-jwt-auth.guard';
 import { StoreActorGuard } from '../../../shared/guards/store-actor.guard';
+import { MercadoPagoModule } from '../../payments/mercadopago/mercadopago.module';
 import { CouponsModule } from '../../marketing/coupons/coupons.module';
 import { SettingsModule } from '../../settings/settings.module';
 import { OrdersModule } from '../orders/orders.module';
@@ -9,7 +10,13 @@ import { StoreCheckoutService } from './application/services/store-checkout.serv
 import { StoreCheckoutController } from './presentation/controllers/store-checkout.controller';
 
 @Module({
-  imports: [CartsModule, OrdersModule, SettingsModule, CouponsModule],
+  imports: [
+    CartsModule,
+    OrdersModule,
+    SettingsModule,
+    CouponsModule,
+    MercadoPagoModule,
+  ],
   controllers: [StoreCheckoutController],
   providers: [StoreCheckoutService, OptionalJwtAuthGuard, StoreActorGuard],
 })

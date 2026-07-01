@@ -26,6 +26,10 @@ export class PaymentGatewaysService {
     return gateways.map((g) => this.mapGateway(g, false));
   }
 
+  getMercadoPagoWebhookSetup() {
+    return this.mercadoPagoService.getWebhookSetup();
+  }
+
   async updateGateway(
     provider: PaymentGatewayProvider,
     dto: UpdatePaymentGatewayDto,
