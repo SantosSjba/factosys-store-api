@@ -51,11 +51,19 @@ Ver variables en `.env.example` y [mercadopago-webhook.md](./mercadopago-webhook
 
 | Campo | Valor |
 |-------|-------|
-| Email | `test@testuser.com` |
 | Tarjeta | `5031 7557 3453 0604` |
 | CVV / vence | `123` / `11/30` |
 | Titular | `APRO` |
 | Yape | `111111111` / OTP `123456` |
+
+### Correo del comprador en modo prueba
+
+Mercado Pago exige un correo distinto según el tipo de cuenta vendedora usada en `MERCADOPAGO_ACCESS_TOKEN`:
+
+- **Cuenta `test_user`** (creada desde "Cuentas de prueba" del panel): el correo debe ser único por operación y terminar en `@testuser.com`. La API lo genera automáticamente por pedido (`test_payer_XXXXXXXXXX@testuser.com`) — no lo escribas manualmente.
+- **Credenciales de prueba de tu cuenta real** ("Credenciales de prueba" en tu app): usa `test@testuser.com` o el correo del pedido, según lo que indique la UI de pago.
+
+La app detecta el tipo de cuenta automáticamente al iniciar (`getCredentialDiagnostics`) y ajusta el correo sin intervención manual. Revisa el diagnóstico en Configuración → Pasarelas de pago → ícono de estetoscopio.
 
 ## Archivos
 

@@ -49,6 +49,15 @@ Si `MERCADOPAGO_WEBHOOK_SECRET` está configurado, la API **exige** el header `x
 
 ## Verificación
 
-- Admin: `GET /api/admin/payment-gateways/MERCADO_PAGO/webhook-setup`
+- **Admin UI**: Configuración → Pasarelas de pago → ícono de estetoscopio en la tarjeta de Mercado Pago. Muestra la URL de webhook (con botón copiar), si el secreto está configurado, y el diagnóstico de credenciales (`healthy`, `issues`, tipo de cuenta, correo sandbox usado).
+- **API**: `GET /api/admin/payment-gateways/MERCADO_PAGO/webhook-setup`
 - Simulador de webhooks en el panel de MP.
 - Revisar logs de la API y tabla `PaymentTransaction`.
+
+## Checklist antes de salir a producción
+
+1. Cambiar `MERCADOPAGO_TEST_MODE=false` y usar credenciales de producción (`APP_USR-...` de la pestaña "Credenciales de producción", no de prueba).
+2. Configurar `MERCADOPAGO_WEBHOOK_SECRET` con el secret real del panel de producción (no reusar el de pruebas).
+3. Verificar en el panel admin que el diagnóstico de credenciales quede en verde (`Credenciales OK`) y que `secretConfigured` sea `true`.
+4. Configurar `abandonedGatewayOrderExpiryHours` en Configuración → Pagos y envíos → Pasarela de pago (Mercado Pago), para cancelar automáticamente pedidos `GATEWAY` que nunca completan el pago.
+5. Probar un pago real de bajo monto antes de anunciar el medio de pago a los clientes.
