@@ -38,6 +38,7 @@ type MpOrderResponse = {
 };
 
 type MpCheckoutChannel = 'card' | 'yape';
+type MpSandboxPayerEmailMode = 'order' | 'testuser' | 'synthetic';
 
 @Injectable()
 export class MercadoPagoService implements OnModuleInit {
@@ -60,6 +61,7 @@ export class MercadoPagoService implements OnModuleInit {
 
   async onModuleInit(): Promise<void> {
     await this.syncGatewayFromEnv();
+    await this.validateCredentialEnvironment();
   }
 
   async getStoreConfig() {
@@ -72,7 +74,12 @@ export class MercadoPagoService implements OnModuleInit {
       enabled: true as const,
       publicKey: gateway!.publicKey!,
       isTestMode: gateway!.isTestMode,
-      sandboxPayerEmail: gateway!.isTestMode ? 'test@testuser.com' : null,
+      sandboxPayerEmailMode: this.readSandboxPayerEmailMode(gateway),
+      sandboxPayerEmail:
+        gateway!.isTestMode &&
+        this.readSandboxPayerEmailMode(gateway) === 'testuser'
+          ? 'test@testuser.com'
+          : null,
     };
   }
 
@@ -297,8 +304,10 @@ export class MercadoPagoService implements OnModuleInit {
       dto.paymentMethodType,
     );
     const mpPayerEmail = this.resolveSandboxPayerEmail(
+      order.id,
       dto.payerEmail,
       gateway!.isTestMode,
+      this.readSandboxPayerEmailMode(gateway),
     );
     const payerIdentification = this.resolvePayerIdentification(
       dto.payerIdentification,
@@ -449,13 +458,14 @@ export class MercadoPagoService implements OnModuleInit {
     };
   }
 
-  getWebhookSetup() {
+  async getWebhookSetup() {
     const appUrl = this.configService.get<string>('app.url', 'http://localhost:3000');
     const apiPrefix = this.configService.get<string>('app.apiPrefix', 'api');
     const webhookSecret = this.configService.get<string>(
       'mercadopago.webhookSecret',
       '',
     );
+    const credentials = await this.getCredentialDiagnostics();
 
     return {
       webhookUrl: `${appUrl.replace(/\/$/, '')}/${apiPrefix}/webhooks/payments/MERCADO_PAGO`,
@@ -463,7 +473,121 @@ export class MercadoPagoService implements OnModuleInit {
       secretConfigured: Boolean(webhookSecret.trim()),
       signatureValidation: webhookSecret.trim() ? 'required' : 'optional',
       documentationPath: 'docs/mercadopago-webhook.md',
+      credentials,
     };
+  }
+
+  async getCredentialDiagnostics() {
+    const gateway = await this.getGatewayRecord();
+    if (!this.isGatewayReady(gateway)) {
+      return {
+        configured: false,
+        healthy: false,
+        issues: ['Mercado Pago no tiene Public Key y Access Token configurados.'],
+      };
+    }
+
+    const issues: string[] = [];
+    const publicKey = gateway!.publicKey!.trim();
+    const accessToken = gateway!.secretKey!.trim();
+    const isTestMode = gateway!.isTestMode;
+    const configuredUserId = String(
+      (gateway!.config as { userId?: string } | null)?.userId ?? '',
+    );
+
+    let liveMode: boolean | null = null;
+    let siteId: string | null = null;
+    let userId: number | null = null;
+    let isTestUserAccount = false;
+
+    try {
+      const response = await fetch('https://api.mercadopago.com/users/me', {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
+      const body = (await response.json()) as Record<string, unknown>;
+
+      if (!response.ok) {
+        issues.push(
+          `ACCESS_TOKEN rechazado por Mercado Pago (HTTP ${response.status}).`,
+        );
+      } else {
+        userId =
+          typeof body.id === 'number'
+            ? body.id
+            : Number(body.id) || null;
+        siteId = typeof body.site_id === 'string' ? body.site_id : null;
+        if (typeof body.live_mode === 'boolean') {
+          liveMode = body.live_mode;
+        }
+        const tags = Array.isArray(body.tags) ? body.tags : [];
+        isTestUserAccount = tags.includes('test_user');
+      }
+    } catch {
+      issues.push('No se pudo validar el ACCESS_TOKEN con Mercado Pago.');
+    }
+
+    if (isTestMode && liveMode === true) {
+      issues.push(
+        'MERCADOPAGO_TEST_MODE=true pero el ACCESS_TOKEN es de producción (live_mode=true). Copia Public Key y Access Token desde la pestaña Credenciales de prueba.',
+      );
+    }
+
+    if (isTestMode && liveMode === null && !isTestUserAccount) {
+      issues.push(
+        'No se pudo confirmar el modo del token con Mercado Pago. Verifica que Public Key y Access Token sean del mismo bloque de credenciales.',
+      );
+    }
+
+    if (userId && configuredUserId && String(userId) !== configuredUserId) {
+      issues.push(
+        'MERCADOPAGO_USER_ID no coincide con el usuario del ACCESS_TOKEN.',
+      );
+    }
+
+    if (siteId && siteId !== 'MPE') {
+      issues.push(
+        `El ACCESS_TOKEN pertenece al sitio ${siteId}. Para Perú debe ser MPE.`,
+      );
+    }
+
+    return {
+      configured: true,
+      isTestMode,
+      liveMode,
+      siteId,
+      userId,
+      isTestUserAccount,
+      publicKeyPreview: `${publicKey.slice(0, 16)}…`,
+      healthy: issues.length === 0,
+      issues,
+      sandboxPayerEmailMode: this.readSandboxPayerEmailMode(gateway),
+      sandboxPayerEmail:
+        isTestMode &&
+        this.readSandboxPayerEmailMode(gateway) === 'testuser'
+          ? 'test@testuser.com'
+          : null,
+    };
+  }
+
+  private async validateCredentialEnvironment() {
+    const diagnostics = await this.getCredentialDiagnostics();
+    if (!diagnostics.configured) return;
+
+    if (diagnostics.healthy) {
+      const accountType = diagnostics.isTestUserAccount
+        ? 'usuario test_user'
+        : diagnostics.isTestMode
+          ? 'prueba'
+          : 'producción';
+      this.logger.log(
+        `Mercado Pago: credenciales OK (${accountType}, site ${diagnostics.siteId ?? 'n/d'}, correo: ${this.describeSandboxPayerEmailMode(diagnostics.sandboxPayerEmailMode ?? 'testuser')}).`,
+      );
+      return;
+    }
+
+    for (const issue of diagnostics.issues) {
+      this.logger.error(`Mercado Pago: ${issue}`);
+    }
   }
 
   async handleWebhookNotification(
@@ -600,6 +724,10 @@ export class MercadoPagoService implements OnModuleInit {
       );
     }
 
+    const sandboxPayerEmailMode = hasCredentials
+      ? await this.resolveSandboxPayerEmailMode(accessToken.trim())
+      : 'testuser';
+
     await this.prisma.paymentGatewayConfig.upsert({
       where: { provider: PaymentGatewayProvider.MERCADO_PAGO },
       create: {
@@ -613,6 +741,7 @@ export class MercadoPagoService implements OnModuleInit {
         config: {
           appId: appId || undefined,
           userId: userId || undefined,
+          sandboxPayerEmailMode,
         },
       },
       update: {
@@ -624,13 +753,57 @@ export class MercadoPagoService implements OnModuleInit {
         config: {
           appId: appId || undefined,
           userId: userId || undefined,
+          sandboxPayerEmailMode,
         },
       },
     });
 
     this.logger.log(
-      `Mercado Pago sincronizado desde .env (${isActive ? 'habilitado' : 'deshabilitado'}, ${isTestMode ? 'prueba' : 'producción'})`,
+      `Mercado Pago sincronizado desde .env (${isActive ? 'habilitado' : 'deshabilitado'}, ${isTestMode ? 'prueba' : 'producción'}, correo sandbox: ${this.describeSandboxPayerEmailMode(sandboxPayerEmailMode)})`,
     );
+  }
+
+  private describeSandboxPayerEmailMode(mode: MpSandboxPayerEmailMode) {
+    if (mode === 'order') return 'correo del pedido';
+    if (mode === 'synthetic') return 'test_payer_XXXXXXXXXX@testuser.com (generado por pedido)';
+    return 'test@testuser.com';
+  }
+
+  private readSandboxPayerEmailMode(
+    gateway: Awaited<ReturnType<MercadoPagoService['getGatewayRecord']>>,
+  ): MpSandboxPayerEmailMode {
+    const config = gateway?.config;
+    if (!config || typeof config !== 'object') return 'testuser';
+    const mode = (config as { sandboxPayerEmailMode?: string })
+      .sandboxPayerEmailMode;
+    if (mode === 'order' || mode === 'synthetic') return mode;
+    return 'testuser';
+  }
+
+  /**
+   * Detecta qué correo de comprador acepta Mercado Pago según el tipo de cuenta:
+   * - Vendedor real con credenciales de PRUEBA → marcador test@testuser.com
+   * - Cuenta test_user completa (sandbox) → Mercado Pago exige el patrón
+   *   test_payer_[0-9]{1,10}@testuser.com (no acepta el marcador genérico)
+   */
+  private async resolveSandboxPayerEmailMode(
+    accessToken: string,
+  ): Promise<MpSandboxPayerEmailMode> {
+    try {
+      const response = await fetch('https://api.mercadopago.com/users/me', {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
+      if (!response.ok) return 'testuser';
+
+      const body = (await response.json()) as { tags?: string[] };
+      const tags = Array.isArray(body.tags) ? body.tags : [];
+      if (tags.includes('test_user')) {
+        return 'synthetic';
+      }
+      return 'testuser';
+    } catch {
+      return 'testuser';
+    }
   }
 
   private async getGatewayRecord() {
@@ -806,7 +979,7 @@ export class MercadoPagoService implements OnModuleInit {
       return { type, number };
     }
     if (isTestMode) {
-      return { type: 'DNI', number: '123456789' };
+      return { type: 'DNI', number: '12345678' };
     }
     return null;
   }
@@ -890,9 +1063,9 @@ export class MercadoPagoService implements OnModuleInit {
       cc_rejected_call_for_authorize:
         'Debes autorizar el pago con tu banco.',
       invalid_email_for_sandbox:
-        'En modo prueba usa el correo test@testuser.com.',
+        'El formato del correo no es válido para pruebas en Mercado Pago (debe contener @testuser.com).',
       invalid_users_involved:
-        'Credenciales de Mercado Pago incompatibles con el modo prueba. En .env usa las credenciales de la pestaña Prueba (no las de producción).',
+        'Combinación inválida entre el vendedor y el comprador de prueba. Revisa que el correo de pago corresponda al tipo de credenciales configuradas.',
     };
 
     let message =
@@ -902,16 +1075,30 @@ export class MercadoPagoService implements OnModuleInit {
         : 'No pudimos procesar el pago. Verifica los datos e intenta de nuevo.');
 
     if (isTestMode && code !== 'invalid_users_involved') {
-      message +=
-        ' En modo prueba: titular APRO, DNI 123456789, correo test@testuser.com.';
+      message += ' En modo prueba: titular APRO, DNI 12345678.';
     }
 
     return message;
   }
 
-  private resolveSandboxPayerEmail(email: string, isTestMode: boolean) {
-    if (!isTestMode) return email.trim();
+  private resolveSandboxPayerEmail(
+    orderId: string,
+    email: string,
+    isTestMode: boolean,
+    mode: MpSandboxPayerEmailMode = 'testuser',
+  ) {
+    if (!isTestMode || mode === 'order') return email.trim();
+    if (mode === 'synthetic') return this.buildSyntheticTestPayerEmail(orderId);
     return 'test@testuser.com';
+  }
+
+  private buildSyntheticTestPayerEmail(orderId: string) {
+    let hash = 0;
+    for (let i = 0; i < orderId.length; i += 1) {
+      hash = (hash * 31 + orderId.charCodeAt(i)) % 10_000_000_000;
+    }
+    const digits = String(Math.abs(hash)).padStart(6, '0').slice(0, 10);
+    return `test_payer_${digits}@testuser.com`;
   }
 
   private extractMercadoPagoError(error: unknown, isTestMode = false) {
