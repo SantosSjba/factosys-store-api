@@ -8,7 +8,9 @@ import {
 import { OrderCreatedEvent } from '../../../events/order-created.event';
 import { OrderExpiredEvent } from '../../../events/order-expired.event';
 import { OrderPaidEvent } from '../../../events/order-paid.event';
+import { OrderRefundedEvent } from '../../../events/order-refunded.event';
 import { OrderShippedEvent } from '../../../events/order-shipped.event';
+import { OrderStatusChangedEvent } from '../../../events/order-status-changed.event';
 import { MailService } from '../../../infrastructure/mail/mail.service';
 import { PrismaService } from '../../../prisma/prisma.service';
 
@@ -117,6 +119,129 @@ export class OrderEmailListener {
       total: order.total,
       currencyCode: order.currencyCode,
     });
+  }
+
+  /**
+   * Estados con evento dedicado y contenido más rico (ver handlers arriba).
+   * Se excluyen aquí para no duplicar el correo.
+   */
+  private static readonly STATUS_CHANGE_EMAIL_SUPPRESSED = new Set(['SHIPPED']);
+
+  @OnEvent('order.status.changed')
+  async handleOrderStatusChanged(event: OrderStatusChangedEvent) {
+    if (OrderEmailListener.STATUS_CHANGE_EMAIL_SUPPRESSED.has(event.toStatus)) {
+      return;
+    }
+
+    const content = this.buildStatusChangeEmailContent(
+      event.toStatus,
+      event.note,
+    );
+    if (!content) return;
+
+    if (!(await this.isOrderEmailEnabled())) return;
+
+    const order = await this.loadOrder(event.orderId);
+    if (!order?.recipientEmail) return;
+
+    await this.mailService.sendOrderEmail({
+      to: order.recipientEmail,
+      subject: content.subject(order.orderNumber),
+      heading: content.heading,
+      body: content.body(order.orderNumber),
+      orderNumber: order.orderNumber,
+      total: order.total,
+      currencyCode: order.currencyCode,
+    });
+  }
+
+  private buildStatusChangeEmailContent(toStatus: string, note?: string | null) {
+    switch (toStatus) {
+      case 'CONFIRMED':
+        return {
+          subject: (orderNumber: string) => `Pedido confirmado ${orderNumber}`,
+          heading: 'Tu pedido fue confirmado',
+          body: (orderNumber: string) =>
+            `Confirmamos tu pedido ${orderNumber}. Pronto comenzaremos a prepararlo.`,
+        };
+      case 'PROCESSING':
+        return {
+          subject: (orderNumber: string) => `Preparando tu pedido ${orderNumber}`,
+          heading: 'Estamos preparando tu pedido',
+          body: (orderNumber: string) =>
+            `Tu pedido ${orderNumber} está en preparación. Te avisaremos cuando esté listo.`,
+        };
+      case 'READY_FOR_PICKUP':
+        return {
+          subject: (orderNumber: string) =>
+            `Pedido listo para recoger ${orderNumber}`,
+          heading: 'Tu pedido está listo para recoger',
+          body: (orderNumber: string) =>
+            `Tu pedido ${orderNumber} ya está listo para que lo recojas en tienda.`,
+        };
+      case 'DELIVERED':
+        return {
+          subject: (orderNumber: string) => `Pedido entregado ${orderNumber}`,
+          heading: '¡Tu pedido fue entregado!',
+          body: (orderNumber: string) =>
+            `Confirmamos la entrega de tu pedido ${orderNumber}. ¡Gracias por tu compra!`,
+        };
+      case 'CANCELLED':
+        return {
+          subject: (orderNumber: string) => `Pedido cancelado ${orderNumber}`,
+          heading: 'Tu pedido fue cancelado',
+          body: (orderNumber: string) =>
+            note
+              ? `Tu pedido ${orderNumber} fue cancelado.\n\nMotivo: ${note}`
+              : `Tu pedido ${orderNumber} fue cancelado.`,
+        };
+      default:
+        return null;
+    }
+  }
+
+  @OnEvent('order.refunded')
+  async handleOrderRefunded(event: OrderRefundedEvent) {
+    if (!(await this.isOrderEmailEnabled())) return;
+
+    const order = await this.loadOrder(event.orderId);
+    if (!order?.recipientEmail) return;
+
+    const formattedAmount = this.formatCurrency(
+      event.amount,
+      event.currencyCode,
+    );
+
+    await this.mailService.sendOrderEmail({
+      to: order.recipientEmail,
+      subject: event.isFullRefund
+        ? `Pedido reembolsado ${order.orderNumber}`
+        : `Reembolso parcial ${order.orderNumber}`,
+      heading: event.isFullRefund
+        ? 'Tu pedido fue reembolsado'
+        : 'Procesamos un reembolso parcial',
+      body: event.isFullRefund
+        ? `Procesamos el reembolso total de tu pedido ${order.orderNumber} por ${formattedAmount}.${
+            event.note ? `\n\n${event.note}` : ''
+          }`
+        : `Procesamos un reembolso parcial de tu pedido ${order.orderNumber} por ${formattedAmount}. El resto de tu pedido continúa su proceso normal.${
+            event.note ? `\n\n${event.note}` : ''
+          }`,
+      orderNumber: order.orderNumber,
+      total: order.total,
+      currencyCode: order.currencyCode,
+    });
+  }
+
+  private formatCurrency(amount: number, currencyCode: string) {
+    try {
+      return new Intl.NumberFormat('es-PE', {
+        style: 'currency',
+        currency: currencyCode,
+      }).format(amount);
+    } catch {
+      return `${amount.toFixed(2)} ${currencyCode}`;
+    }
   }
 
   private async isOrderEmailEnabled() {

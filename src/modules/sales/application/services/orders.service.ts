@@ -17,8 +17,10 @@ import {
 import { OrderCreatedEvent } from '../../../../events/order-created.event';
 import { OrderExpiredEvent } from '../../../../events/order-expired.event';
 import { OrderPaidEvent } from '../../../../events/order-paid.event';
+import { OrderRefundedEvent } from '../../../../events/order-refunded.event';
 import { OrderRefundGatewayEvent } from '../../../../events/order-refund-gateway.event';
 import { OrderShippedEvent } from '../../../../events/order-shipped.event';
+import { OrderStatusChangedEvent } from '../../../../events/order-status-changed.event';
 import { StorageService } from '../../../../infrastructure/storage/storage.service';
 import { CouponsService } from '../../../marketing/coupons/application/services/coupons.service';
 import { PrismaService } from '../../../../prisma/prisma.service';
@@ -90,6 +92,7 @@ export class OrdersService {
       search: query.search,
       status: query.status,
       paymentStatus: query.paymentStatus,
+      paymentMethod: query.paymentMethod,
       customerId: query.customerId,
       deliveryMethod: query.deliveryMethod,
       dateFrom: query.dateFrom ? new Date(query.dateFrom) : undefined,
@@ -110,6 +113,7 @@ export class OrdersService {
       search: query.search,
       status: query.status,
       paymentStatus: query.paymentStatus,
+      paymentMethod: query.paymentMethod,
       customerId: query.customerId,
       deliveryMethod: query.deliveryMethod,
       dateFrom: query.dateFrom ? new Date(query.dateFrom) : undefined,
@@ -120,6 +124,7 @@ export class OrdersService {
       'Pedido',
       'Estado',
       'Pago',
+      'Método de pago',
       'Entrega',
       'Cliente',
       'Correo',
@@ -138,6 +143,7 @@ export class OrdersService {
         summary.orderNumber,
         summary.status,
         summary.paymentStatus,
+        summary.paymentMethod ?? '',
         summary.deliveryMethod,
         summary.customerName ?? '',
         summary.customerEmail ?? '',
@@ -495,6 +501,16 @@ export class OrdersService {
       this.eventEmitter.emit('order.shipped', new OrderShippedEvent(order.id));
     }
 
+    this.eventEmitter.emit(
+      'order.status.changed',
+      new OrderStatusChangedEvent(
+        order.id,
+        existing.status,
+        dto.status,
+        dto.note ?? null,
+      ),
+    );
+
     return this.mapOrderDetail(order);
   }
 
@@ -657,7 +673,12 @@ export class OrdersService {
     return this.mapOrderDetail(order);
   }
 
-  async cancelOrder(id: string, dto: CancelOrderDto, staffUserId?: string) {
+  async cancelOrder(
+    id: string,
+    dto: CancelOrderDto,
+    staffUserId?: string,
+    options?: { suppressStatusEmail?: boolean },
+  ) {
     const existing = await this.requireOrder(id);
     this.assertStatusTransition(existing.status, OrderStatus.CANCELLED);
     const reason = dto.reason?.trim() || 'Pedido cancelado.';
@@ -686,6 +707,18 @@ export class OrdersService {
       return updated;
     });
 
+    if (!options?.suppressStatusEmail) {
+      this.eventEmitter.emit(
+        'order.status.changed',
+        new OrderStatusChangedEvent(
+          order.id,
+          existing.status,
+          OrderStatus.CANCELLED,
+          reason,
+        ),
+      );
+    }
+
     return this.mapOrderDetail(order);
   }
 
@@ -705,10 +738,15 @@ export class OrdersService {
 
     for (const { id } of expiredOrders) {
       try {
-        await this.cancelOrder(id, {
-          reason:
-            'Pedido cancelado automáticamente por falta de pago en el plazo establecido.',
-        });
+        await this.cancelOrder(
+          id,
+          {
+            reason:
+              'Pedido cancelado automáticamente por falta de pago en el plazo establecido.',
+          },
+          undefined,
+          { suppressStatusEmail: true },
+        );
         this.eventEmitter.emit('order.expired', new OrderExpiredEvent(id));
         cancelled += 1;
       } catch (error) {
@@ -777,6 +815,17 @@ export class OrdersService {
 
       return updated;
     });
+
+    this.eventEmitter.emit(
+      'order.refunded',
+      new OrderRefundedEvent(
+        order.id,
+        refundAmount,
+        existing.currencyCode,
+        dto.type === RefundType.FULL,
+        historyNote,
+      ),
+    );
 
     return this.mapOrderDetail(order);
   }
@@ -1376,6 +1425,7 @@ export class OrdersService {
     orderNumber: string;
     status: OrderStatus;
     paymentStatus: OrderPaymentStatus;
+    paymentMethod: OrderPaymentMethod | null;
     fulfillmentStatus: OrderFulfillmentStatus;
     source: OrderSource;
     deliveryMethod: OrderDeliveryMethod;
@@ -1400,6 +1450,7 @@ export class OrdersService {
       orderNumber: order.orderNumber,
       status: order.status,
       paymentStatus: order.paymentStatus,
+      paymentMethod: order.paymentMethod,
       fulfillmentStatus: order.fulfillmentStatus,
       source: order.source,
       deliveryMethod: order.deliveryMethod,
