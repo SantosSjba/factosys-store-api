@@ -8,6 +8,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { OnEvent } from '@nestjs/event-emitter';
 import {
   MercadoPagoConfig,
   Order,
@@ -21,6 +22,7 @@ import {
   PaymentTransactionStatus,
 } from '../../../generated/prisma/client';
 import { PrismaService } from '../../../prisma/prisma.service';
+import type { OrderRefundGatewayEvent } from '../../../events/order-refund-gateway.event';
 import { OrdersService } from '../../sales/application/services/orders.service';
 import type { ProcessMercadoPagoPaymentDto } from './dto/process-mercadopago-payment.dto';
 
@@ -693,6 +695,102 @@ export class MercadoPagoService implements OnModuleInit {
       paymentStatus: OrderPaymentStatus.PAID,
       note: 'Pago confirmado por Mercado Pago.',
     });
+  }
+
+  @OnEvent('order.refund.gateway')
+  async handleGatewayRefund(event: OrderRefundGatewayEvent): Promise<void> {
+    const gateway = await this.getGatewayRecord();
+    if (!this.isGatewayReady(gateway)) {
+      throw new BadRequestException({
+        code: 'GATEWAY_REFUND_NOT_CONFIGURED',
+        message:
+          'Mercado Pago no está configurado. Reembolsa manualmente en el panel de Mercado Pago.',
+      });
+    }
+
+    const transaction = await this.prisma.paymentTransaction.findFirst({
+      where: { orderId: event.orderId, provider: PaymentGatewayProvider.MERCADO_PAGO },
+    });
+
+    if (!transaction?.externalId) {
+      throw new BadRequestException({
+        code: 'GATEWAY_REFUND_NO_TRANSACTION',
+        message:
+          'No encontramos el pago de Mercado Pago asociado a este pedido. Verifica y reembolsa manualmente en el panel de Mercado Pago.',
+      });
+    }
+
+    const accessToken = gateway!.secretKey!.trim();
+    const body: Record<string, unknown> = event.isFullRefund
+      ? {}
+      : {
+          transactions: [
+            {
+              id: this.extractMercadoPagoPaymentId(transaction.metadata) ?? transaction.externalId,
+              amount: event.amount.toFixed(2),
+            },
+          ],
+        };
+
+    let response: Awaited<ReturnType<typeof fetch>>;
+    try {
+      response = await fetch(
+        `https://api.mercadopago.com/v1/orders/${transaction.externalId}/refund`,
+        {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            'Content-Type': 'application/json',
+            'X-Idempotency-Key': randomUUID(),
+          },
+          body: JSON.stringify(body),
+        },
+      );
+    } catch (error) {
+      this.logger.error(
+        `No se pudo contactar a Mercado Pago para reembolsar el pedido ${event.orderId}`,
+        error instanceof Error ? error.stack : undefined,
+      );
+      throw new BadRequestException({
+        code: 'GATEWAY_REFUND_NETWORK_ERROR',
+        message:
+          'No se pudo contactar a Mercado Pago para procesar el reembolso. Intenta de nuevo o reembolsa manualmente en su panel.',
+      });
+    }
+
+    const responseBody = await response.json().catch(() => ({}));
+
+    if (!response.ok) {
+      this.logger.error(
+        `Mercado Pago rechazó el reembolso del pedido ${event.orderId}: ${JSON.stringify(responseBody)}`,
+      );
+      const detail =
+        (responseBody as { message?: string; error?: string })?.message ??
+        (responseBody as { message?: string; error?: string })?.error ??
+        'Motivo desconocido';
+      throw new BadRequestException({
+        code: 'GATEWAY_REFUND_REJECTED',
+        message: `Mercado Pago rechazó el reembolso: ${detail}. El pedido no se marcó como reembolsado.`,
+      });
+    }
+
+    this.logger.log(
+      `Mercado Pago: reembolso ${event.isFullRefund ? 'total' : 'parcial'} procesado para el pedido ${event.orderId} (orden MP ${transaction.externalId}).`,
+    );
+
+    if (event.isFullRefund) {
+      await this.prisma.paymentTransaction.update({
+        where: { id: transaction.id },
+        data: { status: PaymentTransactionStatus.REFUNDED, metadata: responseBody as object },
+      });
+    }
+  }
+
+  private extractMercadoPagoPaymentId(metadata: unknown): string | null {
+    if (!metadata || typeof metadata !== 'object') return null;
+    const payment = this.readOrderPayment(metadata as Record<string, unknown>);
+    const id = payment?.id;
+    return typeof id === 'string' ? id : null;
   }
 
   private async syncGatewayFromEnv() {

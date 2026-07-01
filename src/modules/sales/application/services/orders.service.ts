@@ -17,6 +17,7 @@ import {
 import { OrderCreatedEvent } from '../../../../events/order-created.event';
 import { OrderExpiredEvent } from '../../../../events/order-expired.event';
 import { OrderPaidEvent } from '../../../../events/order-paid.event';
+import { OrderRefundGatewayEvent } from '../../../../events/order-refund-gateway.event';
 import { OrderShippedEvent } from '../../../../events/order-shipped.event';
 import { StorageService } from '../../../../infrastructure/storage/storage.service';
 import { CouponsService } from '../../../marketing/coupons/application/services/coupons.service';
@@ -735,6 +736,14 @@ export class OrdersService {
       existing.currencyCode,
     );
 
+    if (existing.paymentMethod === OrderPaymentMethod.GATEWAY) {
+      await this.processGatewayRefund(
+        id,
+        refundAmount,
+        dto.type === RefundType.FULL,
+      );
+    }
+
     const order = await this.orderRepository.runTransaction(async (tx) => {
       const isFullRefund = dto.type === RefundType.FULL;
       const nextStatus = isFullRefund ? OrderStatus.REFUNDED : existing.status;
@@ -770,6 +779,25 @@ export class OrdersService {
     });
 
     return this.mapOrderDetail(order);
+  }
+
+  private async processGatewayRefund(
+    orderId: string,
+    amount: number,
+    isFullRefund: boolean,
+  ) {
+    const results = await this.eventEmitter.emitAsync(
+      'order.refund.gateway',
+      new OrderRefundGatewayEvent(orderId, amount, isFullRefund),
+    );
+
+    if (results.length === 0) {
+      throw new BadRequestException({
+        code: 'GATEWAY_REFUND_NOT_HANDLED',
+        message:
+          'No hay una pasarela de pago configurada para procesar el reembolso automáticamente. Reembolsa manualmente en Mercado Pago y usa "Cambiar pago" para sincronizar el estado.',
+      });
+    }
   }
 
   private async requireOrder(id: string) {

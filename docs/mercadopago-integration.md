@@ -46,6 +46,13 @@ Ver variables en `.env.example` y [mercadopago-webhook.md](./mercadopago-webhook
 | POST | `/api/store/payments/mercadopago/orders/:id/pay` |
 | POST | `/api/webhooks/payments/MERCADO_PAGO` |
 | GET | `/api/admin/payment-gateways/MERCADO_PAGO/webhook-setup` |
+| POST | `/api/admin/orders/:id/refund` (dispara reembolso automático en MP si `paymentMethod = GATEWAY`) |
+
+## Reembolsos
+
+Cuando el staff reembolsa (total o parcial) un pedido pagado con Mercado Pago desde el admin, la API llama automáticamente a `POST /v1/orders/{order_id}/refund` en Mercado Pago **antes** de marcar el pedido como reembolsado en la base de datos. Si Mercado Pago rechaza el reembolso (fondos insuficientes, orden ya reembolsada, etc.), el pedido **no** se marca como reembolsado y el admin muestra el motivo del rechazo.
+
+Para pedidos con otros métodos de pago (efectivo, transferencia, Yape/Plin manual), el reembolso solo actualiza el estado interno; el dinero se devuelve manualmente fuera del sistema.
 
 ## Pruebas (sandbox)
 
