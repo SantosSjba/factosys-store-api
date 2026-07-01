@@ -256,7 +256,7 @@ export class MercadoPagoService implements OnModuleInit {
       where: { id: orderId },
       include: {
         customer: { select: { id: true, email: true } },
-        items: true,
+        items: { orderBy: { sortOrder: 'asc' } },
       },
     });
 
@@ -287,6 +287,7 @@ export class MercadoPagoService implements OnModuleInit {
     const client = new MercadoPagoConfig({ accessToken });
     const mpOrder = new Order(client);
     const totalAmount = Number(order.total).toFixed(2);
+    const mercadoPagoItems = this.buildMercadoPagoOrderItems(order);
     const idempotencyKey =
       dto.idempotencyKey?.trim() || `fs-order-${order.id}-${randomUUID()}`;
     const installments = dto.paymentChannel === 'yape' ? 1 : (dto.installments ?? 1);
@@ -297,6 +298,10 @@ export class MercadoPagoService implements OnModuleInit {
     );
     const mpPayerEmail = this.resolveSandboxPayerEmail(
       dto.payerEmail,
+      gateway!.isTestMode,
+    );
+    const payerIdentification = this.resolvePayerIdentification(
+      dto.payerIdentification,
       gateway!.isTestMode,
     );
 
@@ -320,21 +325,11 @@ export class MercadoPagoService implements OnModuleInit {
           currency: order.currencyCode,
           payer: {
             email: mpPayerEmail,
-            ...(dto.payerIdentification?.type && dto.payerIdentification.number
-              ? {
-                  identification: {
-                    type: dto.payerIdentification.type,
-                    number: dto.payerIdentification.number,
-                  },
-                }
+            ...(payerIdentification
+              ? { identification: payerIdentification }
               : {}),
           },
-          items: order.items.map((item) => ({
-            title: item.productName,
-            unit_price: Number(item.unitPrice).toFixed(2),
-            quantity: item.quantity,
-            description: item.variantName ?? item.productName,
-          })),
+          items: mercadoPagoItems,
           transactions: {
             payments: [
               {
@@ -357,7 +352,46 @@ export class MercadoPagoService implements OnModuleInit {
 
       mpResponse = result as MpOrderResponse;
     } catch (error) {
-      const mpError = this.extractMercadoPagoError(error);
+      const failedOrder = this.parseMercadoPagoFailedOrder(
+        error,
+        gateway!.isTestMode,
+      );
+      if (failedOrder) {
+        const payment = failedOrder.mpResponse.transactions?.payments?.[0];
+        const externalId =
+          failedOrder.mpResponse.id ?? payment?.id ?? null;
+
+        await this.savePaymentTransaction({
+          orderId: order.id,
+          externalId,
+          amount: order.total,
+          currencyCode: order.currencyCode,
+          status: PaymentTransactionStatus.FAILED,
+          metadata: failedOrder.mpResponse,
+        });
+
+        this.logger.warn(
+          `Mercado Pago payment rejected for ${order.orderNumber}: ${failedOrder.statusDetail || 'unknown'}`,
+        );
+
+        return {
+          orderId: order.id,
+          orderNumber: order.orderNumber,
+          mercadoPagoOrderId: externalId,
+          status: payment?.status ?? failedOrder.mpResponse.status ?? 'failed',
+          statusDetail: failedOrder.userMessage,
+          paymentStatus: OrderPaymentStatus.PENDING,
+          approved: false,
+          pending: false,
+          rejected: true,
+          paymentVoucherUrl: null,
+        };
+      }
+
+      const mpError = this.extractMercadoPagoError(
+        error,
+        gateway!.isTestMode,
+      );
       this.logger.error(
         `Mercado Pago order.create failed for ${order.orderNumber}`,
         mpError.message,
@@ -387,6 +421,8 @@ export class MercadoPagoService implements OnModuleInit {
     const isCompleted = paymentStatus === PaymentTransactionStatus.COMPLETED;
     const isFailed = paymentStatus === PaymentTransactionStatus.FAILED;
     const isPending = paymentStatus === PaymentTransactionStatus.PENDING;
+    const rawStatusDetail =
+      payment?.status_detail ?? mpResponse.status_detail ?? '';
 
     if (isCompleted) {
       await this.markOrderPaidFromGateway(order.id);
@@ -397,7 +433,12 @@ export class MercadoPagoService implements OnModuleInit {
       orderNumber: order.orderNumber,
       mercadoPagoOrderId: externalId,
       status: payment?.status ?? mpResponse.status ?? 'pending',
-      statusDetail: payment?.status_detail ?? mpResponse.status_detail ?? null,
+      statusDetail: isFailed
+        ? this.formatMercadoPagoStatusDetail(
+            rawStatusDetail,
+            gateway!.isTestMode,
+          )
+        : rawStatusDetail || null,
       paymentStatus: isCompleted
         ? OrderPaymentStatus.PAID
         : OrderPaymentStatus.PENDING,
@@ -679,17 +720,210 @@ export class MercadoPagoService implements OnModuleInit {
     });
   }
 
+  /**
+   * Mercado Pago exige que sum(unit_price × quantity) === total_amount.
+   * Usamos lineTotal (incluye impuesto por línea), envío y ajuste por descuento/redondeo.
+   */
+  private buildMercadoPagoOrderItems(order: {
+    total: { toString(): string } | number;
+    shippingAmount: { toString(): string } | number;
+    items: Array<{
+      productName: string;
+      variantName: string | null;
+      quantity: number;
+      lineTotal: { toString(): string } | number;
+    }>;
+  }) {
+    const targetTotal = Number(order.total);
+    const lines: Array<{
+      title: string;
+      description: string;
+      amount: number;
+      quantity: number;
+    }> = [];
+
+    for (const item of order.items) {
+      const lineTotal = Number(item.lineTotal);
+      if (lineTotal <= 0) continue;
+      lines.push({
+        title: item.productName,
+        description: item.variantName ?? item.productName,
+        amount: lineTotal,
+        quantity: item.quantity,
+      });
+    }
+
+    const shipping = Number(order.shippingAmount);
+    if (shipping > 0) {
+      lines.push({
+        title: 'Envío',
+        description: 'Costo de envío',
+        amount: shipping,
+        quantity: 1,
+      });
+    }
+
+    if (lines.length === 0) {
+      throw new BadRequestException({
+        code: 'INVALID_ORDER_TOTAL',
+        message: 'El pedido no tiene ítems para cobrar.',
+      });
+    }
+
+    const amountSum = lines.reduce((sum, line) => sum + line.amount, 0);
+    const ratio = amountSum > 0 ? targetTotal / amountSum : 1;
+
+    const items = lines.map((line) => ({
+      title: line.title,
+      description: line.description,
+      quantity: line.quantity,
+      unit_price: ((line.amount * ratio) / line.quantity).toFixed(2),
+    }));
+
+    const itemsSum = items.reduce(
+      (sum, item) => sum + Number(item.unit_price) * item.quantity,
+      0,
+    );
+    const roundingDiff = Math.round((targetTotal - itemsSum) * 100) / 100;
+
+    if (roundingDiff !== 0) {
+      const last = items[items.length - 1]!;
+      const adjustedUnit =
+        Number(last.unit_price) + roundingDiff / last.quantity;
+      last.unit_price = adjustedUnit.toFixed(2);
+    }
+
+    return items;
+  }
+
+  private resolvePayerIdentification(
+    identification: ProcessMercadoPagoPaymentDto['payerIdentification'],
+    isTestMode: boolean,
+  ) {
+    const type = identification?.type?.trim();
+    const number = identification?.number?.trim();
+    if (type && number) {
+      return { type, number };
+    }
+    if (isTestMode) {
+      return { type: 'DNI', number: '123456789' };
+    }
+    return null;
+  }
+
+  private parseMercadoPagoFailedOrder(error: unknown, isTestMode: boolean) {
+    if (!error || typeof error !== 'object') return null;
+
+    const body = error as {
+      errors?: Array<{ code?: string; message?: string; details?: string[] }>;
+      data?: MpOrderResponse;
+    };
+
+    const hasFailedTransaction = Boolean(
+      body.errors?.some(
+        (item) =>
+          item.code === 'failed' ||
+          item.message?.toLowerCase().includes('transactions failed'),
+      ) || body.data?.status === 'failed',
+    );
+
+    if (!hasFailedTransaction || !body.data) return null;
+
+    const payment = body.data.transactions?.payments?.[0];
+    const statusDetail = this.extractMercadoPagoStatusDetail(error, payment);
+    const userMessage = this.formatMercadoPagoStatusDetail(
+      statusDetail,
+      isTestMode,
+    );
+
+    return {
+      mpResponse: body.data,
+      statusDetail,
+      userMessage,
+    };
+  }
+
+  private extractMercadoPagoStatusDetail(
+    error: unknown,
+    payment?: { status_detail?: string },
+  ) {
+    if (payment?.status_detail) return payment.status_detail;
+
+    if (!error || typeof error !== 'object') return '';
+
+    const body = error as { errors?: Array<{ details?: string[] }> };
+    for (const item of body.errors ?? []) {
+      for (const detail of item.details ?? []) {
+        const match = String(detail).match(/: ([a-z0-9_]+)$/i);
+        if (match?.[1]) return match[1];
+      }
+    }
+
+    return '';
+  }
+
+  private formatMercadoPagoStatusDetail(
+    statusDetail: string,
+    isTestMode: boolean,
+  ) {
+    const code = statusDetail.trim().toLowerCase();
+    const messages: Record<string, string> = {
+      bad_filled_card_data:
+        'Revisa los datos de la tarjeta e intenta de nuevo.',
+      insufficient_amount: 'La tarjeta no tiene fondos suficientes.',
+      required_call_for_authorize:
+        'Debes autorizar el pago con tu banco.',
+      card_disabled:
+        'La tarjeta está deshabilitada para compras en línea.',
+      cc_rejected_duplicated_payment:
+        'Ya existe un pago similar. Espera unos minutos e intenta de nuevo.',
+      invalid_installments:
+        'El número de cuotas no es válido para esta tarjeta.',
+      max_attempts_exceeded:
+        'Se superó el máximo de intentos con esta tarjeta.',
+      high_risk:
+        'El pago fue rechazado por seguridad. Prueba con otro medio de pago.',
+      cc_rejected_high_risk:
+        'El pago fue rechazado por seguridad. Prueba con otro medio de pago.',
+      cc_rejected_other_reason:
+        'El banco rechazó el pago. Prueba con otra tarjeta.',
+      cc_rejected_call_for_authorize:
+        'Debes autorizar el pago con tu banco.',
+      invalid_email_for_sandbox:
+        'En modo prueba usa el correo test@testuser.com.',
+      invalid_users_involved:
+        'Credenciales de Mercado Pago incompatibles con el modo prueba. En .env usa las credenciales de la pestaña Prueba (no las de producción).',
+    };
+
+    let message =
+      messages[code] ??
+      (code
+        ? `Pago rechazado (${code}).`
+        : 'No pudimos procesar el pago. Verifica los datos e intenta de nuevo.');
+
+    if (isTestMode && code !== 'invalid_users_involved') {
+      message +=
+        ' En modo prueba: titular APRO, DNI 123456789, correo test@testuser.com.';
+    }
+
+    return message;
+  }
+
   private resolveSandboxPayerEmail(email: string, isTestMode: boolean) {
-    const normalized = email.trim().toLowerCase();
     if (!isTestMode) return email.trim();
-    if (normalized.includes('@testuser.com')) return email.trim();
     return 'test@testuser.com';
   }
 
-  private extractMercadoPagoError(error: unknown) {
+  private extractMercadoPagoError(error: unknown, isTestMode = false) {
     const fallback =
       'No pudimos procesar el pago con Mercado Pago. Verifica los datos e intenta de nuevo.';
     const details: string[] = [];
+    const genericFailure = 'the following transactions failed';
+
+    const pushStatusDetail = (code: string) => {
+      if (!code) return;
+      details.push(this.formatMercadoPagoStatusDetail(code, isTestMode));
+    };
 
     const pushErrors = (errors: unknown) => {
       if (!Array.isArray(errors)) return;
@@ -697,7 +931,22 @@ export class MercadoPagoService implements OnModuleInit {
         if (!item || typeof item !== 'object') continue;
         const code = 'code' in item ? String(item.code) : '';
         const message = 'message' in item ? String(item.message) : '';
-        if (message) details.push(message);
+        const itemDetails =
+          'details' in item && Array.isArray(item.details)
+            ? item.details
+            : [];
+
+        for (const detail of itemDetails) {
+          const match = String(detail).match(/: ([a-z0-9_]+)$/i);
+          if (match?.[1]) pushStatusDetail(match[1]);
+        }
+
+        if (
+          message &&
+          !message.toLowerCase().includes(genericFailure)
+        ) {
+          details.push(message);
+        }
         if (code === 'invalid_email_for_sandbox') {
           details.push(
             'En modo prueba usa el correo test@testuser.com en el formulario de pago.',
@@ -715,14 +964,27 @@ export class MercadoPagoService implements OnModuleInit {
     };
 
     if (error && typeof error === 'object') {
-      if ('errors' in error) pushErrors((error as { errors: unknown }).errors);
-      if ('cause' in error && error.cause && typeof error.cause === 'object') {
-        const cause = error.cause as { errors?: unknown; message?: string };
-        pushErrors(cause.errors);
-        if (cause.message) details.push(cause.message);
+      const body = error as {
+        errors?: unknown;
+        data?: MpOrderResponse;
+        cause?: { errors?: unknown; message?: string };
+      };
+
+      pushErrors(body.errors);
+
+      const payment = body.data?.transactions?.payments?.[0];
+      if (payment?.status_detail) {
+        pushStatusDetail(payment.status_detail);
+      }
+
+      if (body.cause && typeof body.cause === 'object') {
+        pushErrors(body.cause.errors);
+        if (body.cause.message) details.push(body.cause.message);
       }
       if (error instanceof Error && error.message) {
-        details.push(error.message);
+        if (!error.message.toLowerCase().includes(genericFailure)) {
+          details.push(error.message);
+        }
       }
     }
 
