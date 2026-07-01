@@ -10,3 +10,4 @@ export * from './queue.config';
 export * from './redis.config';
 export * from './storage.config';
 export * from './timeouts.config';
+export * from './mercadopago.config';

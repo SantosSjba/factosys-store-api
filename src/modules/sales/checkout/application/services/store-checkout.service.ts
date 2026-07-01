@@ -9,6 +9,7 @@ import {
   OrderPaymentMethod,
   OrderPaymentStatus,
   OrderSource,
+  PaymentGatewayProvider,
 } from '../../../../../generated/prisma/client';
 import { PrismaService } from '../../../../../prisma/prisma.service';
 import { CouponsService } from '../../../../marketing/coupons/application/services/coupons.service';
@@ -62,6 +63,14 @@ export class StoreCheckoutService {
 
   async getSettings() {
     const { settings, tax } = await this.loadSettingsCached();
+    const mercadoPagoGateway =
+      await this.prisma.paymentGatewayConfig.findUnique({
+        where: { provider: PaymentGatewayProvider.MERCADO_PAGO },
+        select: { isEnabled: true, publicKey: true },
+      });
+    const mercadoPagoEnabled = Boolean(
+      mercadoPagoGateway?.isEnabled && mercadoPagoGateway.publicKey,
+    );
 
     return {
       guestCheckoutEnabled: settings.guestCheckoutEnabled,
@@ -102,6 +111,9 @@ export class StoreCheckoutService {
         plin: {
           enabled: settings.paymentPlinEnabled,
           number: settings.plinNumber,
+        },
+        gateway: {
+          mercadoPago: mercadoPagoEnabled,
         },
       },
     };
@@ -342,7 +354,7 @@ export class StoreCheckoutService {
       [OrderPaymentMethod.YAPE]: settings.payments.yape.enabled,
       [OrderPaymentMethod.PLIN]: settings.payments.plin.enabled,
       [OrderPaymentMethod.CARD]: false,
-      [OrderPaymentMethod.GATEWAY]: false,
+      [OrderPaymentMethod.GATEWAY]: settings.payments.gateway.mercadoPago,
     };
 
     if (!enabledMap[method]) {

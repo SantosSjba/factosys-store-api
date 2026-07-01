@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Get,
+  Headers,
   Param,
   Patch,
   Post,
@@ -58,7 +59,14 @@ export class AdminPaymentGatewaysController {
     @Param('provider') provider: PaymentGatewayProvider,
     @Body() payload: Record<string, unknown>,
     @Query('signature') signature?: string,
+    @Query('data.id') dataId?: string,
+    @Headers('x-signature') xSignature?: string,
+    @Headers('x-request-id') xRequestId?: string,
   ) {
-    return this.service.handleWebhook(provider, payload, signature);
+    return this.service.handleWebhook(provider, payload, signature, {
+      xSignature,
+      xRequestId,
+      dataId,
+    });
   }
 }

@@ -9,11 +9,15 @@ import {
   PaymentTransactionStatus,
 } from '../../../generated/prisma/client';
 import { PrismaService } from '../../../prisma/prisma.service';
+import { MercadoPagoService } from '../mercadopago/mercadopago.service';
 import type { UpdatePaymentGatewayDto } from './payment-gateway.dto';
 
 @Injectable()
 export class PaymentGatewaysService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly mercadoPagoService: MercadoPagoService,
+  ) {}
 
   async listGateways() {
     const gateways = await this.prisma.paymentGatewayConfig.findMany({
@@ -92,7 +96,20 @@ export class PaymentGatewaysService {
     provider: PaymentGatewayProvider,
     payload: Record<string, unknown>,
     signature?: string,
+    headers?: {
+      xSignature?: string;
+      xRequestId?: string;
+      dataId?: string;
+    },
   ) {
+    if (provider === PaymentGatewayProvider.MERCADO_PAGO) {
+      return this.mercadoPagoService.handleWebhookNotification(payload, {
+        xSignature: headers?.xSignature,
+        xRequestId: headers?.xRequestId,
+        dataId: headers?.dataId,
+      });
+    }
+
     const gateway = await this.prisma.paymentGatewayConfig.findUnique({
       where: { provider },
     });

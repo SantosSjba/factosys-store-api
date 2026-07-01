@@ -15,6 +15,7 @@ import {
   queueConfig,
   redisConfig,
   storageConfig,
+  mercadoPagoConfig,
   timeoutsConfig,
 } from './config';
 import { envValidationSchema } from './config/env.validation';
@@ -60,6 +61,7 @@ import { RequestTimeoutInterceptor } from './shared/interceptors/request-timeout
         mailConfig,
         queueConfig,
         timeoutsConfig,
+        mercadoPagoConfig,
       ],
       envFilePath: [`.env.${process.env.NODE_ENV ?? 'development'}`, '.env'],
       validationSchema: envValidationSchema,
